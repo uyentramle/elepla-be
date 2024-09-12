@@ -3,7 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34728.123
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elepla.API", "Elepla.API\Elepla.API.csproj", "{00582A18-2DCE-4552-B805-AAF38BD0BE86}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Elepla.API", "Elepla.API\Elepla.API.csproj", "{00582A18-2DCE-4552-B805-AAF38BD0BE86}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elepla.Domain", "Elepla.Domain\Elepla.Domain.csproj", "{3591BCB4-6576-4705-9AEA-C28C0A109795}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elepla.Service", "Elepla.Service\Elepla.Service.csproj", "{8E021ECE-C49A-4DF2-A6E8-49EF416C178D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elepla.Repository", "Elepla.Repository\Elepla.Repository.csproj", "{601A6E0D-FAF8-4477-8126-50B8C16F794D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +21,18 @@ Global
 		{00582A18-2DCE-4552-B805-AAF38BD0BE86}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{00582A18-2DCE-4552-B805-AAF38BD0BE86}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{00582A18-2DCE-4552-B805-AAF38BD0BE86}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3591BCB4-6576-4705-9AEA-C28C0A109795}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3591BCB4-6576-4705-9AEA-C28C0A109795}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3591BCB4-6576-4705-9AEA-C28C0A109795}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3591BCB4-6576-4705-9AEA-C28C0A109795}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8E021ECE-C49A-4DF2-A6E8-49EF416C178D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8E021ECE-C49A-4DF2-A6E8-49EF416C178D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8E021ECE-C49A-4DF2-A6E8-49EF416C178D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8E021ECE-C49A-4DF2-A6E8-49EF416C178D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{601A6E0D-FAF8-4477-8126-50B8C16F794D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{601A6E0D-FAF8-4477-8126-50B8C16F794D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{601A6E0D-FAF8-4477-8126-50B8C16F794D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{601A6E0D-FAF8-4477-8126-50B8C16F794D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
