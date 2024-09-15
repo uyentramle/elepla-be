@@ -1,4 +1,5 @@
 ﻿using Elepla.Domain.Entities;
+using Elepla.Repository.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,12 +11,12 @@ namespace Elepla.Repository.Interfaces
 {
     public interface IGenericRepository<TEntity> where TEntity : BaseEntity
     {
-        //Task<Pagination<TEntity>> GetAsync(
-        //    Expression<Func<TEntity, bool>> filter = null,
-        //    Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
-        //    string includeProperties = "",
-        //    int? pageIndex = null, // Optional parameter for pagination (page number)
-        //    int? pageSize = null);  // Optional parameter for pagination (number of records per page)
+        Task<Pagination<TEntity>> GetAsync(
+            Expression<Func<TEntity, bool>> filter = null,
+            Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
+            string includeProperties = "",
+            int? pageIndex = null, // Optional parameter for pagination (page number)
+            int? pageSize = null);  // Optional parameter for pagination (number of records per page)
         Task<TEntity?> GetByIdAsync(object id);
         //Task<TEntity?> GetByIdAsync(object id, params Expression<Func<TEntity, object>>[] includes);
         Task<TEntity?> GetByIdAsync(object id, Expression<Func<TEntity, bool>> filter = null, string includeProperties = "");
