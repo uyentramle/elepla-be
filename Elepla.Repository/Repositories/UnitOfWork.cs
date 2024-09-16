@@ -11,11 +11,16 @@ namespace Elepla.Repository.Repositories
     public class UnitOfWork : IUnitOfWork
     {
         private readonly AppDbContext _dbContext;
+        private readonly IRoleRepository _roleRepository;
 
-        public UnitOfWork(AppDbContext dbContext)
+        public UnitOfWork(AppDbContext dbContext,
+            IRoleRepository roleRepository)
         {
             _dbContext = dbContext;
+            _roleRepository = roleRepository;
         }
+
+        public IRoleRepository RoleRepository => _roleRepository;
 
         public async Task<int> SaveChangeAsync()
         {
