@@ -8,6 +8,7 @@ namespace Elepla.Repository.Interfaces
 {
     public interface IUnitOfWork : IDisposable
     {
+        IRoleRepository RoleRepository { get; }
         Task<int> SaveChangeAsync();
     }
 }
