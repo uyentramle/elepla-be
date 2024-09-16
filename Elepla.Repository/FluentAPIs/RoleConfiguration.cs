@@ -14,8 +14,8 @@ namespace Elepla.Repository.FluentAPIs
         public void Configure(EntityTypeBuilder<Role> builder)
         {
             builder.ToTable("Role");
-            builder.HasKey(x => x.Id);
-            builder.Property(x => x.Id).ValueGeneratedOnAdd();
+            builder.HasKey(x => x.RoleId);
+            builder.Property(x => x.RoleId).ValueGeneratedOnAdd();
             builder.Property(x => x.Name).HasMaxLength(50);
             builder.Property(x => x.Description);
             builder.HasMany(x => x.Users)

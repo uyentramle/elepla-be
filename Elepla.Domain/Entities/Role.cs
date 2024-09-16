@@ -21,7 +21,7 @@ namespace Elepla.Domain.Entities
         }
 
         // Primary Key
-        public int Id { get; set; }
+        public int RoleId { get; set; }
 
         // Attributes
         public string Name { get; set; }

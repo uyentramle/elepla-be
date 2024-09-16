@@ -14,7 +14,7 @@ namespace Elepla.Repository.FluentAPIs
         public void Configure(EntityTypeBuilder<User> builder)
         {
             builder.ToTable("User");
-            builder.HasKey(x => x.Id);
+            builder.HasKey(x => x.UserId);
             builder.Property(x => x.FirstName).HasMaxLength(50);
             builder.Property(x => x.LastName).HasMaxLength(50);
             builder.Property(x => x.Username).HasMaxLength(20);
@@ -34,6 +34,7 @@ namespace Elepla.Repository.FluentAPIs
                 .WithMany(x => x.UserBackgrounds)
                 .HasForeignKey(x => x.BackgroundId)
                 .OnDelete(DeleteBehavior.Restrict);
-        }
+            builder.HasMany(x => x.Payments).WithOne(x => x.Teacher).HasForeignKey(x => x.TeacherId);
+		}
     }
 }
