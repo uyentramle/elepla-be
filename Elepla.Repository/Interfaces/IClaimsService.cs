@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace Elepla.Repository.Interfaces
 {
-    public interface ICurrentTime
+    public interface IClaimsService
     {
-        DateTime GetCurrentTime();
+        Guid GetCurrentUserId();
     }
 }

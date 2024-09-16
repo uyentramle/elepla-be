@@ -23,8 +23,10 @@ namespace Elepla.Repository.Data
         public DbSet<UserPackage> UserPackages { get; set; }
         public DbSet<Article> Articles { get; set; }
         public DbSet<Category> Categories { get; set; }
+        public DbSet<ArticleCategory> ArticleCategories { get; set; }
+        public DbSet<ArticleImage> ArticleImages { get; set; }
 
-		protected override void OnModelCreating(ModelBuilder modelBuilder)
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
@@ -36,6 +38,8 @@ namespace Elepla.Repository.Data
 			modelBuilder.ApplyConfiguration(new UserPackageConfiguration());
 			modelBuilder.ApplyConfiguration(new ArticleConfiguration());
 			modelBuilder.ApplyConfiguration(new CategoryConfiguration());
+            modelBuilder.ApplyConfiguration(new ArticleCategoryConfiguration());
+            modelBuilder.ApplyConfiguration(new ArticleImageConfiguration());
 		}
     }
 }

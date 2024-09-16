@@ -15,8 +15,12 @@ namespace Elepla.Repository.FluentAPIs
 		{
 			builder.ToTable("Image");
 			builder.HasKey(x => x.ImageId);
-			builder.HasMany(x => x.UserAvatars).WithOne(x => x.Avatar).HasForeignKey(x => x.AvatarId);
-			builder.HasMany(x => x.UserBackgrounds).WithOne(x => x.Background).HasForeignKey(x => x.BackgroundId);
+			builder.HasMany(x => x.UserAvatars)
+				.WithOne(x => x.Avatar)
+				.HasForeignKey(x => x.AvatarId);
+			builder.HasMany(x => x.UserBackgrounds)
+				.WithOne(x => x.Background)
+				.HasForeignKey(x => x.BackgroundId);
 		}
 	}
 }

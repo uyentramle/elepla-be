@@ -34,7 +34,9 @@ namespace Elepla.Repository.FluentAPIs
                 .WithMany(x => x.UserBackgrounds)
                 .HasForeignKey(x => x.BackgroundId)
                 .OnDelete(DeleteBehavior.Restrict);
-            builder.HasMany(x => x.Payments).WithOne(x => x.Teacher).HasForeignKey(x => x.TeacherId);
+            builder.HasMany(x => x.Payments)
+                .WithOne(x => x.Teacher)
+                .HasForeignKey(x => x.TeacherId);
 		}
     }
 }

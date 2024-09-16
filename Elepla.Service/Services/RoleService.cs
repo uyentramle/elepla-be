@@ -103,7 +103,7 @@ namespace Elepla.Service.Services
             {
                 Success = true,
                 Message = "Role updated successfully.",
-                Data = role.Id.ToString()
+                Data = role.RoleId.ToString()
             };
         }
 
@@ -132,7 +132,7 @@ namespace Elepla.Service.Services
             {
                 Success = true,
                 Message = "Role deleted successfully.",
-                Data = role.Id.ToString()
+                Data = role.RoleId.ToString()
             };
         }
 

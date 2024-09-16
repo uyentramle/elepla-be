@@ -15,6 +15,9 @@ namespace Elepla.Repository.FluentAPIs
 		{
 			builder.ToTable("Category");
 			builder.HasKey(x => x.CategoryId);
-		}
+			builder.HasMany(x => x.ArticleCategories)
+				.WithOne(x => x.Category)
+				.HasForeignKey(x => x.CategoryId);
+        }
 	}
 }

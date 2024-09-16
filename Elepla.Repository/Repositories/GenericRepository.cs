@@ -17,14 +17,14 @@ namespace Elepla.Repository.Repositories
         protected AppDbContext _context;
         protected DbSet<TEntity> _dbSet;
         private readonly ICurrentTime _timeService;
-        //private readonly IClaimsService _claimsService;
+        private readonly IClaimsService _claimsService;
 
-        public GenericRepository(AppDbContext context, ICurrentTime timeService/*, IClaimsService claimsService*/)
+        public GenericRepository(AppDbContext context, ICurrentTime timeService, IClaimsService claimsService)
         {
             _context = context;
             _dbSet = _context.Set<TEntity>();
             _timeService = timeService;
-            //_claimsService = claimsService;
+            _claimsService = claimsService;
         }
 
         public async Task<Pagination<TEntity>> GetAsync(
@@ -118,13 +118,13 @@ namespace Elepla.Repository.Repositories
         public async Task AddAsync(TEntity entity)
         {
             entity.CreatedAt = _timeService.GetCurrentTime();
-            //var currentUserId = _claimsService.GetCurrentUserId();
+            var currentUserId = _claimsService.GetCurrentUserId();
 
             // Check if ClaimService is available
-            //if (currentUserId != Guid.Empty)
-            //{
-            //    entity.CreatedBy = currentUserId.ToString();
-            //}
+            if (currentUserId != Guid.Empty)
+            {
+                entity.CreatedBy = currentUserId.ToString();
+            }
 
             await _dbSet.AddAsync(entity);
         }
@@ -134,7 +134,7 @@ namespace Elepla.Repository.Repositories
             foreach (var entity in entities)
             {
                 entity.CreatedAt = _timeService.GetCurrentTime();
-                //entity.CreatedBy = _claimsService.GetCurrentUserId().ToString();
+                entity.CreatedBy = _claimsService.GetCurrentUserId().ToString();
             }
             await _dbSet.AddRangeAsync(entities);
         }
@@ -142,7 +142,7 @@ namespace Elepla.Repository.Repositories
         public void Update(TEntity entity)
         {
             entity.UpdatedAt = _timeService.GetCurrentTime();
-            //entity.UpdatedBy = _claimsService.GetCurrentUserId().ToString();
+            entity.UpdatedBy = _claimsService.GetCurrentUserId().ToString();
             _dbSet.Update(entity);
         }
 
@@ -151,7 +151,7 @@ namespace Elepla.Repository.Repositories
             foreach (var entity in entities)
             {
                 entity.UpdatedAt = _timeService.GetCurrentTime();
-                //entity.UpdatedBy = _claimsService.GetCurrentUserId().ToString();
+                entity.UpdatedBy = _claimsService.GetCurrentUserId().ToString();
             }
             _dbSet.UpdateRange(entities);
         }
@@ -160,7 +160,7 @@ namespace Elepla.Repository.Repositories
         {
             entity.IsDeleted = true;
             entity.DeletedAt = _timeService.GetCurrentTime();
-            //entity.DeletedBy = _claimsService.GetCurrentUserId().ToString();
+            entity.DeletedBy = _claimsService.GetCurrentUserId().ToString();
             _dbSet.Update(entity);
         }
 
@@ -170,7 +170,7 @@ namespace Elepla.Repository.Repositories
             {
                 entity.IsDeleted = true;
                 entity.DeletedAt = _timeService.GetCurrentTime();
-                //entity.DeletedBy = _claimsService.GetCurrentUserId().ToString();
+                entity.DeletedBy = _claimsService.GetCurrentUserId().ToString();
             }
             _dbSet.UpdateRange(entities);
         }

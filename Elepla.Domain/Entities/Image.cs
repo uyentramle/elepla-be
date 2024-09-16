@@ -20,5 +20,6 @@ namespace Elepla.Domain.Entities
 		// Navigation properties
 		public virtual ICollection<User> UserAvatars { get; set; } = new List<User>();
 		public virtual ICollection<User> UserBackgrounds { get; set; } = new List<User>();
-	}
+        public virtual ICollection<ArticleImage> ArticleImages { get; set; } = new List<ArticleImage>();
+    }
 }
