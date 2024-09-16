@@ -1,7 +1,9 @@
-﻿using Elepla.Repository.Data;
+﻿using AutoMapper;
+using Elepla.Repository.Data;
 using Elepla.Repository.Interfaces;
 using Elepla.Repository.Repositories;
 using Elepla.Service.Interfaces;
+using Elepla.Service.Mappers;
 using Elepla.Service.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -30,6 +32,8 @@ namespace Elepla.API
             services.AddScoped<IRoleService, RoleService>();
 
             services.AddDbContext<AppDbContext>(option => option.UseSqlServer(databaseConnection));
+
+            services.AddAutoMapper(typeof(MapperConfigurationsProfile).Assembly);
 
             return services;
         }
