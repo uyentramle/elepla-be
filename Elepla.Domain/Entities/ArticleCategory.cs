@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace Elepla.Domain.Entities
 {
-    public class ArticleCategory : BaseEntity
+    public class ArticleCategory
     {
+        // Primary Key
         public string ArticleId { get; set; }
         public string CategoryId { get; set; }
 
