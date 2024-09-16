@@ -53,6 +53,7 @@ namespace Elepla.API
         {
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<ICurrentTime, CurrentTime>();
+            services.AddScoped<IClaimsService, ClaimsService>();
 
             services.AddScoped<IRoleRepository, RoleRepository>();
             services.AddScoped<IRoleService, RoleService>();
