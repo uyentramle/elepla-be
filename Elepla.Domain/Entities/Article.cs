@@ -8,11 +8,18 @@ namespace Elepla.Domain.Entities
 {
 	public class Article : BaseEntity
 	{
-		public string ArticleId { get; set; }
-		public string URL { get; set; }
+        // Primary Key
+        public string ArticleId { get; set; }
+
+        // Attributes
+        public string Url { get; set; }
 		public string Title { get; set; }
 		public string Content { get; set; }
 		public string Status { get; set; }
 
-	}
+        // Navigation properties
+        public virtual ICollection<ArticleCategory> ArticleCategories { get; set; } = new List<ArticleCategory>();
+        public virtual ICollection<ArticleImage> ArticleImages { get; set; } = new List<ArticleImage>();
+
+    }
 }

@@ -33,7 +33,7 @@ namespace Elepla.Repository.Repositories
             {
                 return new List<User>();
             }
-            return await _dbContext.Users.Where(u => u.RoleId == role.Id).ToListAsync();
+            return await _dbContext.Users.Where(u => u.RoleId == role.RoleId).ToListAsync();
         }
 
         // Kiểm tra vai trò có tồn tại không

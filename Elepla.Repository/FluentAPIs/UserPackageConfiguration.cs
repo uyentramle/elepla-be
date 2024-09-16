@@ -14,9 +14,13 @@ namespace Elepla.Repository.FluentAPIs
 		public void Configure(EntityTypeBuilder<UserPackage> builder)
 		{
 			builder.ToTable("UserPackage");
-			builder.HasKey(x => x.id);
-			builder.HasOne(x => x.User).WithMany(x => x.UserPackages).HasForeignKey(x => x.UserId);
-			builder.HasOne(x => x.Package).WithMany().HasForeignKey(x => x.PackageId);
-		}
+			builder.HasKey(x => x.Id);
+			builder.HasOne(x => x.User)
+				.WithMany(x => x.UserPackages)
+				.HasForeignKey(x => x.UserId);
+			builder.HasOne(x => x.Package)
+                .WithMany(x => x.UserPackages)
+                .HasForeignKey(x => x.PackageId);
+        }
 	}
 }
