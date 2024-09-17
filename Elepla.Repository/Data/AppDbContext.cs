@@ -25,6 +25,7 @@ namespace Elepla.Repository.Data
         public DbSet<Category> Categories { get; set; }
         public DbSet<ArticleCategory> ArticleCategories { get; set; }
         public DbSet<ArticleImage> ArticleImages { get; set; }
+        public DbSet<Subject> Subjects { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -40,6 +41,7 @@ namespace Elepla.Repository.Data
 			modelBuilder.ApplyConfiguration(new CategoryConfiguration());
             modelBuilder.ApplyConfiguration(new ArticleCategoryConfiguration());
             modelBuilder.ApplyConfiguration(new ArticleImageConfiguration());
+			modelBuilder.ApplyConfiguration(new SubjectConfiguration());
 		}
     }
 }
