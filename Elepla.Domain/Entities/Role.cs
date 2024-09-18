@@ -10,16 +10,6 @@ namespace Elepla.Domain.Entities
 {
     public class Role : BaseEntity
     {
-        public Role(string name, string description, bool isDefault, DateTime createdAt, string createdBy, bool isDeleted)
-        {
-            Name = name;
-            Description = description;
-            IsDefault = isDefault;
-            CreatedAt = createdAt;
-            CreatedBy = createdBy;
-            IsDeleted = isDeleted;
-        }
-
         // Primary Key
         public int RoleId { get; set; }
 
