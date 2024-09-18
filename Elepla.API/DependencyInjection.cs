@@ -52,7 +52,7 @@ namespace Elepla.API
         public static IServiceCollection AddInfrastructuresService(this IServiceCollection services, string databaseConnection)
         {
             services.AddScoped<IUnitOfWork, UnitOfWork>();
-            services.AddScoped<ICurrentTime, CurrentTime>();
+            services.AddScoped<ITimeService, TimeService>();
             services.AddScoped<IClaimsService, ClaimsService>();
 
             services.AddScoped<IRoleRepository, RoleRepository>();

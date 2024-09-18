@@ -16,10 +16,10 @@ namespace Elepla.Repository.Repositories
     {
         protected AppDbContext _context;
         protected DbSet<TEntity> _dbSet;
-        private readonly ICurrentTime _timeService;
+        private readonly ITimeService _timeService;
         private readonly IClaimsService _claimsService;
 
-        public GenericRepository(AppDbContext context, ICurrentTime timeService, IClaimsService claimsService)
+        public GenericRepository(AppDbContext context, ITimeService timeService, IClaimsService claimsService)
         {
             _context = context;
             _dbSet = _context.Set<TEntity>();
