@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
 using Elepla.Domain.Entities;
+using Elepla.Repository.Common;
 using Elepla.Repository.Interfaces;
 using Elepla.Service.Interfaces;
 using Elepla.Service.Models.ResponseModels;
 using Elepla.Service.Models.ViewModels.RoleViewModels;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,11 +35,30 @@ namespace Elepla.Service.Services
                 pageSize: pageSize
             );
 
+            // Dùng AutoMapper để ánh xạ các thuộc tính của role sang DTO
+            var rolesDto = _mapper.Map<Pagination<ViewListRoleDTO>>(roles);
+
+            //// Ánh xạ các thuộc tính đặc biệt cần xử lý
+            //foreach (var roleDto in rolesDto.Items)
+            //{
+            //    var role = await _unitOfWork.RoleRepository.GetByIdAsync(roleDto.Id);
+
+            //    // Tìm người tạo, cập nhật, xóa và ánh xạ tên người dùng
+            //    var createdByUser = await _unitOfWork.UserRepository.GetByIdAsync(role.CreatedBy);
+            //    var updatedByUser = !string.IsNullOrEmpty(role.UpdatedBy) ? await _unitOfWork.UserRepository.GetByIdAsync(role.UpdatedBy) : null;
+            //    var deletedByUser = !string.IsNullOrEmpty(role.DeletedBy) ? await _unitOfWork.UserRepository.GetByIdAsync(role.DeletedBy) : null;
+
+            //    // Cập nhật các trường CreatedBy, UpdatedBy, DeletedBy
+            //    roleDto.CreatedBy = createdByUser?.UserName ?? role.CreatedBy;
+            //    roleDto.UpdatedBy = updatedByUser?.UserName ?? role.UpdatedBy;
+            //    roleDto.DeletedBy = deletedByUser?.UserName ?? role.DeletedBy;
+            //}
+
             return new SuccessResponseModel<object>
             {
                 Success = true,
                 Message = "Roles retrieved successfully.",
-                Data = roles
+                Data = rolesDto
             };
         }
 
@@ -69,13 +90,7 @@ namespace Elepla.Service.Services
                 };
             }
 
-            var newRole = new Role
-            {
-                Name = model.RoleName,
-                Description = model.Description,
-                IsDefault = false,
-                IsDeleted = false
-            };
+            var newRole = _mapper.Map<Role>(model);
 
             await _unitOfWork.RoleRepository.AddAsync(newRole);
             await _unitOfWork.SaveChangeAsync();
@@ -102,10 +117,9 @@ namespace Elepla.Service.Services
                 };
             }
 
-            role.Name = model.RoleName;
-            role.Description = model.Description;
+            var updatedRole = _mapper.Map(model, role);
 
-            _unitOfWork.RoleRepository.Update(role);
+            _unitOfWork.RoleRepository.Update(updatedRole);
             await _unitOfWork.SaveChangeAsync();
 
             return new SuccessResponseModel<string>
