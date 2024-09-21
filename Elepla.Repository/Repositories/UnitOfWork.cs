@@ -11,14 +11,19 @@ namespace Elepla.Repository.Repositories
     public class UnitOfWork : IUnitOfWork
     {
         private readonly AppDbContext _dbContext;
+        private readonly IAccountRepository _accountRepository;
         private readonly IRoleRepository _roleRepository;
 
         public UnitOfWork(AppDbContext dbContext,
+            IAccountRepository accountRepository,
             IRoleRepository roleRepository)
         {
             _dbContext = dbContext;
+            _accountRepository = accountRepository;
             _roleRepository = roleRepository;
         }
+
+        public IAccountRepository AccountRepository => _accountRepository;
 
         public IRoleRepository RoleRepository => _roleRepository;
 
