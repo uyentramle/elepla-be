@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Elepla.Service.Services
 {
-    public class CurrentTime : ICurrentTime
+    public class TimeService : ITimeService
     {
         public DateTime GetCurrentTime() => DateTime.UtcNow.ToLocalTime();
     }

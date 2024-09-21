@@ -1,8 +1,11 @@
-﻿using Elepla.Domain.Entities;
+﻿using AutoMapper;
+using Elepla.Domain.Entities;
+using Elepla.Repository.Common;
 using Elepla.Repository.Interfaces;
 using Elepla.Service.Interfaces;
 using Elepla.Service.Models.ResponseModels;
 using Elepla.Service.Models.ViewModels.RoleViewModels;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,16 +17,15 @@ namespace Elepla.Service.Services
     public class RoleService : IRoleService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly ICurrentTime _timeService;
+        private readonly IMapper _mapper;
 
-        public RoleService(IUnitOfWork unitOfWork, ICurrentTime timeService)
+        public RoleService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
-            _timeService = timeService;
+            _mapper = mapper;
         }
 
         #region Role Management
-
         // Get all active roles
         public async Task<ResponseModel> GetActiveRolesAsync(int pageIndex, int pageSize)
         {
@@ -33,56 +35,80 @@ namespace Elepla.Service.Services
                 pageSize: pageSize
             );
 
+            // Dùng AutoMapper để ánh xạ các thuộc tính của role sang DTO
+            var rolesDto = _mapper.Map<Pagination<ViewListRoleDTO>>(roles);
+
+            //// Ánh xạ các thuộc tính đặc biệt cần xử lý
+            //foreach (var roleDto in rolesDto.Items)
+            //{
+            //    var role = await _unitOfWork.RoleRepository.GetByIdAsync(roleDto.Id);
+
+            //    // Tìm người tạo, cập nhật, xóa và ánh xạ tên người dùng
+            //    var createdByUser = await _unitOfWork.UserRepository.GetByIdAsync(role.CreatedBy);
+            //    var updatedByUser = !string.IsNullOrEmpty(role.UpdatedBy) ? await _unitOfWork.UserRepository.GetByIdAsync(role.UpdatedBy) : null;
+            //    var deletedByUser = !string.IsNullOrEmpty(role.DeletedBy) ? await _unitOfWork.UserRepository.GetByIdAsync(role.DeletedBy) : null;
+
+            //    // Cập nhật các trường CreatedBy, UpdatedBy, DeletedBy
+            //    roleDto.CreatedBy = createdByUser?.UserName ?? role.CreatedBy;
+            //    roleDto.UpdatedBy = updatedByUser?.UserName ?? role.UpdatedBy;
+            //    roleDto.DeletedBy = deletedByUser?.UserName ?? role.DeletedBy;
+            //}
+
             return new SuccessResponseModel<object>
             {
                 Success = true,
                 Message = "Roles retrieved successfully.",
-                Data = roles
+                Data = rolesDto
             };
         }
 
         // Create a new role
-        //public async Task<ResponseModel> CreateRoleAsync(CreateRoleDTO model)
-        //{
-        //    var existingRole = await _unitOfWork.RoleRepository.GetAsync(r => r.Name == model.RoleName);
+        public async Task<ResponseModel> CreateRoleAsync(CreateRoleDTO model)
+        {
+            var existingRole = await _unitOfWork.RoleRepository.GetRoleByNameAsync(model.RoleName);
 
-        //    if (existingRole != null && !existingRole.IsDeleted)
-        //    {
-        //        return new ResponseModel
-        //        {
-        //            Success = false,
-        //            Message = "Role already exists.",
-        //        };
-        //    }
+            if (existingRole != null)
+            {
+                if (existingRole.IsDeleted)
+                {
+                    // Role đã bị xóa mềm, cập nhật lại role này
+                    existingRole.Description = model.Description;
+                    existingRole.IsDeleted = false;
+                    _unitOfWork.RoleRepository.Update(existingRole);
+                    await _unitOfWork.SaveChangeAsync();
 
-        //    var createBy = "system"; // Lấy thông tin người tạo, có thể từ claims hoặc user hiện tại
-        //    var newRole = new Role
-        //    {
-        //        Name = model.RoleName,
-        //        Description = model.Description,
-        //        IsDefault = false,
-        //        CreatedAt = _timeService.GetCurrentTime(),
-        //        CreatedBy = createBy,
-        //        IsDeleted = false
-        //    };
+                    return new ResponseModel
+                    {
+                        Success = true,
+                        Message = "Role restored successfully.",
+                    };
+                }
+                return new ResponseModel
+                {
+                    Success = false,
+                    Message = "Role already exists.",
+                };
+            }
 
-        //    _unitOfWork.RoleRepository.AddAsync(newRole);
-        //    await _unitOfWork.SaveChangeAsync();
+            var newRole = _mapper.Map<Role>(model);
 
-        //    return new SuccessResponseModel<string>
-        //    {
-        //        Success = true,
-        //        Message = "Role created successfully.",
-        //        Data = newRole.Id.ToString()
-        //    };
-        //}
+            await _unitOfWork.RoleRepository.AddAsync(newRole);
+            await _unitOfWork.SaveChangeAsync();
+
+            return new SuccessResponseModel<string>
+            {
+                Success = true,
+                Message = "Role created successfully.",
+                Data = newRole.Name
+            };
+        }
 
         // Update a role
         public async Task<ResponseModel> UpdateRoleAsync(UpdateRoleDTO model)
         {
             var role = await _unitOfWork.RoleRepository.GetByIdAsync(model.Id);
 
-            if (role == null || role.IsDeleted)
+            if (role is null || role.IsDeleted)
             {
                 return new ResponseModel
                 {
@@ -91,19 +117,16 @@ namespace Elepla.Service.Services
                 };
             }
 
-            role.Name = model.RoleName;
-            role.Description = model.Description;
-            role.UpdatedAt = _timeService.GetCurrentTime();
-            role.UpdatedBy = "system"; // Lấy thông tin người cập nhật
+            var updatedRole = _mapper.Map(model, role);
 
-            _unitOfWork.RoleRepository.Update(role);
+            _unitOfWork.RoleRepository.Update(updatedRole);
             await _unitOfWork.SaveChangeAsync();
 
             return new SuccessResponseModel<string>
             {
                 Success = true,
                 Message = "Role updated successfully.",
-                Data = role.RoleId.ToString()
+                Data = role.Name
             };
         }
 
@@ -112,7 +135,7 @@ namespace Elepla.Service.Services
         {
             var role = await _unitOfWork.RoleRepository.GetByIdAsync(roleId);
 
-            if (role == null)
+            if (role is null)
             {
                 return new ResponseModel
                 {
@@ -121,21 +144,25 @@ namespace Elepla.Service.Services
                 };
             }
 
-            role.IsDeleted = true;
-            role.DeletedAt = _timeService.GetCurrentTime();
-            role.DeletedBy = "system"; // Lấy thông tin người xóa
+            // Kiểm tra xem role có phải là role mặc định không
+            if (role.IsDefault)
+            {
+                return new ResponseModel
+                {
+                    Success = false,
+                    Message = "Cannot delete default role.",
+                };
+            }
 
-            _unitOfWork.RoleRepository.Update(role);
+            _unitOfWork.RoleRepository.SoftRemove(role);
             await _unitOfWork.SaveChangeAsync();
 
-            return new SuccessResponseModel<string>
+            return new ResponseModel
             {
                 Success = true,
                 Message = "Role deleted successfully.",
-                Data = role.RoleId.ToString()
             };
         }
-
         #endregion
     }
 }

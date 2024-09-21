@@ -14,7 +14,7 @@ namespace Elepla.Repository.Repositories
     {
         private readonly AppDbContext _dbContext;
 
-        public RoleRepository(AppDbContext dbContext, ICurrentTime timeService, IClaimsService claimsService) : base(dbContext, timeService, claimsService)
+        public RoleRepository(AppDbContext dbContext, ITimeService timeService, IClaimsService claimsService) : base(dbContext, timeService, claimsService)
         {
             _dbContext = dbContext;
         }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Elepla.Repository.Interfaces
 {
-    public interface ICurrentTime
+    public interface ITimeService
     {
         DateTime GetCurrentTime();
     }
