@@ -4,12 +4,57 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Elepla.Service.Utils
 {
-    public class PasswordHasher : IPasswordHasher
+    public class PasswordService : IPasswordService
     {
+        private const int MinimumLength = 6;
+
+        #region ValidatePassword
+        public IEnumerable<string> ValidatePassword(string password)
+        {
+            var errors = new List<string>();
+
+            if (string.IsNullOrEmpty(password))
+            {
+                errors.Add("Password cannot be empty.");
+            }
+            else
+            {
+                if (password.Length < MinimumLength)
+                {
+                    errors.Add($"Password must be at least {MinimumLength} characters long.");
+                }
+
+                if (!password.Any(char.IsUpper))
+                {
+                    errors.Add("Password must contain at least one uppercase letter.");
+                }
+
+                if (!password.Any(char.IsLower))
+                {
+                    errors.Add("Password must contain at least one lowercase letter.");
+                }
+
+                if (!password.Any(char.IsDigit))
+                {
+                    errors.Add("Password must contain at least one digit.");
+                }
+
+                if (!Regex.IsMatch(password, @"[!@#$%^&*(),.?""{}|<>]"))
+                {
+                    errors.Add("Password must contain at least one special character.");
+                }
+            }
+
+            return errors;
+        }
+        #endregion
+
+
         #region BCrypt
         // Băm mật khẩu
         public string HashPassword(string password)

@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace Elepla.Service.Interfaces
 {
-    public interface IPasswordHasher
+    public interface IPasswordService
     {
+        IEnumerable<string> ValidatePassword(string password);
         string HashPassword(string password);
         bool VerifyPassword(string password, string hashedPassword);
     }

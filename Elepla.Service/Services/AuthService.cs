@@ -21,14 +21,14 @@ namespace Elepla.Service.Services
     public class AuthService : BaseService, IAuthService
     {
         private readonly ITimeService _currentTime;
-        private readonly IPasswordHasher _passwordHasher;
+        private readonly IPasswordService _passwordHasher;
 
         public AuthService(
             IUnitOfWork unitOfWork, 
             IMapper mapper, 
             AppConfiguration appConfiguration,
             ITimeService currentTime,
-            IPasswordHasher passwordHasher) 
+            IPasswordService passwordHasher) 
             : base(unitOfWork, mapper, appConfiguration)
         {
             _currentTime = currentTime;
