@@ -6,6 +6,7 @@ using Elepla.Service.Common;
 using Elepla.Service.Interfaces;
 using Elepla.Service.Mappers;
 using Elepla.Service.Services;
+using Elepla.Service.Utils;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -54,6 +55,10 @@ namespace Elepla.API
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<ITimeService, TimeService>();
             services.AddScoped<IClaimsService, ClaimsService>();
+            services.AddScoped<IPasswordService, PasswordService>();
+
+            services.AddScoped<IAccountRepository, AccountRepository>();
+            services.AddScoped<IAuthService, AuthService>();
 
             services.AddScoped<IRoleRepository, RoleRepository>();
             services.AddScoped<IRoleService, RoleService>();
