@@ -57,6 +57,7 @@ namespace Elepla.API
             services.AddScoped<IClaimsService, ClaimsService>();
             services.AddScoped<IPasswordService, PasswordService>();
             services.AddScoped<IEmailSender, EmailSender>();
+            services.AddScoped<IGoogleService, GoogleService>();
 
             services.AddScoped<IAccountRepository, AccountRepository>();
             services.AddScoped<IAuthService, AuthService>();
