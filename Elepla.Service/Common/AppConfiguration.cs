@@ -12,5 +12,6 @@ namespace Elepla.Service.Common
         public JWTSettings JWT { get; set; }
         public EmailSettings Email { get; set; }
         public AuthenticationSettings Authentication { get; set; }
+        public TwilioSettings Twilio { get; set; }
     }
 }
