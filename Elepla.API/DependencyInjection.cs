@@ -59,6 +59,7 @@ namespace Elepla.API
             services.AddScoped<IEmailSender, EmailSender>();
             services.AddScoped<IGoogleService, GoogleService>();
             services.AddScoped<IFacebookService, FacebookService>();
+            services.AddScoped<ISmsSender, TwilioSmsSender>();
 
             services.AddScoped<IAccountRepository, AccountRepository>();
             services.AddScoped<IAuthService, AuthService>();
