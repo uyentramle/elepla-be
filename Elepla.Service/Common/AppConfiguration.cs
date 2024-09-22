@@ -11,5 +11,6 @@ namespace Elepla.Service.Common
         public string DatabaseConnection { get; set; }
         public JWTSettings JWT { get; set; }
         public EmailSettings Email { get; set; }
+        public AuthenticationSettings Authentication { get; set; }
     }
 }
