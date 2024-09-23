@@ -13,5 +13,6 @@ namespace Elepla.Service.Common
         public EmailSettings Email { get; set; }
         public AuthenticationSettings Authentication { get; set; }
         public TwilioSettings Twilio { get; set; }
+        public FirebaseSettings Firebase { get; set; }
     }
 }
