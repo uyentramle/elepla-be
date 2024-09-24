@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using Elepla.Repository.Interfaces;
 using Elepla.Service.Common;
+using Elepla.Service.Interfaces;
+using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,12 +15,33 @@ namespace Elepla.Service.Services
     {
         protected readonly IUnitOfWork _unitOfWork;
         protected readonly IMapper _mapper;
+        protected readonly ITimeService _timeService;
+        protected readonly IPasswordService _passwordHasher;
+        protected readonly ITokenService _tokenService;
+        protected readonly IEmailSender _emailSender;
+        protected readonly ISmsSender _smsSender;
+        protected readonly IMemoryCache _cache;
         protected readonly AppConfiguration _appConfiguration;
 
-        public BaseService(IUnitOfWork unitOfWork, IMapper mapper, AppConfiguration appConfiguration)
+        public BaseService(
+            IUnitOfWork unitOfWork, 
+            IMapper mapper, 
+            ITimeService timeService,
+            IPasswordService passwordHasher,
+            ITokenService tokenService,
+            IEmailSender emailSender,
+            ISmsSender smsSender,
+            IMemoryCache cache,
+            AppConfiguration appConfiguration)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _timeService = timeService;
+            _passwordHasher = passwordHasher;
+            _tokenService = tokenService;
+            _emailSender = emailSender;
+            _smsSender = smsSender;
+            _cache = cache;
             _appConfiguration = appConfiguration;
         }
     }

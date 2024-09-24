@@ -11,5 +11,8 @@ namespace Elepla.Service.Interfaces
     public interface IAuthService
     {
         Task<ResponseModel> LoginAsync(LoginDTO model);
+        Task<ResponseModel> SendRegisterVerificationCodeAsync(PhoneNumberOrEmailDTO model);
+        Task<ResponseModel> VerifyRegisterCodeAsync(VerifyRegisterCodeDTO model);
+        Task<ResponseModel> RegisterAsync(RegisterDTO model);
     }
 }

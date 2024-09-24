@@ -61,7 +61,6 @@ namespace Elepla.Repository.Data
                     Gender = GenderEnums.Unknown.ToString(),
                     Status = true,
                     RoleId = adminRole.RoleId,
-                    CreatedAt = DateTime.UtcNow.ToLocalTime(),
                     CreatedBy = "system",
                 };
 
@@ -82,7 +81,6 @@ namespace Elepla.Repository.Data
                     Gender = GenderEnums.Unknown.ToString(),
                     Status = true,
                     RoleId = managerRole.RoleId,
-                    CreatedAt = DateTime.UtcNow.ToLocalTime(),
                     CreatedBy = "system",
                 };
 
@@ -104,7 +102,6 @@ namespace Elepla.Repository.Data
                     Gender = GenderEnums.Unknown.ToString(),
                     Status = true,
                     RoleId = academicStaffRole.RoleId,
-                    CreatedAt = DateTime.UtcNow.ToLocalTime(),
                     CreatedBy = "system",
                 };
 
@@ -125,7 +122,6 @@ namespace Elepla.Repository.Data
                     Gender = GenderEnums.Unknown.ToString(),
                     Status = true,
                     RoleId = teacherRole.RoleId,
-                    CreatedAt = DateTime.UtcNow.ToLocalTime(),
                     CreatedBy = "system",
                 };
 
