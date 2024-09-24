@@ -44,6 +44,21 @@ namespace Elepla.API.Controllers
         }
         #endregion
 
+        #region Refresh Token
+        [HttpPost]
+        public async Task<IActionResult> RefreshTokenAsync(RefreshTokenDTO model)
+        {
+            var response = await _authService.RefreshTokenAsync(model);
+
+            if (response.Success)
+            {
+                return Ok(response);
+            }
+
+            return BadRequest(response);
+        }
+        #endregion
+
         #region Register
         [HttpPost]
         public async Task<IActionResult> SendRegisterVerificationCodeAsync(SendRegisterCodeDTO model)
