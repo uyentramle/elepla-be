@@ -51,40 +51,48 @@ namespace Elepla.Repository.Data
 
             if (adminRole != null)
             {
-                var admin = new User
+                var existingAdmin = await unitOfWork.AccountRepository.GetUserByUsernameAsync("admin");
+                if (existingAdmin == null)
                 {
-                    UserId = Guid.NewGuid().ToString(),
-                    Username = "admin",
-                    Email = "admin@example.com",
-                    EmailConfirmed = true,
-                    PasswordHash = hashedPassword,
-                    Gender = GenderEnums.Unknown.ToString(),
-                    Status = true,
-                    RoleId = adminRole.RoleId,
-                    CreatedBy = "system",
-                };
+                    var admin = new User
+                    {
+                        UserId = Guid.NewGuid().ToString(),
+                        Username = "admin",
+                        Email = "admin@example.com",
+                        EmailConfirmed = true,
+                        PasswordHash = hashedPassword,
+                        Gender = GenderEnums.Unknown.ToString(),
+                        Status = true,
+                        RoleId = adminRole.RoleId,
+                        CreatedBy = "system",
+                    };
 
-                await unitOfWork.AccountRepository.AddAsync(admin);
+                    await unitOfWork.AccountRepository.AddAsync(admin);
+                }
             }
 
             var managerRole = await unitOfWork.RoleRepository.GetRoleByNameAsync(RoleEnums.Manager.ToString());
 
             if (managerRole != null)
             {
-                var manager = new User
+                var existingManager = await unitOfWork.AccountRepository.GetUserByUsernameAsync("manager");
+                if (existingManager == null)
                 {
-                    UserId = Guid.NewGuid().ToString(),
-                    Username = "manager",
-                    Email = "manager@example.com",
-                    EmailConfirmed = true,
-                    PasswordHash = hashedPassword,
-                    Gender = GenderEnums.Unknown.ToString(),
-                    Status = true,
-                    RoleId = managerRole.RoleId,
-                    CreatedBy = "system",
-                };
+                    var manager = new User
+                    {
+                        UserId = Guid.NewGuid().ToString(),
+                        Username = "manager",
+                        Email = "manager@example.com",
+                        EmailConfirmed = true,
+                        PasswordHash = hashedPassword,
+                        Gender = GenderEnums.Unknown.ToString(),
+                        Status = true,
+                        RoleId = managerRole.RoleId,
+                        CreatedBy = "system",
+                    };
 
-                await unitOfWork.AccountRepository.AddAsync(manager);
+                    await unitOfWork.AccountRepository.AddAsync(manager);
+                }
             }
             
 
@@ -92,40 +100,48 @@ namespace Elepla.Repository.Data
 
             if (academicStaffRole != null)
             {
-                var academicStaff = new User
+                var existingAcademicStaff = await unitOfWork.AccountRepository.GetUserByUsernameAsync("academicstaff");
+                if (existingAcademicStaff == null)
                 {
-                    UserId = Guid.NewGuid().ToString(),
-                    Username = "academicstaff",
-                    Email = "academicstaff@example.com",
-                    EmailConfirmed = true,
-                    PasswordHash = hashedPassword,
-                    Gender = GenderEnums.Unknown.ToString(),
-                    Status = true,
-                    RoleId = academicStaffRole.RoleId,
-                    CreatedBy = "system",
-                };
+                    var academicStaff = new User
+                    {
+                        UserId = Guid.NewGuid().ToString(),
+                        Username = "academicstaff",
+                        Email = "academicstaff@example.com",
+                        EmailConfirmed = true,
+                        PasswordHash = hashedPassword,
+                        Gender = GenderEnums.Unknown.ToString(),
+                        Status = true,
+                        RoleId = academicStaffRole.RoleId,
+                        CreatedBy = "system",
+                    };
 
-                await unitOfWork.AccountRepository.AddAsync(academicStaff);
+                    await unitOfWork.AccountRepository.AddAsync(academicStaff);
+                }
             }
 
             var teacherRole = await unitOfWork.RoleRepository.GetRoleByNameAsync(RoleEnums.Teacher.ToString());
             
             if (teacherRole != null)
             {
-                var teacher = new User
+                var existingTeacher = await unitOfWork.AccountRepository.GetUserByUsernameAsync("teacher");
+                if (existingTeacher == null)
                 {
-                    UserId = Guid.NewGuid().ToString(),
-                    Username = "teacher",
-                    Email = "teacher@example.com",
-                    EmailConfirmed = true,
-                    PasswordHash = hashedPassword,
-                    Gender = GenderEnums.Unknown.ToString(),
-                    Status = true,
-                    RoleId = teacherRole.RoleId,
-                    CreatedBy = "system",
-                };
+                    var teacher = new User
+                    {
+                        UserId = Guid.NewGuid().ToString(),
+                        Username = "teacher",
+                        Email = "teacher@example.com",
+                        EmailConfirmed = true,
+                        PasswordHash = hashedPassword,
+                        Gender = GenderEnums.Unknown.ToString(),
+                        Status = true,
+                        RoleId = teacherRole.RoleId,
+                        CreatedBy = "system",
+                    };
 
-                await unitOfWork.AccountRepository.AddAsync(teacher);
+                    await unitOfWork.AccountRepository.AddAsync(teacher);
+                }
             }
 
             await unitOfWork.SaveChangeAsync();

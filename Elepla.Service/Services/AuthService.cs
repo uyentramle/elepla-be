@@ -348,12 +348,12 @@ namespace Elepla.Service.Services
             }
 
             // Kiểm tra xem username có đủ độ dài yêu cầu không (tối thiểu 6 ký tự)
-            if (model.Username.Length < 6)
+            if (model.Username.Length < 6 || model.Username.Length > 20)
             {
                 return new ResponseModel
                 {
                     Success = false,
-                    Message = "Username must be at least 6 characters long."
+                    Message = "Username must be between 6 and 20 characters long."
                 };
             }
 
