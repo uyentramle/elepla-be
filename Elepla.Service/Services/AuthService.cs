@@ -157,7 +157,7 @@ namespace Elepla.Service.Services
         }
 
         // Send verification code to phone number or email when user register
-        public async Task<ResponseModel> SendRegisterVerificationCodeAsync(PhoneNumberOrEmailDTO model)
+        public async Task<ResponseModel> SendRegisterVerificationCodeAsync(SendRegisterCodeDTO model)
         {
             if (IsEmail(model.PhoneNumberOrEmail))
             {
@@ -243,6 +243,7 @@ namespace Elepla.Service.Services
                 {
                     _cache.Remove(model.PhoneNumberOrEmail);
                     var emailToken = _tokenService.GenerateToken(model.PhoneNumberOrEmail, "email", "register", out DateTime expiryTime);
+                    
                     return new SuccessResponseModel<object>
                     {
                         Success = true,
@@ -273,6 +274,7 @@ namespace Elepla.Service.Services
                 {
                     _cache.Remove(model.PhoneNumberOrEmail);
                     var phoneToken = _tokenService.GenerateToken(model.PhoneNumberOrEmail, "phone", "register", out DateTime expiryTime);
+                    
                     return new SuccessResponseModel<object>
                     {
                         Success = true,
@@ -442,6 +444,143 @@ namespace Elepla.Service.Services
             var phoneNumberPattern = @"^(\+84\s?\d{9}|0\d{9})$";
 
             return Regex.IsMatch(input, phoneNumberPattern);
+        }
+        #endregion
+
+        #region Forgot Password
+        // Send verification code to phone number or email when user forgot password
+        public async Task<ResponseModel> SendForgotPasswordVerificationCodeAsync(SendForgotPasswordCodeDTO model)
+        {
+            var user = await _unitOfWork.AccountRepository.GetUserByEmailOrUsernameOrPhoneNumberAsync(model.PhoneNumberOrEmail, includeUsername: false);
+
+            if (user is null)
+            {
+                return new ResponseModel
+                {
+                    Success = false,
+                    Message = "User not found."
+                };
+            }
+
+            string code = GenerateVerificationCode();
+            DateTime expiryTime = DateTime.UtcNow.ToLocalTime().AddMinutes(10);
+
+            if (model.PhoneNumberOrEmail.Contains("@"))
+            {
+                
+                await _emailSender.SendEmailAsync(model.PhoneNumberOrEmail, "Quên mật khẩu?", $"Mã xác thực của bạn là: {code}, mã sẽ hết hiệu lực sau 10 phút.");
+            }
+            else
+            {
+                await _smsSender.SendSmsAsync(model.PhoneNumberOrEmail, $"Mã xác thực của bạn là: {code}, mã sẽ hết hiệu lực sau 10 phút.");
+            }
+
+            _cache.Set(model.PhoneNumberOrEmail, code, TimeSpan.FromMinutes(10)); // Lưu mã xác thực vào bộ đệm với thời gian hết hạn 10 phút
+
+            return new SuccessResponseModel<object>
+            {
+                Success = true,
+                Message = "Verification code sent.",
+                Data = new
+                {
+                    CodeExpiryTime = expiryTime
+                }
+            };
+        }
+
+        // Verify forgot password code by phone number or email
+        public async Task<ResponseModel> VerifyForgotPasswordCodeAsync(VerifyForgotPasswordCodeDTO model)
+        {
+            var user = await _unitOfWork.AccountRepository.GetUserByEmailOrUsernameOrPhoneNumberAsync(model.PhoneNumberOrEmail, includeUsername: false);
+
+            if (user is null)
+            {
+                return new ResponseModel
+                {
+                    Success = false,
+                    Message = "User not found."
+                };
+            }
+
+            // Lấy mã từ bộ nhớ cache
+            if (_cache.TryGetValue(model.PhoneNumberOrEmail, out string? cachedCode) && cachedCode == model.VerificationCode)
+            {
+                // Mã xác thực hợp lệ, tạo token reset password
+                var resetToken = _tokenService.GenerateToken(
+                    model.PhoneNumberOrEmail,
+                    model.PhoneNumberOrEmail.Contains("@") ? "email" : "phone",
+                    "reset",
+                    out DateTime expiryTime
+                );
+
+                return new SuccessResponseModel<object>
+                {
+                    Success = true,
+                    Message = "Verification successful. Proceed to password reset.",
+                    Data = new
+                    {
+                        ResetToken = resetToken,
+                        ResetTokenExpiryTime = expiryTime
+                    }
+                };
+            }
+
+            return new ResponseModel
+            {
+                Success = false,
+                Message = "Invalid verification code."
+            };
+        }
+
+        // Reset password
+        public async Task<ResponseModel> ResetPasswordAsync(ResetPasswordDTO model)
+        {
+            var user = await _unitOfWork.AccountRepository.GetUserByEmailOrUsernameOrPhoneNumberAsync(model.PhoneNumberOrEmail, includeUsername: false);
+
+            if (user is null)
+            {
+                return new ResponseModel
+                {
+                    Success = false,
+                    Message = "User not found."
+                };
+            }
+
+            string method = model.PhoneNumberOrEmail.Contains("@") ? "email" : "phone";
+            if (!_tokenService.ValidateToken(model.PhoneNumberOrEmail, method, "reset", model.ResetPasswordToken))
+            {
+                return new ResponseModel
+                {
+                    Success = false,
+                    Message = "Invalid or expired reset token."
+                };
+            }
+
+            // Kiểm tra mật khẩu mới có đúng định dạng không
+            var passwordErrors = _passwordHasher.ValidatePassword(model.NewPassword);
+            if (passwordErrors.Any())
+            {
+                return new ErrorResponseModel<string>
+                {
+                    Success = false,
+                    Message = "Password is not in correct format.",
+                    Errors = passwordErrors.ToList()
+                };
+            }
+
+            // Băm mật khẩu mới
+            user.PasswordHash = _passwordHasher.HashPassword(model.NewPassword);
+            user.UpdatedBy = user.UserId;
+
+            _unitOfWork.AccountRepository.Update(user);
+            await _unitOfWork.SaveChangeAsync();
+
+            return new ResponseModel
+            {
+                Success = true,
+                Message = "Password has been reset successfully."
+            };
+
         }
         #endregion
     }

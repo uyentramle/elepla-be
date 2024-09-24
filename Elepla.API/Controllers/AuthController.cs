@@ -46,7 +46,7 @@ namespace Elepla.API.Controllers
 
         #region Register
         [HttpPost]
-        public async Task<IActionResult> SendRegisterVerificationCodeAsync(PhoneNumberOrEmailDTO model)
+        public async Task<IActionResult> SendRegisterVerificationCodeAsync(SendRegisterCodeDTO model)
         {
             var response = await _authService.SendRegisterVerificationCodeAsync(model);
             if (response.Success)
@@ -107,6 +107,41 @@ namespace Elepla.API.Controllers
                 Message = "Invalid request",
                 Errors = errors.Values.ToList()
             });
+        }
+        #endregion
+
+        #region Forgot Password
+        [HttpPost]
+        public async Task<IActionResult> SendForgotPasswordVerificationCodeAsync(SendForgotPasswordCodeDTO model)
+        {
+            var response = await _authService.SendForgotPasswordVerificationCodeAsync(model);
+            if (response.Success)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> VerifyForgotPasswordCodeAsync(VerifyForgotPasswordCodeDTO model)
+        {
+            var response = await _authService.VerifyForgotPasswordCodeAsync(model);
+            if (response.Success)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ResetPasswordAsync(ResetPasswordDTO model)
+        {
+            var response = await _authService.ResetPasswordAsync(model);
+            if (response.Success)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
         }
         #endregion
     }

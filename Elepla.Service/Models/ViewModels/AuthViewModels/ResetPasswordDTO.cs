@@ -6,12 +6,18 @@ using System.Threading.Tasks;
 
 namespace Elepla.Service.Models.ViewModels.AuthViewModels
 {
-    public class PhoneNumberOrEmailDTO
+    public class ResetPasswordDTO : SendForgotPasswordCodeDTO
+    {
+        public string ResetPasswordToken { get; set; }
+        public string NewPassword { get; set; }
+    }
+
+    public class SendForgotPasswordCodeDTO
     {
         public string PhoneNumberOrEmail { get; set; }
     }
 
-    public class VerifyRegisterCodeDTO : PhoneNumberOrEmailDTO
+    public class VerifyForgotPasswordCodeDTO : SendForgotPasswordCodeDTO
     {
         public string VerificationCode { get; set; }
     }

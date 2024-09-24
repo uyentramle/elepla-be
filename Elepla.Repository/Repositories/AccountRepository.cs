@@ -38,9 +38,9 @@ namespace Elepla.Repository.Repositories
         }
 
         // Lấy người dùng theo email, tên đăng nhập hoặc số điện thoại
-        public async Task<User?> GetUserByEmailOrUsernameOrPhoneNumberAsync(string emailOrUsernameOrPhoneNumber)
+        public async Task<User?> GetUserByEmailOrUsernameOrPhoneNumberAsync(string emailOrUsernameOrPhoneNumber, bool includeUsername = true)
         {
-            return await _context.Users.FirstOrDefaultAsync(u => u.Email == emailOrUsernameOrPhoneNumber || u.Username == emailOrUsernameOrPhoneNumber || u.PhoneNumber == emailOrUsernameOrPhoneNumber);
+            return await _context.Users.FirstOrDefaultAsync(u => u.Email == emailOrUsernameOrPhoneNumber || includeUsername && u.Username == emailOrUsernameOrPhoneNumber || u.PhoneNumber == emailOrUsernameOrPhoneNumber);
         }
     }
 }

@@ -15,4 +15,14 @@ namespace Elepla.Service.Models.ViewModels.AuthViewModels
         public string Username { get; set; } // Nhập
         public string Password { get; set; } // Nhập
     }
+
+    public class SendRegisterCodeDTO
+    {
+        public string PhoneNumberOrEmail { get; set; }
+    }
+
+    public class VerifyRegisterCodeDTO : SendRegisterCodeDTO
+    {
+        public string VerificationCode { get; set; }
+    }
 }
