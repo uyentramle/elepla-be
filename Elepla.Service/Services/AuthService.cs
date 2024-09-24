@@ -36,6 +36,7 @@ namespace Elepla.Service.Services
         }
 
         #region Login
+        // Login
         public async Task<ResponseModel> LoginAsync(LoginDTO model)
         {
             var user = await _unitOfWork.AccountRepository.GetUserByEmailOrUserNameOrPhoneNumberAsync(model.Username);
@@ -145,5 +146,9 @@ namespace Elepla.Service.Services
         }
         #endregion
 
+        #region Register
+        // Register
+
+        #endregion
     }
 }
