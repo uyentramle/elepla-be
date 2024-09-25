@@ -54,7 +54,6 @@ namespace Elepla.Service.Utils
         }
         #endregion
 
-
         #region BCrypt
         // Băm mật khẩu
         public string HashPassword(string password)

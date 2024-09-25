@@ -46,6 +46,7 @@ namespace Elepla.API
             services.AddControllers();
             services.AddEndpointsApiExplorer(); // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             services.AddSwaggerGen();
+            services.AddMemoryCache();
 
             return services;
         }
@@ -61,10 +62,13 @@ namespace Elepla.API
             services.AddScoped<IFacebookService, FacebookService>();
             services.AddScoped<ISmsSender, TwilioSmsSender>();
             services.AddScoped<IFirebaseService, FirebaseService>();
+            services.AddScoped<ITokenService, TokenService>();
 
+            // User
             services.AddScoped<IAccountRepository, AccountRepository>();
             services.AddScoped<IAuthService, AuthService>();
 
+            // Role
             services.AddScoped<IRoleRepository, RoleRepository>();
             services.AddScoped<IRoleService, RoleService>();
 

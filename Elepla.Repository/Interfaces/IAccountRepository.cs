@@ -10,8 +10,9 @@ namespace Elepla.Repository.Interfaces
     public interface IAccountRepository : IGenericRepository<User>
     {
         Task<User?> GetUserByEmailAsync(string email);
-        Task<User?> GetUserByUserNameAsync(string username);
+        Task<User?> GetUserByUsernameAsync(string username);
         Task<User?> GetUserByPhoneNumberAsync(string phoneNumber);
-        Task<User?> GetUserByEmailOrUserNameOrPhoneNumberAsync(string emailOrUsernameOrPhoneNumber);
+        Task<User?> GetUserByEmailOrUsernameOrPhoneNumberAsync(string emailOrUsernameOrPhoneNumber, bool includeUsername = true);
+        Task<User?> FindByAnyCriteriaAsync(string email, string phoneNumber, string userName, string googleEmail, string facebookEmail);
     }
 }
