@@ -42,5 +42,17 @@ namespace Elepla.Repository.Repositories
         {
             return await _context.Users.FirstOrDefaultAsync(u => u.Email == emailOrUsernameOrPhoneNumber || includeUsername && u.Username == emailOrUsernameOrPhoneNumber || u.PhoneNumber == emailOrUsernameOrPhoneNumber);
         }
+
+        // Lấy người dùng theo email, số điện thoại, tên đăng nhập, email google hoặc email facebook
+        public async Task<User?> FindByAnyCriteriaAsync(string email, string phoneNumber, string userName, string googleEmail, string facebookEmail)
+        {
+            return await _context.Users.FirstOrDefaultAsync(a =>
+                (!string.IsNullOrEmpty(email) && a.Email == email) ||
+                (!string.IsNullOrEmpty(phoneNumber) && a.PhoneNumber == phoneNumber) ||
+                (!string.IsNullOrEmpty(userName) && a.Username == userName) ||
+                (!string.IsNullOrEmpty(googleEmail) && a.GoogleEmail == googleEmail) ||
+                (!string.IsNullOrEmpty(facebookEmail) && a.FacebookEmail == facebookEmail)
+            );
+        }
     }
 }

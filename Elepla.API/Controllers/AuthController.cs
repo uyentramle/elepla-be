@@ -44,6 +44,30 @@ namespace Elepla.API.Controllers
         }
         #endregion
 
+        #region Scocial Login
+        [HttpPost]
+        public async Task<IActionResult> GoogleLoginAsync(GoogleLoginDTO model)
+        {
+            var response = await _authService.GoogleLoginAsync(model);
+            if (response.Success)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> FacebookLoginAsync(FacebookLoginDTO model)
+        {
+            var response = await _authService.FacebookLoginAsync(model);
+            if (response.Success)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
+        }
+        #endregion
+
         #region Refresh Token
         [HttpPost]
         public async Task<IActionResult> RefreshTokenAsync(RefreshTokenDTO model)

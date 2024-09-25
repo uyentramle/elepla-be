@@ -27,6 +27,14 @@ namespace Elepla.Service.Mappers
                 .ForMember(dest => dest.Gender, opt => opt.MapFrom(src => GenderEnums.Unknown.ToString()))
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => true))
                 .ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => false)).ReverseMap();
+
+            CreateMap<SocialLoginDTO, User>()
+                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => Guid.NewGuid().ToString()))
+                .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.FirstName))
+                .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.LastName))
+                .ForMember(dest => dest.Gender, opt => opt.MapFrom(src => GenderEnums.Unknown.ToString()))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => true))
+                .ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => false)).ReverseMap();
             #endregion
 
             #region Role

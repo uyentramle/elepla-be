@@ -24,6 +24,9 @@ namespace Elepla.Service.Services
 {
     public class AuthService : BaseService, IAuthService
     {
+        private readonly IGoogleService _googleService;
+        private readonly IFacebookService _facebookService;
+
         public AuthService(
             IUnitOfWork unitOfWork, 
             IMapper mapper, 
@@ -33,9 +36,13 @@ namespace Elepla.Service.Services
             IEmailSender emailSender,
             ISmsSender smsSender,
             IMemoryCache cache,
+            IGoogleService googleService,
+            IFacebookService facebookService,
             AppConfiguration appConfiguration) 
             : base(unitOfWork, mapper, timeService, passwordHasher, tokenService, emailSender, smsSender, cache, appConfiguration)
         {
+            _googleService = googleService;
+            _facebookService = facebookService;
         }
 
         #region Login
@@ -67,7 +74,6 @@ namespace Elepla.Service.Services
                     user.RefreshToken = refreshToken;
                     user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(_appConfiguration.JWT.RefreshTokenDurationInDays);
                     user.LastLogin = _timeService.GetCurrentTime();
-                    user.UpdatedBy = user.UserId;
 
                     _unitOfWork.AccountRepository.Update(user);
                     await _unitOfWork.SaveChangeAsync();
@@ -147,6 +153,164 @@ namespace Elepla.Service.Services
             {
                 rng.GetBytes(randomNumber);
                 return Convert.ToBase64String(randomNumber);
+            }
+        }
+        #endregion
+
+        #region Social Login
+        // Google login
+        public async Task<ResponseModel> GoogleLoginAsync(GoogleLoginDTO model)
+        {
+            GooglePayload payload;
+
+            if (model.IsCredential)
+            {
+                payload = await _googleService.VerifyGoogleTokenAsync(model.GoogleToken);
+            }
+            else
+            {
+                var tokenResponse = await _googleService.ExchangeAuthCodeForTokensAsync(model.GoogleToken);
+                if (tokenResponse == null)
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "Invalid Google auth code."
+                    };
+                }
+
+                payload = await _googleService.VerifyGoogleTokenAsync(tokenResponse.IdToken);
+            }
+
+            if (payload == null)
+            {
+                return new ResponseModel
+                {
+                    Success = false,
+                    Message = "Invalid Google token."
+                };
+            }
+
+            var socialLoginDto = new SocialLoginDTO
+            {
+                Email = payload.Email,
+                FirstName = payload.FirstName,
+                LastName = payload.LastName,
+                PictureUrl = payload.PictureUrl,
+                ProviderId = payload.Sub,
+                Provider = "Google"
+            };
+
+            return await ProcessSocialLoginAsync(socialLoginDto);
+        }
+
+        // Facebook login
+        public async Task<ResponseModel> FacebookLoginAsync(FacebookLoginDTO model)
+        {
+            var userInfo = await _facebookService.GetUserInfoFromFacebookAsync(model.AccessToken);
+            if (userInfo == null)
+            {
+                return new ResponseModel
+                {
+                    Success = false,
+                    Message = "Invalid Facebook access token."
+                };
+            }
+
+            var socialLoginDto = new SocialLoginDTO
+            {
+                Email = userInfo.Email,
+                FirstName = userInfo.FirstName,
+                LastName = userInfo.LastName,
+                PictureUrl = userInfo.Picture.Data.Url,
+                ProviderId = userInfo.Id,
+                Provider = "Facebook"
+            };
+
+            return await ProcessSocialLoginAsync(socialLoginDto);
+        }
+
+        // Process social login
+        private async Task<ResponseModel> ProcessSocialLoginAsync(SocialLoginDTO dto)
+        {
+            try
+            {
+                // Tìm hoặc tạo người dùng dựa trên GoogleEmail hoặc FacebookEmail
+                var user = await _unitOfWork.AccountRepository.FindByAnyCriteriaAsync(null, null, null,
+                    dto.Provider == "Google" ? dto.Email : null,
+                    dto.Provider == "Facebook" ? dto.Email : null
+                );
+
+                if (user == null)
+                {
+                    user = _mapper.Map<User>(dto);
+
+                    // Thiết lập các thuộc tính cho Google hoặc Facebook email
+                    if (dto.Provider == "Google")
+                    {
+                        user.GoogleEmail = dto.Email;
+                    }
+                    else if (dto.Provider == "Facebook")
+                    {
+                        user.FacebookEmail = dto.Email;
+                    }
+
+                    user.RoleId = (await _unitOfWork.RoleRepository.GetRoleByNameAsync(RoleEnums.Teacher.ToString())).RoleId;
+                    user.CreatedBy = user.UserId;
+
+                    await _unitOfWork.AccountRepository.AddAsync(user);
+                    await _unitOfWork.SaveChangeAsync();
+
+                    //// Cập nhật avatar sau khi tạo người dùng
+                    //var updateUserAvatarDto = new UpdateAvatarDTO
+                    //{
+                    //    GoogleEmail = dto.Provider == "Google" ? dto.Email : null,
+                    //    FacebookEmail = dto.Provider == "Facebook" ? dto.Email : null,
+                    //    AvatarUrl = dto.PictureUrl
+                    //};
+
+                    //// Cập nhật ảnh đại diện
+                    //await _accountService.UpdateAvatarAsync(updateUserAvatarDto);
+                }
+
+                // Kiểm tra nếu người dùng bị khóa
+                if (!user.Status)
+                {
+                    return new AuthenticationResponseModel
+                    {
+                        Success = false,
+                        Message = "User account is blocked. Please contact support."
+                    };
+                }
+
+                // Tạo JWT token hoặc phản hồi xác thực khác
+                var accessToken = GenerateJsonWebToken(user, out DateTime tokenExpiryTime);
+                var refreshToken = GenerateRefreshToken();
+
+                user.RefreshToken = refreshToken;
+                user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(_appConfiguration.JWT.RefreshTokenDurationInDays);
+                user.LastLogin = _timeService.GetCurrentTime();
+
+                _unitOfWork.AccountRepository.Update(user);
+                await _unitOfWork.SaveChangeAsync();
+
+                return new AuthenticationResponseModel
+                {
+                    Success = true,
+                    Message = "Login successful.",
+                    AccessToken = accessToken,
+                    RefreshToken = refreshToken,
+                    TokenExpiryTime = tokenExpiryTime
+                };
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return new ResponseModel
+                {
+                    Success = false,
+                    Message = "An error occurred while processing login."
+                };
             }
         }
         #endregion
