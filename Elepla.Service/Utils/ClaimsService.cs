@@ -7,7 +7,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Elepla.Service.Services
+namespace Elepla.Service.Utils
 {
     public class ClaimsService : IClaimsService
     {

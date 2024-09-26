@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Elepla.Service.Services
+namespace Elepla.Service.Utils
 {
     public class TimeService : ITimeService
     {

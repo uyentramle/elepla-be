@@ -24,6 +24,8 @@ namespace Elepla.Service.Services
 {
     public class AuthService : BaseService, IAuthService
     {
+        private readonly AppConfiguration _appConfiguration;
+        private readonly ITokenService _tokenService;
         private readonly IGoogleService _googleService;
         private readonly IFacebookService _facebookService;
 
@@ -32,15 +34,17 @@ namespace Elepla.Service.Services
             IMapper mapper, 
             ITimeService timeService,
             IPasswordService passwordHasher,
-            ITokenService tokenService,
             IEmailSender emailSender,
             ISmsSender smsSender,
             IMemoryCache cache,
+            AppConfiguration appConfiguration,
+            ITokenService tokenService,
             IGoogleService googleService,
-            IFacebookService facebookService,
-            AppConfiguration appConfiguration) 
-            : base(unitOfWork, mapper, timeService, passwordHasher, tokenService, emailSender, smsSender, cache, appConfiguration)
+            IFacebookService facebookService) 
+            : base(unitOfWork, mapper, timeService, passwordHasher, emailSender, smsSender, cache)
         {
+            _appConfiguration = appConfiguration;
+            _tokenService = tokenService;
             _googleService = googleService;
             _facebookService = facebookService;
         }

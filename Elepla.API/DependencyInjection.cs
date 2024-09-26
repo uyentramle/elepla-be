@@ -40,6 +40,16 @@ namespace Elepla.API
                 };
             });
 
+            services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(builder =>
+                {
+                    builder.WithOrigins("http://localhost:5173")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                });
+            });
+
             // Add services to the container.
             services.AddHttpContextAccessor();
             services.AddTransient<SeedData>();
@@ -67,10 +77,37 @@ namespace Elepla.API
             // User
             services.AddScoped<IAccountRepository, AccountRepository>();
             services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IAccountService, AccountService>();
 
             // Role
             services.AddScoped<IRoleRepository, RoleRepository>();
             services.AddScoped<IRoleService, RoleService>();
+
+            // Image
+            services.AddScoped<IImageRepository, ImageRepository>();
+
+            // Category
+            services.AddScoped<ICategoryRepository, CategoryRepository>();
+            services.AddScoped<ICategoryService, CategoryService>();
+
+            // Article
+            services.AddScoped<IArticleRepository, ArticleRepository>();
+            services.AddScoped<IArticleService, ArticleService>();
+
+            services.AddScoped<IArticleCategoryRepository, ArticleCategoryRepository>();
+            services.AddScoped<IArticleImageRepository, ArticleImageRepository>();
+
+            // Service Package
+            services.AddScoped<IServicePackageRepository, ServicePackageRepository>();
+            services.AddScoped<IServicePackageService, ServicePackageService>();
+
+            // User Package
+            services.AddScoped<IUserPackageRepository, UserPackageRepository>();
+            services.AddScoped<IUserPackageService, UserPackageService>();
+
+            // Payment
+            services.AddScoped<IPaymentRepository, PaymentRepository>();
+            services.AddScoped<IPaymentService, PaymentService>();
 
             services.AddDbContext<AppDbContext>(option => option.UseSqlServer(databaseConnection));
 

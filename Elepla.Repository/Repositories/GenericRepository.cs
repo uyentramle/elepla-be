@@ -14,15 +14,15 @@ namespace Elepla.Repository.Repositories
 {
     public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEntity : BaseEntity
     {
-        protected AppDbContext _context;
+        protected AppDbContext _dbContext;
         protected DbSet<TEntity> _dbSet;
         private readonly ITimeService _timeService;
         private readonly IClaimsService _claimsService;
 
-        public GenericRepository(AppDbContext context, ITimeService timeService, IClaimsService claimsService)
+        public GenericRepository(AppDbContext dbContext, ITimeService timeService, IClaimsService claimsService)
         {
-            _context = context;
-            _dbSet = _context.Set<TEntity>();
+            _dbContext = dbContext;
+            _dbSet = _dbContext.Set<TEntity>();
             _timeService = timeService;
             _claimsService = claimsService;
         }
@@ -131,7 +131,7 @@ namespace Elepla.Repository.Repositories
                 query = query.Include(includeProperty);
             }
 
-            var keyName = _context.Model.FindEntityType(typeof(TEntity)).FindPrimaryKey().Properties
+            var keyName = _dbContext.Model.FindEntityType(typeof(TEntity)).FindPrimaryKey().Properties
                 .Select(x => x.Name).Single();
 
             var parameter = Expression.Parameter(typeof(TEntity));
@@ -228,7 +228,7 @@ namespace Elepla.Repository.Repositories
         // Delete entity
         public void Delete(TEntity entityToDelete)
         {
-            if (_context.Entry(entityToDelete).State == EntityState.Detached)
+            if (_dbContext.Entry(entityToDelete).State == EntityState.Detached)
             {
                 _dbSet.Attach(entityToDelete);
             }
