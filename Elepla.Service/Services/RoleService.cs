@@ -39,20 +39,20 @@ namespace Elepla.Service.Services
             var rolesDto = _mapper.Map<Pagination<ViewListRoleDTO>>(roles);
 
             //// Ánh xạ các thuộc tính đặc biệt cần xử lý
-            //foreach (var roleDto in rolesDto.Items)
-            //{
-            //    var role = await _unitOfWork.RoleRepository.GetByIdAsync(roleDto.Id);
+            foreach (var roleDto in rolesDto.Items)
+            {
+                var role = await _unitOfWork.RoleRepository.GetByIdAsync(roleDto.Id);
 
-            //    // Tìm người tạo, cập nhật, xóa và ánh xạ tên người dùng
-            //    var createdByUser = await _unitOfWork.UserRepository.GetByIdAsync(role.CreatedBy);
-            //    var updatedByUser = !string.IsNullOrEmpty(role.UpdatedBy) ? await _unitOfWork.UserRepository.GetByIdAsync(role.UpdatedBy) : null;
-            //    var deletedByUser = !string.IsNullOrEmpty(role.DeletedBy) ? await _unitOfWork.UserRepository.GetByIdAsync(role.DeletedBy) : null;
+                // Tìm người tạo, cập nhật, xóa và ánh xạ tên người dùng
+                var createdByUser = await _unitOfWork.AccountRepository.GetByIdAsync(role.CreatedBy);
+                var updatedByUser = !string.IsNullOrEmpty(role.UpdatedBy) ? await _unitOfWork.AccountRepository.GetByIdAsync(role.UpdatedBy) : null;
+                var deletedByUser = !string.IsNullOrEmpty(role.DeletedBy) ? await _unitOfWork.AccountRepository.GetByIdAsync(role.DeletedBy) : null;
 
-            //    // Cập nhật các trường CreatedBy, UpdatedBy, DeletedBy
-            //    roleDto.CreatedBy = createdByUser?.UserName ?? role.CreatedBy;
-            //    roleDto.UpdatedBy = updatedByUser?.UserName ?? role.UpdatedBy;
-            //    roleDto.DeletedBy = deletedByUser?.UserName ?? role.DeletedBy;
-            //}
+                // Cập nhật các trường CreatedBy, UpdatedBy, DeletedBy
+                roleDto.CreatedBy = createdByUser?.Username ?? role.CreatedBy;
+                roleDto.UpdatedBy = updatedByUser?.Username ?? role.UpdatedBy;
+                roleDto.DeletedBy = deletedByUser?.Username ?? role.DeletedBy;
+            }
 
             return new SuccessResponseModel<object>
             {
