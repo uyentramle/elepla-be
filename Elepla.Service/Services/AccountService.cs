@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Elepla.Domain.Entities;
 using Elepla.Repository.Interfaces;
 using Elepla.Service.Common;
 using Elepla.Service.Interfaces;
@@ -86,7 +87,7 @@ namespace Elepla.Service.Services
             }
             catch (Exception ex)
             {
-                return new ErrorResponseModel<string>
+                return new ErrorResponseModel<object>
                 {
                     Success = false,
                     Message = "An error occurred while updating user profile.",
@@ -95,6 +96,106 @@ namespace Elepla.Service.Services
             }
         }
 
+        // Update user avatar
+        public async Task<ResponseModel> UpdateUserAvatarAsync(UpdateUserAvatarDTO model)
+        {
+            try
+            {
+                var user = await _unitOfWork.AccountRepository.GetByIdAsync(model.UserId);
+
+                if (user == null)
+                {
+                    return new ResponseModel { Success = false, Message = "User not found." };
+                }
+
+                // Nếu người dùng đã có AvatarId, cập nhật avatar cũ
+                if (!string.IsNullOrEmpty(user.AvatarId))
+                {
+                    var oldAvatar = await _unitOfWork.ImageRepository.GetByIdAsync(user.AvatarId);
+                    if (oldAvatar != null)
+                    {
+                        oldAvatar.ImageUrl = model.AvatarUrl;
+                        _unitOfWork.ImageRepository.Update(oldAvatar);
+                    }
+                }
+                else
+                {
+                    // Nếu người dùng chưa có Avatar, thêm ảnh mới
+                    var newAvatar = new Image
+                    {
+                        ImageId = Guid.NewGuid().ToString(),
+                        ImageUrl = model.AvatarUrl,
+                        Type = "Avatar",
+                        CreatedBy = user.UserId
+                    };
+
+                    await _unitOfWork.ImageRepository.AddAsync(newAvatar);
+                    await _unitOfWork.SaveChangeAsync();
+
+                    // Gán AvatarId cho người dùng
+                    user.AvatarId = newAvatar.ImageId;
+                    _unitOfWork.AccountRepository.Update(user);
+                }
+
+                await _unitOfWork.SaveChangeAsync();
+
+                return new ResponseModel { Success = true, Message = "User avatar updated successfully." };
+            }
+            catch (Exception ex)
+            {
+                return new ErrorResponseModel<object>
+                {
+                    Success = false,
+                    Message = "An error occurred while updating user avatar.",
+                    Errors = new List<string> { ex.Message }
+                };
+            }
+        }
+
+        public async Task<ResponseModel> UpdateAvatarAsync(UpdateAvatarDTO model)
+        {
+            try
+            {
+                // Tìm người dùng dựa trên các tiêu chí tìm kiếm khác nhau
+                var user = await _unitOfWork.AccountRepository.FindByAnyCriteriaAsync(
+                    model.Email, model.PhoneNumber, model.UserName, model.GoogleEmail, model.FacebookEmail
+                );
+
+                if (user == null)
+                {
+                    return new ResponseModel { Success = false, Message = "User not found." };
+                }
+
+                // Tạo một bản ghi mới cho hình ảnh avatar
+                var newAvatar = new Image
+                {
+                    ImageId = Guid.NewGuid().ToString(),
+                    ImageUrl = model.AvatarUrl,
+                    Type = "Avatar",
+                    CreatedBy = user.UserId
+                };
+
+                await _unitOfWork.ImageRepository.AddAsync(newAvatar);
+                await _unitOfWork.SaveChangeAsync();
+
+                // Cập nhật avatar cho user
+                user.AvatarId = newAvatar.ImageId;
+
+                _unitOfWork.AccountRepository.Update(user);
+                await _unitOfWork.SaveChangeAsync();
+
+                return new ResponseModel { Success = true, Message = "Avatar updated successfully." };
+            }
+            catch (Exception ex)
+            {
+                return new ErrorResponseModel<object>
+                {
+                    Success = false,
+                    Message = "An error occurred while updating avatar.",
+                    Errors = new List<string> { ex.Message }
+                };
+            }
+        }
         #endregion
     }
 }

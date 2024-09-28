@@ -46,6 +46,18 @@ namespace Elepla.API.Controllers
             }
             return BadRequest(response);
         }
+
+        [HttpPut]
+        //[Authorize]
+        public async Task<IActionResult> UpdateUserAvatarAsync(UpdateUserAvatarDTO model)
+        {
+            var response = await _accountService.UpdateUserAvatarAsync(model);
+            if (response.Success)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
+        }
         #endregion
     }
 }
