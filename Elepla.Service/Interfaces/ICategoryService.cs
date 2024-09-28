@@ -10,10 +10,10 @@ namespace Elepla.Service.Interfaces
 {
 	public interface ICategoryService
 	{
-		Task<ResponseModel> GetAllCategory(int pageIndex, int pageSize);
-		Task<ResponseModel> GetCategoryById(string id);
-		Task<ResponseModel> CreateCategory(CreateCategoryDTO model);
-		Task<ResponseModel> UpdateCategory(UpdateCategoryDTO model);
-		Task<ResponseModel> DeleteCategory(string id);
+		Task<ResponseModel> GetAllCategoryAsync(int pageIndex, int pageSize);
+		Task<ResponseModel> GetCategoryByIdAsync(string id);
+		Task<ResponseModel> CreateCategoryAsync(CreateCategoryDTO model);
+		Task<ResponseModel> UpdateCategoryAsync(UpdateCategoryDTO model);
+		Task<ResponseModel> DeleteCategoryAsync(string id);
 	}
 }

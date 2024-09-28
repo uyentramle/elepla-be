@@ -78,6 +78,8 @@ namespace Elepla.Service.Mappers
 				.ForMember(dest => dest.CategoryId, opt => opt.MapFrom(src => Guid.NewGuid().ToString()))
 				.ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
 				.ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+				.ForMember(dest => dest.Status, opt => opt.MapFrom(src => true))
+				.ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => false))
 				.ReverseMap();
 
 			CreateMap<UpdateCategoryDTO, Category>()

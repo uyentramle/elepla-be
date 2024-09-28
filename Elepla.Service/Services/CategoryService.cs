@@ -27,7 +27,7 @@ namespace Elepla.Service.Services
 			_urlService = urlService;
 		}
 
-		public async Task<ResponseModel> GetAllCategory(int pageIndex, int pageSize)
+		public async Task<ResponseModel> GetAllCategoryAsync(int pageIndex, int pageSize)
 		{
 			var categories = await _unitOfWork.CategoryRepository.GetAsync(
 				filter: r => r.Status.Equals(true),
@@ -44,7 +44,7 @@ namespace Elepla.Service.Services
 			};
 		}
 
-		public async Task<ResponseModel> GetCategoryById(string id)
+		public async Task<ResponseModel> GetCategoryByIdAsync(string id)
 		{
 			var category = await _unitOfWork.CategoryRepository.GetByIdAsync(id);
 
@@ -67,17 +67,12 @@ namespace Elepla.Service.Services
 			};
 		}
 
-		public async Task<ResponseModel> CreateCategory(CreateCategoryDTO model)
+		public async Task<ResponseModel> CreateCategoryAsync(CreateCategoryDTO model)
 		{
-			var category = _mapper.Map<Category>(model);
-			category.Name = model.Name;
-			category.Url = _urlService.RemoveDiacritics(model.Name).Replace(" ", "-").ToLower();
-			category.Description = model.Description;
-			category.Status = true;
-			category.IsDeleted = false;
-
 			try
 			{
+				var category = _mapper.Map<Category>(model);
+				category.Url = _urlService.RemoveDiacritics(model.Name).Replace(" ", "-").ToLower();
 				await _unitOfWork.CategoryRepository.AddAsync(category);
 				await _unitOfWork.SaveChangeAsync();
 				return new SuccessResponseModel<object>
@@ -97,7 +92,7 @@ namespace Elepla.Service.Services
 			}
 		}
 
-		public async Task<ResponseModel> UpdateCategory(UpdateCategoryDTO model)
+		public async Task<ResponseModel> UpdateCategoryAsync(UpdateCategoryDTO model)
 		{
 			try
 			{
@@ -120,10 +115,6 @@ namespace Elepla.Service.Services
 					};
 				}
 
-				category.Name = model.Name;
-				category.Description = model.Description;
-				category.Status = model.Status;
-				category.UpdatedAt = DateTime.Now;
 				if (model.Url != null)
 				{
 					category.Url = _urlService.RemoveDiacritics(model.Url).Replace(" ", "-").ToLower();
@@ -163,7 +154,7 @@ namespace Elepla.Service.Services
 			}
 		}
 
-		public async Task<ResponseModel> DeleteCategory(string id)
+		public async Task<ResponseModel> DeleteCategoryAsync(string id)
 		{
 			try
 			{
