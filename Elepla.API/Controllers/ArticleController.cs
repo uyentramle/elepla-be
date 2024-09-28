@@ -1,4 +1,5 @@
 ﻿using Elepla.Service.Interfaces;
+using Elepla.Service.Models.ViewModels.ArticleViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -25,6 +26,53 @@ namespace Elepla.API.Controllers
 		{
 			var response = await _articleService.GetArticleByIdAsync(id);
 			return Ok(response);
+		}
+
+		[HttpPost]
+		public async Task<IActionResult> CreateArticleAsync(CreateArticleDTO model)
+		{
+			if (!ModelState.IsValid)
+			{
+				return BadRequest(ModelState);
+			}
+
+			var response = await _articleService.CreateArticleAsync(model);
+			if (response.Success)
+			{
+				return Ok(response);
+			}
+			else
+			{
+				return BadRequest(response);
+			}
+		}
+
+		[HttpPut]
+		public async Task<IActionResult> UpdateArticleAsync(UpdateArticleDTO model)
+		{
+			var response = await _articleService.UpdateArticleAsync(model);
+			if (response.Success)
+			{
+				return Ok(response);
+			}
+			else
+			{
+				return BadRequest(response);
+			}
+		}
+
+		[HttpDelete]
+		public async Task<IActionResult> DeleteArticleAsync(string id)
+		{
+			var response = await _articleService.DeleteArticleAsync(id);
+			if (response.Success)
+			{
+				return Ok(response);
+			}
+			else
+			{
+				return BadRequest(response);
+			}
 		}
 	}
 }

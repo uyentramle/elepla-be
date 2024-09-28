@@ -98,6 +98,21 @@ namespace Elepla.Service.Mappers
 				.ForMember(dest => dest.ArticleId, opt => opt.MapFrom(src => src.ArticleId))
 				.ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
 				.ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
+				.ForMember(dest => dest.Excerpt, opt => opt.MapFrom(src => src.Excerpt))
+				.ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+				.ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
+				.ForMember(dest => dest.CreatedBy, opt => opt.MapFrom(src => src.CreatedBy))
+				.ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.UpdatedAt))
+				.ForMember(dest => dest.UpdatedBy, opt => opt.MapFrom(src => src.UpdatedBy))
+				.ForMember(dest => dest.DeletedAt, opt => opt.MapFrom(src => src.DeletedAt))
+				.ForMember(dest => dest.DeletedBy, opt => opt.MapFrom(src => src.DeletedBy))
+				.ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => src.IsDeleted))
+				.ReverseMap();
+
+			CreateMap<Article, ViewDetailArticleDTO>()
+				.ForMember(dest => dest.ArticleId, opt => opt.MapFrom(src => src.ArticleId))
+				.ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
+				.ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
 				.ForMember(dest => dest.Content, opt => opt.MapFrom(src => src.Content))
 				.ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
 				.ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
@@ -109,6 +124,20 @@ namespace Elepla.Service.Mappers
 				.ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => src.IsDeleted))
 				.ReverseMap();
 
+			CreateMap<CreateArticleDTO, Article>()
+				.ForMember(dest => dest.ArticleId, opt => opt.MapFrom(src => Guid.NewGuid().ToString()))
+				.ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
+				.ForMember(dest => dest.Content, opt => opt.MapFrom(src => src.Content))
+				.ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+				.ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => false))
+				.ReverseMap();
+
+			CreateMap<UpdateArticleDTO, Article>()
+				.ForMember(dest => dest.ArticleId, opt => opt.MapFrom(src => src.ArticleId))
+				.ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
+				.ForMember(dest => dest.Content, opt => opt.MapFrom(src => src.Content))
+				.ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+				.ReverseMap();
 			#endregion
 		}
 	}

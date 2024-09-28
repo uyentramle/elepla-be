@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace Elepla.Service.Models.ViewModels.ArticleViewModels
 {
-	public class ViewListArticleDTO
+	public class ViewDetailArticleDTO
 	{
 		public string ArticleId { get; set; }
 		public string Url { get; set; }
 		public string Title { get; set; }
-		public string Excerpt { get; set; }
+		public string Content { get; set; }
 		public string Status { get; set; }
 
 		public DateTime CreatedAt { get; set; }
