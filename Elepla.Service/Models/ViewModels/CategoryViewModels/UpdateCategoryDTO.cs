@@ -12,7 +12,7 @@ namespace Elepla.Service.Models.ViewModels.CategoryViewModels
 		public string Id { get; set; }
 		[Required(ErrorMessage = "Name is required.")]
 		public string Name { get; set; }
-		public string Url { get; set; }
+		public string? Url { get; set; }
 		public string? Description { get; set; }
 		public bool Status { get; set; }
 	}

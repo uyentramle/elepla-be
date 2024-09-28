@@ -103,9 +103,10 @@ namespace Elepla.API
             services.AddScoped<ISmsSender, TwilioSmsSender>();
             services.AddScoped<IFirebaseService, FirebaseService>();
             services.AddScoped<ITokenService, TokenService>();
+			services.AddScoped<IUrlService, UrlService>();
 
-            // User
-            services.AddScoped<IAccountRepository, AccountRepository>();
+			// User
+			services.AddScoped<IAccountRepository, AccountRepository>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IAccountService, AccountService>();
 
