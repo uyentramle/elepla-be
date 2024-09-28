@@ -115,9 +115,11 @@ namespace Elepla.Service.Services
 					};
 				}
 
-				if (model.Url != null)
+				var mapper = _mapper.Map(model, category);
+
+				if (model.Url != null || string.IsNullOrEmpty(model.Url))
 				{
-					category.Url = _urlService.RemoveDiacritics(model.Url).Replace(" ", "-").ToLower();
+					category.Url = _urlService.RemoveDiacritics(model.Name).Replace(" ", "-").ToLower();
 				}
 				else
 				{
@@ -126,13 +128,13 @@ namespace Elepla.Service.Services
 
 				try
 				{
-					_unitOfWork.CategoryRepository.Update(category);
+					_unitOfWork.CategoryRepository.Update(mapper);
 					await _unitOfWork.SaveChangeAsync();
 					return new SuccessResponseModel<object>
 					{
 						Success = true,
 						Message = "Category updated successfully.",
-						Data = category
+						Data = mapper
 					};
 				}
 				catch (Exception ex)

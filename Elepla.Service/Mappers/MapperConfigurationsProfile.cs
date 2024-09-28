@@ -85,7 +85,7 @@ namespace Elepla.Service.Mappers
 			CreateMap<UpdateCategoryDTO, Category>()
 				.ForMember(dest => dest.CategoryId, opt => opt.MapFrom(src => src.Id))
 				.ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-				.ForMember(dest=> dest.Url, opt => opt.MapFrom(src => src.Url))
+				//.ForMember(dest=> dest.Url, opt => opt.MapFrom(src => src.Url))
 				.ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
 				.ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
 				.ReverseMap();
