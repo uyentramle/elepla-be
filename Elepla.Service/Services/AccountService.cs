@@ -64,6 +64,37 @@ namespace Elepla.Service.Services
             }
         }
 
+        // Update user profile
+        public async Task<ResponseModel> UpdateUserProfileAsync(UpdateUserProfileDTO model)
+        {
+            try
+            {
+                var user = await _unitOfWork.AccountRepository.GetByIdAsync(model.UserId);
+                if (user == null)
+                {
+                    return new ResponseModel { Success = false, Message = "User not found." };
+                }
+
+                // Sử dụng mapper để cập nhật thuộc tính của đối tượng user từ model
+                _mapper.Map(model, user);
+
+                _unitOfWork.AccountRepository.Update(user);
+                await _unitOfWork.SaveChangeAsync();
+
+                return new ResponseModel { Success = true, Message = "User profile updated successfully." };
+
+            }
+            catch (Exception ex)
+            {
+                return new ErrorResponseModel<string>
+                {
+                    Success = false,
+                    Message = "An error occurred while updating user profile.",
+                    Errors = new List<string> { ex.Message }
+                };
+            }
+        }
+
         #endregion
     }
 }

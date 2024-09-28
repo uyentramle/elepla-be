@@ -8,11 +8,11 @@ namespace Elepla.Service.Models.ViewModels.AccountViewModels
 {
     public class ViewUserProfileDTO
     {
-        public string Id { get; set; }
+        public string UserId { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string PhoneNumber { get; set; }
-        public string UserName { get; set; }
+        public string Username { get; set; }
         public string Email { get; set; }
         public string GoogleEmail { get; set; }
         public string FacebookEmail { get; set; }
@@ -21,7 +21,7 @@ namespace Elepla.Service.Models.ViewModels.AccountViewModels
         public DateTime LastLogin { get; set; }
         public string Role { get; set; }
         public string Address { get; set; }
-        public string School { get; set; }
+        public string SchoolName { get; set; }
         public string Avatar { get; set; }
         public string Background { get; set; }
         public DateTime CreatedAt { get; set; }
