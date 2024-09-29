@@ -342,6 +342,7 @@ namespace Elepla.Service.Services
 
                     // Cập nhật số điện thoại mới cho người dùng
                     user.PhoneNumber = model.NewPhoneNumber;
+                    user.PhoneNumberConfirmed = true;
 
                     _unitOfWork.AccountRepository.Update(user);
                     await _unitOfWork.SaveChangeAsync();
@@ -370,6 +371,118 @@ namespace Elepla.Service.Services
                 {
                     Success = false,
                     Message = "An error occurred while verifying new phone number.",
+                    Errors = new List<string> { ex.Message }
+                };
+            }
+        }
+        #endregion
+
+        #region Update User Email Or Link Email
+        // Send verification code to the new email when user wants to change email
+        public async Task<ResponseModel> SendVerificationCodeEmailAsync(NewEmailDTO model)
+        {
+            try
+            {
+                var user = await _unitOfWork.AccountRepository.GetByIdAsync(model.UserId);
+                if (user == null)
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "User not found."
+                    };
+                }
+
+                // Kiểm tra xem email mới đã được sử dụng chưa
+                var existingUser = await _unitOfWork.AccountRepository.GetUserByEmailAsync(model.NewEmail);
+                if (existingUser != null)
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "Email is already in use."
+                    };
+                }
+
+                // Tạo mã xác thực và gửi mã xác thực đến email mới
+                var code = GenerateVerificationCode();
+                await _emailSender.SendEmailAsync(model.NewEmail, "Verification Code", $"Mã xác thực của bạn là: {code}, mã sẽ hết hiệu lực sau 10 phút.");
+
+                _cache.Set(model.NewEmail, code, TimeSpan.FromMinutes(10)); // Lưu mã xác thực vào cache với thời gian hết hạn 10 phút
+                DateTime expiryTime = DateTime.UtcNow.ToLocalTime().AddMinutes(10); // Thời gian hết hạn 10 phút từ bây giờ
+
+                return new SuccessResponseModel<object>
+                {
+                    Success = true,
+                    Message = "Verification code sent to new email.",
+                    Data = new
+                    {
+                        CodeExpiryTime = expiryTime
+                    }
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ErrorResponseModel<object>
+                {
+                    Success = false,
+                    Message = "An error occurred while sending verification code.",
+                    Errors = new List<string> { ex.Message }
+                };
+            }
+        }
+
+        // Verify the new email with the verification code
+        public async Task<ResponseModel> VerifyAndUpdateNewEmailAsync(ChangeEmailDTO model)
+        {
+            try
+            {
+                var user = await _unitOfWork.AccountRepository.GetByIdAsync(model.UserId);
+                if (user == null)
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "User not found."
+                    };
+                }
+
+                // Xác thực mã xác thực
+                if (_cache.TryGetValue(model.NewEmail, out string? cachedCode) && cachedCode == model.VerificationCode)
+                {
+                    _cache.Remove(model.NewEmail); // Xóa mã xác thực khỏi cache
+
+                    // Cập nhật email mới cho người dùng
+                    user.Email = model.NewEmail;
+                    user.EmailConfirmed = true;
+
+                    _unitOfWork.AccountRepository.Update(user);
+                    await _unitOfWork.SaveChangeAsync();
+
+                    return new SuccessResponseModel<object>
+                    {
+                        Success = true,
+                        Message = "Email updated successfully.",
+                        Data = new
+                        {
+                            UserId = user.UserId,
+                            NewEmail = user.Email
+                        }
+                    };
+                }
+
+                return new ResponseModel
+                {
+                    Success = false,
+                    Message = "Invalid verification code."
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ErrorResponseModel<object>
+                {
+                    Success = false,
+                    Message = "An error occurred while verifying new email.",
                     Errors = new List<string> { ex.Message }
                 };
             }

@@ -114,5 +114,41 @@ namespace Elepla.API.Controllers
             return BadRequest(response);
         }
         #endregion
+
+        #region Update User Email Or Link Email
+        [HttpPost]
+        //[Authorize]
+        public async Task<IActionResult> SendVerificationCodeEmailAsync(NewEmailDTO model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var response = await _accountService.SendVerificationCodeEmailAsync(model);
+            if (response.Success)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
+        }
+
+        [HttpPut]
+        //[Authorize]
+        public async Task<IActionResult> VerifyAndUpdateNewEmailAsync(ChangeEmailDTO model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var response = await _accountService.VerifyAndUpdateNewEmailAsync(model);
+            if (response.Success)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
+        }
+        #endregion
     }
 }

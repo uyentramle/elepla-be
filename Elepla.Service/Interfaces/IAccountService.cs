@@ -17,5 +17,7 @@ namespace Elepla.Service.Interfaces
         Task<ResponseModel> ChangePasswordAsync(ChangePasswordDTO model);
         Task<ResponseModel> SendVerificationCodeAsync(NewPhoneNumberDTO model);
         Task<ResponseModel> VerifyAndUpdateNewPhoneNumberAsync(ChangePhoneNumberDTO model);
+        Task<ResponseModel> SendVerificationCodeEmailAsync(NewEmailDTO model);
+        Task<ResponseModel> VerifyAndUpdateNewEmailAsync(ChangeEmailDTO model);
     }
 }
