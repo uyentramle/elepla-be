@@ -197,5 +197,66 @@ namespace Elepla.Service.Services
             }
         }
         #endregion
+
+        #region Change Password
+        public async Task<ResponseModel> ChangePasswordAsync(ChangePasswordDTO model)
+        {
+            try
+            {
+                var user = await _unitOfWork.AccountRepository.GetByIdAsync(model.UserId);
+                if (user == null)
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "User not found."
+                    };
+                }
+
+                // Kiểm tra mật khẩu nhập vào có trùng với mật khẩu hiện tại của người dùng không
+                if (!_passwordHasher.VerifyPassword(user.PasswordHash, model.CurrentPassword))
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "Current password is incorrect."
+                    };
+                }
+
+                // Kiểm tra mật khẩu mới có đúng định dạng không
+                var passwordErrors = _passwordHasher.ValidatePassword(model.NewPassword);
+                if (passwordErrors.Any())
+                {
+                    return new ErrorResponseModel<object>
+                    {
+                        Success = false,
+                        Message = "Password is not in correct format.",
+                        Errors = passwordErrors.ToList()
+                    };
+                }
+
+                // Mã hóa mật khẩu mới
+                user.PasswordHash = _passwordHasher.HashPassword(model.NewPassword);
+
+                _unitOfWork.AccountRepository.Update(user);
+                await _unitOfWork.SaveChangeAsync();
+
+                return new ResponseModel
+                {
+                    Success = true,
+                    Message = "Password changed successfully."
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ErrorResponseModel<object>
+                {
+                    Success = false,
+                    Message = "An error occurred while changing password.",
+                    Errors = new List<string> { ex.Message }
+                };
+            }
+        }
+        #endregion
     }
 }

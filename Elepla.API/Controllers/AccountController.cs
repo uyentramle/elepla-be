@@ -59,5 +59,24 @@ namespace Elepla.API.Controllers
             return BadRequest(response);
         }
         #endregion
+
+        #region Change Password
+        [HttpPut]
+        //[Authorize]
+        public async Task<IActionResult> ChangePasswordAsync(ChangePasswordDTO model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var response = await _accountService.ChangePasswordAsync(model);
+            if (response.Success)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
+        }
+        #endregion
     }
 }

@@ -14,5 +14,6 @@ namespace Elepla.Service.Interfaces
         Task<ResponseModel> UpdateUserProfileAsync(UpdateUserProfileDTO model);
         Task<ResponseModel> UpdateUserAvatarAsync(UpdateUserAvatarDTO model);
         Task<ResponseModel> UpdateAvatarAsync(UpdateAvatarDTO model);
+        Task<ResponseModel> ChangePasswordAsync(ChangePasswordDTO model);
     }
 }
