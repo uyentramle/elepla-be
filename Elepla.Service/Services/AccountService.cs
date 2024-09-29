@@ -258,5 +258,122 @@ namespace Elepla.Service.Services
             }
         }
         #endregion
+
+        #region Update User Phone Number Or Link Phone Number
+        // Generate verification code
+        private string GenerateVerificationCode()
+        {
+            return new Random().Next(100000, 999999).ToString();
+        }
+
+        // Send verification code to the new phone number when user wants to change phone number
+        public async Task<ResponseModel> SendVerificationCodeAsync(NewPhoneNumberDTO model)
+        {
+            try
+            {
+                var user = await _unitOfWork.AccountRepository.GetByIdAsync(model.UserId);
+                if (user == null)
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "User not found."
+                    };
+                }
+
+                // Kiểm tra xem số điện thoại mới đã được sử dụng chưa
+                var existingUser = await _unitOfWork.AccountRepository.GetUserByPhoneNumberAsync(model.NewPhoneNumber);
+                if (existingUser != null && existingUser.UserId != user.UserId)
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "Phone number is already in use."
+                    };
+                }
+
+                // Tạo mã xác thực và gửi mã xác thực đến số điện thoại mới
+                var code = GenerateVerificationCode();
+                await _smsSender.SendSmsAsync(model.NewPhoneNumber, $"Mã xác thực của bạn là: {code}, mã sẽ hết hiệu lực sau 10 phút.");
+
+                _cache.Set(model.NewPhoneNumber, code, TimeSpan.FromMinutes(10)); // Lưu mã xác thực vào cache với thời gian hết hạn 10 phút
+                DateTime expiryTime = DateTime.UtcNow.ToLocalTime().AddMinutes(10); // Thời gian hết hạn 10 phút từ bây giờ
+
+                return new SuccessResponseModel<object>
+                {
+                    Success = true,
+                    Message = "Verification code sent to new phone number.",
+                    Data = new
+                    {
+                        CodeExpiryTime = expiryTime
+                    }
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ErrorResponseModel<object>
+                {
+                    Success = false,
+                    Message = "An error occurred while sending verification code.",
+                    Errors = new List<string> { ex.Message }
+                };
+            }
+        }
+
+        // Verify the new phone number with the verification code and update the phone number
+        public async Task<ResponseModel> VerifyAndUpdateNewPhoneNumberAsync(ChangePhoneNumberDTO model)
+        {
+            try
+            {
+                var user = await _unitOfWork.AccountRepository.GetByIdAsync(model.UserId);
+                if (user == null)
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "User not found."
+                    };
+                }
+
+                // Xác thực mã xác thực
+                if (_cache.TryGetValue(model.NewPhoneNumber, out string? cachedCode) && cachedCode == model.VerificationCode)
+                {
+                    _cache.Remove(model.NewPhoneNumber); // Xóa mã xác thực khỏi cache
+
+                    // Cập nhật số điện thoại mới cho người dùng
+                    user.PhoneNumber = model.NewPhoneNumber;
+
+                    _unitOfWork.AccountRepository.Update(user);
+                    await _unitOfWork.SaveChangeAsync();
+
+                    return new SuccessResponseModel<object>
+                    {
+                        Success = true,
+                        Message = "Phone number updated successfully.",
+                        Data = new
+                        {
+                            UserId = user.UserId,
+                            NewPhoneNumber = user.PhoneNumber
+                        }
+                    };
+                }
+
+                return new ResponseModel
+                {
+                    Success = false,
+                    Message = "Invalid verification code."
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ErrorResponseModel<object>
+                {
+                    Success = false,
+                    Message = "An error occurred while verifying new phone number.",
+                    Errors = new List<string> { ex.Message }
+                };
+            }
+        }
+        #endregion
     }
 }
