@@ -488,5 +488,77 @@ namespace Elepla.Service.Services
             }
         }
         #endregion
+
+        #region Link Account With Username
+        public async Task<ResponseModel> LinkAccountWithUsernameAsync(UpdateUserAccountDTO model)
+        {
+            try
+            {
+                var user = await _unitOfWork.AccountRepository.GetByIdAsync(model.UserId);
+                if (user == null)
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "User not found."
+                    };
+                }
+
+                // Kiểm tra xem username có đủ độ dài yêu cầu không (tối thiểu 6 ký tự)
+                if (model.Username.Length < 6 || model.Username.Length > 20)
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "Username must be between 6 and 20 characters long."
+                    };
+                }
+
+                // Kiểm tra xem username đã được sử dụng chưa
+                var existingUser = await _unitOfWork.AccountRepository.GetUserByUsernameAsync(model.Username);
+                if (existingUser != null && existingUser.UserId != model.UserId)
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "Username is already taken."
+                    };
+                }
+
+                // Kiểm tra mật khẩu có đúng định dạng không
+                var passwordErrors = _passwordHasher.ValidatePassword(model.Password);
+                if (passwordErrors.Any())
+                {
+                    return new ErrorResponseModel<string>
+                    {
+                        Success = false,
+                        Message = "Password is not in correct format.",
+                        Errors = passwordErrors.ToList()
+                    };
+                }
+
+                user.Username = model.Username;
+                user.PasswordHash = _passwordHasher.HashPassword(model.Password);
+
+                _unitOfWork.AccountRepository.Update(user);
+                await _unitOfWork.SaveChangeAsync();
+
+                return new SuccessResponseModel<object>
+                {
+                    Success = true,
+                    Message = "Username updated successfully."
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ErrorResponseModel<object>
+                {
+                    Success = false,
+                    Message = "An error occurred while updating user account.",
+                    Errors = new List<string> { ex.Message }
+                };
+            }
+        }
+        #endregion
     }
 }

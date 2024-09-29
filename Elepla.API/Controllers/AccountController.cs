@@ -150,5 +150,24 @@ namespace Elepla.API.Controllers
             return BadRequest(response);
         }
         #endregion
+
+        #region Link Account With Username
+        [HttpPut]
+        //[Authorize]
+        public async Task<IActionResult> LinkAccountWithUsernameAsync(UpdateUserAccountDTO model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var response = await _accountService.LinkAccountWithUsernameAsync(model);
+            if (response.Success)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
+        }
+        #endregion
     }
 }
