@@ -2,6 +2,7 @@
 using Elepla.Domain.Entities;
 using Elepla.Repository.Interfaces;
 using Elepla.Service.Interfaces;
+using Elepla.Service.Models.ViewModels.UserPackageModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,6 +21,23 @@ namespace Elepla.Service.Services
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
+
+        // Method to retrieve the active service package for the user
+        public async Task<UserPackageDTO?> GetActivePackageAsync(string userId)
+        {
+            var userPackage = await _unitOfWork.UserPackageRepository.GetActiveUserPackageAsync(userId);
+            if (userPackage == null) return null;
+
+            var userPackageDto = _mapper.Map<UserPackageDTO>(userPackage);
+            return userPackageDto;
+        }
+
+        // Method to retrieve all service packages (active and expired) for the user
+        public async Task<IEnumerable<UserPackage>> GetAllPackagesAsync(string userId)
+        {
+            return await _unitOfWork.UserPackageRepository.GetAllAsync(up => up.UserId == userId);
+        }
+
 
         // Method to purchase a new service package for the user
         public async Task<bool> PurchaseServicePackageAsync(string userId, string packageId)

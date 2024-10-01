@@ -7,6 +7,7 @@ using Elepla.Service.Models.ViewModels.AuthViewModels;
 using Elepla.Service.Models.ViewModels.CategoryViewModels;
 using Elepla.Service.Models.ViewModels.RoleViewModels;
 using Elepla.Service.Models.ViewModels.ServicePackageViewModels;
+using Elepla.Service.Models.ViewModels.UserPackageModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -126,11 +127,38 @@ namespace Elepla.Service.Mappers
 				.ReverseMap();
             #endregion
 
+
+            #region UserPackage
+
+            // Mapping UserPackage to UserPackageDTO
+            CreateMap<UserPackage, UserPackageDTO>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
+                .ForMember(dest => dest.PackageId, opt => opt.MapFrom(src => src.PackageId))
+                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.StartDate))
+                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.EndDate))
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+                .ForMember(dest => dest.Package, opt => opt.MapFrom(src => src.Package)) 
+                .ReverseMap();
+
+            #endregion
+
             #region ServicePackage
+
+            // Mapping ServicePackage to ServicePackageDTO
+            CreateMap<ServicePackage, ServicePackageDTO>()
+                .ForMember(dest => dest.PackageId, opt => opt.MapFrom(src => src.PackageId))
+                .ForMember(dest => dest.PackageName, opt => opt.MapFrom(src => src.PackageName))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Price))
+                .ForMember(dest => dest.Discount, opt => opt.MapFrom(src => src.Discount))
+                .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration))
+                .ForMember(dest => dest.MaxLessonPlans, opt => opt.MapFrom(src => src.MaxLessonPlans))
+                .ReverseMap();
 
             // Mapping CreateServicePackageDTO to ServicePackage
             CreateMap<CreateServicePackageDTO, ServicePackage>()
-                .ForMember(dest => dest.PackageId, opt => opt.MapFrom(src => Guid.NewGuid().ToString())) // Generate new ID for creating
+                .ForMember(dest => dest.PackageId, opt => opt.MapFrom(src => Guid.NewGuid().ToString()))
                 .ForMember(dest => dest.PackageName, opt => opt.MapFrom(src => src.PackageName))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Price))

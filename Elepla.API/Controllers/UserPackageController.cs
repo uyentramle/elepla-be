@@ -13,6 +13,28 @@ namespace Elepla.API.Controllers
             _userPackageService = userPackageService;
         }
 
+        #region View Active Service Package
+        [HttpGet("{userId}/active")]
+        //[Authorize]
+        public async Task<IActionResult> GetActivePackageAsync(string userId)
+        {
+            var package = await _userPackageService.GetActivePackageAsync(userId);
+            if (package == null) return NotFound("No active package found.");
+            return Ok(package);
+        }
+        #endregion
+
+        #region View All Service Packages
+        [HttpGet("{userId}/all")]
+        //[Authorize]
+        public async Task<IActionResult> GetAllPackagesAsync(string userId)
+        {
+            var packages = await _userPackageService.GetAllPackagesAsync(userId);
+            if (packages == null || !packages.Any()) return NotFound("No packages found.");
+            return Ok(packages);
+        }
+        #endregion
+
         #region Purchase Service Package
         [HttpPost]
         //[Authorize]
