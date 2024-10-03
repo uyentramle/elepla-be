@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Elepla.Service.Models.ResponseModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,5 +9,13 @@ namespace Elepla.Service.Interfaces
 {
     public interface IPaymentService
     {
+        // Get paginated payment history of a user
+        Task<ResponseModel> GetUserPaymentHistoryAsync(string teacherId, int pageIndex, int pageSize);
+
+        // Get detailed payment information by payment ID
+        Task<ResponseModel> GetPaymentDetailsAsync(string paymentId);
+
+        // Get paginated payment history for all users
+        Task<ResponseModel> GetAllUserPaymentHistoryAsync(int pageIndex, int pageSize);
     }
 }
