@@ -1,12 +1,13 @@
 ﻿using AutoMapper;
 using Elepla.Domain.Entities;
+using Elepla.Repository.Common;
 using Elepla.Repository.Interfaces;
 using Elepla.Service.Interfaces;
+using Elepla.Service.Models.ResponseModels;
 using Elepla.Service.Models.ViewModels.ServicePackageViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Elepla.Service.Services
@@ -26,53 +27,169 @@ namespace Elepla.Service.Services
             _claimsService = claimsService;
         }
 
-        // Get all service packages
-        public async Task<IEnumerable<ServicePackage>> GetAllServicePackagesAsync()
+        // Get all service packages with pagination
+        public async Task<ResponseModel> GetAllServicePackagesAsync(int pageIndex, int pageSize)
         {
-            return await _unitOfWork.ServicePackageRepository.GetAllServicePackagesAsync();
+            var packages = await _unitOfWork.ServicePackageRepository.GetAsync(
+                filter: r => !r.IsDeleted, // Filtering out deleted packages
+                pageIndex: pageIndex,
+                pageSize: pageSize
+            );
+
+            var packageDtos = _mapper.Map<Pagination<ServicePackageDTO>>(packages);
+
+            return new SuccessResponseModel<object>
+            {
+                Success = true,
+                Message = "Service packages retrieved successfully.",
+                Data = packageDtos
+            };
         }
 
         // Get a service package by its ID
-        public async Task<ServicePackage?> GetServicePackageByIdAsync(string packageId)
+        public async Task<ResponseModel> GetServicePackageByIdAsync(string packageId)
         {
-            return await _unitOfWork.ServicePackageRepository.GetServicePackageByIdAsync(packageId);
-        }
+            var package = await _unitOfWork.ServicePackageRepository.GetByIdAsync(packageId);
 
-        // Add a new service package using DTO
-        public async Task AddServicePackageAsync(CreateServicePackageDTO packageDTO)
-        {
-            var package = _mapper.Map<ServicePackage>(packageDTO); // Map DTO to entity
-
-            // Set timestamps and user info
-            package.CreatedAt = _timeService.GetCurrentTime();
-            package.CreatedBy = _claimsService.GetCurrentUserId().ToString();
-
-            await _unitOfWork.ServicePackageRepository.AddServicePackageAsync(package);
-            await _unitOfWork.SaveChangeAsync();
-        }
-
-        // Update an existing service package using DTO
-        public async Task UpdateServicePackageAsync(string packageId, UpdateServicePackageDTO packageDTO)
-        {
-            var package = await _unitOfWork.ServicePackageRepository.GetServicePackageByIdAsync(packageId);
-            if (package != null)
+            if (package == null)
             {
-                _mapper.Map(packageDTO, package); // Map updated values to the existing entity
+                return new ErrorResponseModel<object>
+                {
+                    Success = false,
+                    Message = "Service package not found."
+                };
+            }
 
-                // Set timestamps and user info
-                package.UpdatedAt = _timeService.GetCurrentTime();
-                package.UpdatedBy = _claimsService.GetCurrentUserId().ToString();
+            var result = _mapper.Map<ServicePackageDTO>(package);
 
-                _unitOfWork.ServicePackageRepository.UpdateServicePackage(package);
+            return new SuccessResponseModel<object>
+            {
+                Success = true,
+                Message = "Service package retrieved successfully.",
+                Data = result
+            };
+        }
+
+        // Add a new service package
+        public async Task<ResponseModel> AddServicePackageAsync(CreateServicePackageDTO model)
+        {
+            try
+            {
+                var package = _mapper.Map<ServicePackage>(model);
+                package.PackageId = Guid.NewGuid().ToString(); // Generating new ID
+                package.CreatedAt = _timeService.GetCurrentTime();
+                package.CreatedBy = _claimsService.GetCurrentUserId().ToString();
+
+                await _unitOfWork.ServicePackageRepository.AddAsync(package);
                 await _unitOfWork.SaveChangeAsync();
+
+                return new SuccessResponseModel<object>
+                {
+                    Success = true,
+                    Message = "Service package created successfully.",
+                    Data = package
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ErrorResponseModel<object>
+                {
+                    Success = false,
+                    Message = ex.Message
+                };
             }
         }
 
-        // Delete a service package by its ID
-        public async Task DeleteServicePackageAsync(string packageId)
+        // Update an existing service package
+        public async Task<ResponseModel> UpdateServicePackageAsync(string packageId, UpdateServicePackageDTO model)
         {
-            _unitOfWork.ServicePackageRepository.DeleteServicePackage(packageId);
-            await _unitOfWork.SaveChangeAsync();
+            try
+            {
+                var package = await _unitOfWork.ServicePackageRepository.GetByIdAsync(packageId);
+                if (package == null)
+                {
+                    return new ErrorResponseModel<object>
+                    {
+                        Success = false,
+                        Message = "Service package not found."
+                    };
+                }
+
+                if (package.IsDeleted == true)
+                {
+                    return new ErrorResponseModel<object>
+                    {
+                        Success = false,
+                        Message = "Cannot modify a deleted service package."
+                    };
+                }
+
+                _mapper.Map(model, package);
+                package.UpdatedAt = _timeService.GetCurrentTime();
+                package.UpdatedBy = _claimsService.GetCurrentUserId().ToString();
+
+                _unitOfWork.ServicePackageRepository.Update(package);
+                await _unitOfWork.SaveChangeAsync();
+
+                return new SuccessResponseModel<object>
+                {
+                    Success = true,
+                    Message = "Service package updated successfully.",
+                    Data = package
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ErrorResponseModel<object>
+                {
+                    Success = false,
+                    Message = ex.Message
+                };
+            }
+        }
+
+        // Soft delete a service package
+        public async Task<ResponseModel> DeleteServicePackageAsync(string packageId)
+        {
+            try
+            {
+                var package = await _unitOfWork.ServicePackageRepository.GetByIdAsync(packageId);
+                if (package == null)
+                {
+                    return new ErrorResponseModel<object>
+                    {
+                        Success = false,
+                        Message = "Service package not found."
+                    };
+                }
+
+                if (package.IsDeleted == true)
+                {
+                    return new ErrorResponseModel<object>
+                    {
+                        Success = false,
+                        Message = "Service package is already deleted."
+                    };
+                }
+
+                _unitOfWork.ServicePackageRepository.SoftRemove(package);
+                await _unitOfWork.SaveChangeAsync();
+
+                return new SuccessResponseModel<object>
+                {
+                    Success = true,
+                    Message = "Service package deleted successfully.",
+                    Data = package
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ErrorResponseModel<object>
+                {
+                    Success = false,
+                    Message = ex.Message
+                };
+            }
         }
     }
 }

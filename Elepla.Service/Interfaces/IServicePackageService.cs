@@ -1,4 +1,5 @@
 ﻿using Elepla.Domain.Entities;
+using Elepla.Service.Models.ResponseModels;
 using Elepla.Service.Models.ViewModels.ServicePackageViewModels;
 using System;
 using System.Collections.Generic;
@@ -11,18 +12,18 @@ namespace Elepla.Service.Interfaces
     public interface IServicePackageService
     {
         // Get all service packages
-        Task<IEnumerable<ServicePackage>> GetAllServicePackagesAsync();
+        Task<ResponseModel> GetAllServicePackagesAsync(int pageIndex, int pageSize);
 
         // Get a specific service package by its ID
-        Task<ServicePackage?> GetServicePackageByIdAsync(string packageId);
+        Task<ResponseModel> GetServicePackageByIdAsync(string packageId);
 
         // Add a new service package
-        Task AddServicePackageAsync(CreateServicePackageDTO packageDTO);
+        Task<ResponseModel> AddServicePackageAsync(CreateServicePackageDTO packageDTO);
 
         // Update an existing service package
-        Task UpdateServicePackageAsync(string packageId, UpdateServicePackageDTO packageDTO);
+        Task<ResponseModel> UpdateServicePackageAsync(string packageId, UpdateServicePackageDTO packageDTO);
 
         // Delete a service package by its ID
-        Task DeleteServicePackageAsync(string packageId);
+        Task<ResponseModel> DeleteServicePackageAsync(string packageId);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Elepla.Service.Interfaces;
 using Elepla.Service.Models.ViewModels.ServicePackageViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
@@ -14,47 +15,74 @@ namespace Elepla.API.Controllers
             _servicePackageService = servicePackageService;
         }
 
-        // Get all service packages
+        #region Get All Service Packages
         [HttpGet]
-        public async Task<IActionResult> GetAllServicePackagesAsync()
+        //[Authorize]
+        public async Task<IActionResult> GetAllServicePackagesAsync(int pageIndex = 0, int pageSize = 10)
         {
-            var packages = await _servicePackageService.GetAllServicePackagesAsync();
-            return Ok(packages);
+            var response = await _servicePackageService.GetAllServicePackagesAsync(pageIndex, pageSize);
+            if (response.Success)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
         }
+        #endregion
 
-        // Get a service package by ID
+        #region Get Service Package by ID
         [HttpGet("{packageId}")]
+        //[Authorize]
         public async Task<IActionResult> GetServicePackageByIdAsync(string packageId)
         {
-            var package = await _servicePackageService.GetServicePackageByIdAsync(packageId);
-            if (package == null) return NotFound("Package not found.");
-            return Ok(package);
+            var response = await _servicePackageService.GetServicePackageByIdAsync(packageId);
+            if (response.Success)
+            {
+                return Ok(response);
+            }
+            return NotFound(response);
         }
+        #endregion
 
-        // Add a new service package
+        #region Add New Service Package
         [HttpPost]
+        //[Authorize]
         public async Task<IActionResult> AddServicePackageAsync([FromBody] CreateServicePackageDTO packageDTO)
         {
-            await _servicePackageService.AddServicePackageAsync(packageDTO);
-            return Ok("Service package added successfully.");
+            var response = await _servicePackageService.AddServicePackageAsync(packageDTO);
+            if (response.Success)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
         }
+        #endregion
 
-        // Update an existing service package
+        #region Update Service Package
         [HttpPut("{packageId}")]
+        //[Authorize]
         public async Task<IActionResult> UpdateServicePackageAsync(string packageId, [FromBody] UpdateServicePackageDTO packageDTO)
         {
-            // Call the service to update the package with the packageId from query
-            await _servicePackageService.UpdateServicePackageAsync(packageId, packageDTO);
-            return Ok("Service package updated successfully.");
+            var response = await _servicePackageService.UpdateServicePackageAsync(packageId, packageDTO);
+            if (response.Success)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
         }
+        #endregion
 
-
-        // Delete a service package
+        #region Delete Service Package
         [HttpDelete("{packageId}")]
+        //[Authorize]
         public async Task<IActionResult> DeleteServicePackageAsync(string packageId)
         {
-            await _servicePackageService.DeleteServicePackageAsync(packageId);
-            return Ok("Service package deleted successfully.");
+            var response = await _servicePackageService.DeleteServicePackageAsync(packageId);
+            if (response.Success)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
         }
+        #endregion
     }
 }

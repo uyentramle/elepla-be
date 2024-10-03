@@ -5,6 +5,7 @@ using Elepla.Repository.Common;
 using Elepla.Service.Models.ViewModels.AccountViewModels;
 using Elepla.Service.Models.ViewModels.AuthViewModels;
 using Elepla.Service.Models.ViewModels.CategoryViewModels;
+using Elepla.Service.Models.ViewModels.PaymentViewModels;
 using Elepla.Service.Models.ViewModels.RoleViewModels;
 using Elepla.Service.Models.ViewModels.ServicePackageViewModels;
 using Elepla.Service.Models.ViewModels.UserPackageModels;
@@ -175,6 +176,32 @@ namespace Elepla.Service.Mappers
                 .ForMember(dest => dest.Discount, opt => opt.MapFrom(src => src.Discount))
                 .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration))
                 .ForMember(dest => dest.MaxLessonPlans, opt => opt.MapFrom(src => src.MaxLessonPlans))
+                .ReverseMap();
+
+            #endregion
+
+
+            #region Payment
+
+            // Mapping Payment to PaymentDTO
+            CreateMap<Payment, PaymentDTO>()
+                .ForMember(dest => dest.PaymentId, opt => opt.MapFrom(src => src.PaymentId))
+                .ForMember(dest => dest.TotalAmount, opt => opt.MapFrom(src => src.TotalAmount))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+                .ForMember(dest => dest.TeacherId, opt => opt.MapFrom(src => src.TeacherId))
+                .ForMember(dest => dest.PackageName, opt => opt.MapFrom(src => src.Package.PackageName)) // Package name from associated ServicePackage
+                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
+                .ReverseMap();
+
+            // Mapping Payment to PaymentDetailDTO
+            CreateMap<Payment, PaymentDetailDTO>()
+                .ForMember(dest => dest.PaymentId, opt => opt.MapFrom(src => src.PaymentId))
+                .ForMember(dest => dest.TotalAmount, opt => opt.MapFrom(src => src.TotalAmount))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+                .ForMember(dest => dest.TeacherId, opt => opt.MapFrom(src => src.TeacherId))
+                .ForMember(dest => dest.PackageName, opt => opt.MapFrom(src => src.Package.PackageName))  // Package name from associated ServicePackage
+                .ForMember(dest => dest.PackageDescription, opt => opt.MapFrom(src => src.Package.Description))  // Package description from associated ServicePackage
+                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
                 .ReverseMap();
 
             #endregion
