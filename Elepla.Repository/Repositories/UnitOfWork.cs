@@ -21,6 +21,7 @@ namespace Elepla.Repository.Repositories
         private readonly IServicePackageRepository _servicePackageRepository;
         private readonly IUserPackageRepository _userPackageRepository;
         private readonly IPaymentRepository _paymentRepository;
+        private readonly IQuestionBankRepository _questionBankRepository;
 
         public UnitOfWork(AppDbContext dbContext,
             IAccountRepository accountRepository,
@@ -32,7 +33,8 @@ namespace Elepla.Repository.Repositories
             IArticleImageRepository articleImageRepository,
             IServicePackageRepository servicePackageRepository,
             IUserPackageRepository userPackageRepository,
-            IPaymentRepository paymentRepository)
+            IPaymentRepository paymentRepository,
+            IQuestionBankRepository questionBankRepository)
         {
             _dbContext = dbContext;
             _accountRepository = accountRepository;
@@ -45,6 +47,7 @@ namespace Elepla.Repository.Repositories
             _servicePackageRepository = servicePackageRepository;
             _userPackageRepository = userPackageRepository;
             _paymentRepository = paymentRepository;
+            _questionBankRepository = questionBankRepository;
         }
 
         public IAccountRepository AccountRepository => _accountRepository;
@@ -66,6 +69,8 @@ namespace Elepla.Repository.Repositories
         public IUserPackageRepository UserPackageRepository => _userPackageRepository;
 
         public IPaymentRepository PaymentRepository => _paymentRepository;
+
+        public IQuestionBankRepository QuestionBankRepository => _questionBankRepository;
 
         public async Task<int> SaveChangeAsync()
         {
