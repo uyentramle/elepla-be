@@ -3,6 +3,7 @@ using Elepla.Domain.Entities;
 using Elepla.Domain.Enums;
 using Elepla.Repository.Common;
 using Elepla.Service.Models.ViewModels.AccountViewModels;
+using Elepla.Service.Models.ViewModels.ArticleViewModels;
 using Elepla.Service.Models.ViewModels.AuthViewModels;
 using Elepla.Service.Models.ViewModels.CategoryViewModels;
 using Elepla.Service.Models.ViewModels.QuestionBankViewModels;
@@ -196,7 +197,7 @@ namespace Elepla.Service.Mappers
 				.ReverseMap();
 
 			CreateMap<UpdateQuestionDTO, QuestionBank>()
-				.ForMember(dest => dest.QuestionId, opt => opt.MapFrom(src => src.Id))
+				.ForMember(dest => dest.QuestionId, opt => opt.MapFrom(src => src.QuestionId))
 				.ForMember(dest => dest.Question, opt => opt.MapFrom(src => src.Question))
 				.ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
 				.ForMember(dest => dest.Plum, opt => opt.MapFrom(src => src.Plum))
