@@ -53,5 +53,45 @@ namespace Elepla.API.Controllers
             return BadRequest(response);
         }
         #endregion
+
+        #region View Revenue Reports
+
+        // Revenue report by month
+        [HttpGet("RevenueByMonth/{year}")]
+        public async Task<IActionResult> GetRevenueByMonthAsync(int year)
+        {
+            var response = await _paymentService.GetRevenueByMonthAsync(year);
+            if (response.Success)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
+        }
+
+        // Revenue report by quarter
+        [HttpGet("RevenueByQuarter/{year}")]
+        public async Task<IActionResult> GetRevenueByQuarterAsync(int year)
+        {
+            var response = await _paymentService.GetRevenueByQuarterAsync(year);
+            if (response.Success)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
+        }
+
+        // Revenue report by year
+        [HttpGet("RevenueByYear")]
+        public async Task<IActionResult> GetRevenueByYearAsync()
+        {
+            var response = await _paymentService.GetRevenueByYearAsync();
+            if (response.Success)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
+        }
+
+        #endregion
     }
 }

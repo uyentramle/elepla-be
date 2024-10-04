@@ -19,7 +19,7 @@ namespace Elepla.Repository.Repositories
         public async Task<UserPackage?> GetActiveUserPackageAsync(string userId)
         {
             return await _dbContext.UserPackages
-                .Include(up => up.Package) // Include the service package details
+                .Include(up => up.Package)
                 .FirstOrDefaultAsync(up => up.UserId == userId && up.IsActive);
         }
     }

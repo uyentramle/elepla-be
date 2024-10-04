@@ -17,5 +17,9 @@ namespace Elepla.Service.Interfaces
 
         // Get paginated payment history for all users
         Task<ResponseModel> GetAllUserPaymentHistoryAsync(int pageIndex, int pageSize);
+
+        Task<ResponseModel> GetRevenueByMonthAsync(int year);
+        Task<ResponseModel> GetRevenueByQuarterAsync(int year);
+        Task<ResponseModel> GetRevenueByYearAsync();
     }
 }

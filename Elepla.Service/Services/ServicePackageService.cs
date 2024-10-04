@@ -31,7 +31,7 @@ namespace Elepla.Service.Services
         public async Task<ResponseModel> GetAllServicePackagesAsync(int pageIndex, int pageSize)
         {
             var packages = await _unitOfWork.ServicePackageRepository.GetAsync(
-                filter: r => !r.IsDeleted, // Filtering out deleted packages
+                filter: r => !r.IsDeleted, 
                 pageIndex: pageIndex,
                 pageSize: pageSize
             );
@@ -76,7 +76,7 @@ namespace Elepla.Service.Services
             try
             {
                 var package = _mapper.Map<ServicePackage>(model);
-                package.PackageId = Guid.NewGuid().ToString(); // Generating new ID
+                package.PackageId = Guid.NewGuid().ToString(); 
                 package.CreatedAt = _timeService.GetCurrentTime();
                 package.CreatedBy = _claimsService.GetCurrentUserId().ToString();
 
