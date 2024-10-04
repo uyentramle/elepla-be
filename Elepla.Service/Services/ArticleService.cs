@@ -92,7 +92,7 @@ namespace Elepla.Service.Services
 						break;
 				}
 
-				return new SuccessResponseModel<object>
+				return new ResponseModel
 				{
 					Success = true,
 					Message = "Article created successfully."
@@ -100,7 +100,7 @@ namespace Elepla.Service.Services
 			}
 			catch (Exception ex)
 			{
-				return new ErrorResponseModel<object>
+				return new ResponseModel
 				{
 					Success = false,
 					Message = ex.Message
@@ -116,7 +116,7 @@ namespace Elepla.Service.Services
 
 				if (article == null)
 				{
-					return new ErrorResponseModel<object>
+					return new ResponseModel
 					{
 						Success = false,
 						Message = "Article not found."
@@ -147,7 +147,7 @@ namespace Elepla.Service.Services
 						break;
 				}
 
-				return new SuccessResponseModel<object>
+				return new ResponseModel
 				{
 					Success = true,
 					Message = "Article updated successfully."
@@ -155,7 +155,7 @@ namespace Elepla.Service.Services
 			}
 			catch (Exception ex)
 			{
-				return new ErrorResponseModel<object>
+				return new ResponseModel
 				{
 					Success = false,
 					Message = ex.Message
@@ -171,7 +171,7 @@ namespace Elepla.Service.Services
 
 				if (article == null)
 				{
-					return new ErrorResponseModel<object>
+					return new ResponseModel
 					{
 						Success = false,
 						Message = "Article not found."
@@ -180,7 +180,7 @@ namespace Elepla.Service.Services
 
 				if (article.IsDeleted == true)
 				{
-					return new ErrorResponseModel<object>
+					return new ResponseModel
 					{
 						Success = false,
 						Message = "Can't delete article is deleted."
@@ -191,7 +191,7 @@ namespace Elepla.Service.Services
 				_unitOfWork.ArticleRepository.SoftRemove(article);
 				await _unitOfWork.SaveChangeAsync();
 
-				return new SuccessResponseModel<object>
+				return new ResponseModel
 				{
 					Success = true,
 					Message = "Article deleted successfully."
@@ -199,7 +199,7 @@ namespace Elepla.Service.Services
 			}
 			catch (Exception ex)
 			{
-				return new ErrorResponseModel<object>
+				return new ResponseModel
 				{
 					Success = false,
 					Message = ex.Message
