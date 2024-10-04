@@ -10,7 +10,6 @@ using Elepla.Service.Models.ViewModels.PaymentViewModels;
 using Elepla.Service.Models.ViewModels.QuestionBankViewModels;
 using Elepla.Service.Models.ViewModels.RoleViewModels;
 using Elepla.Service.Models.ViewModels.ServicePackageViewModels;
-using Elepla.Service.Models.ViewModels.UserPackageModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -205,21 +204,6 @@ namespace Elepla.Service.Mappers
 				.ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
 				.ForMember(dest => dest.Plum, opt => opt.MapFrom(src => src.Plum))
 				.ReverseMap();
-            #endregion
-
-            #region UserPackage
-
-            // Mapping UserPackage to UserPackageDTO
-            CreateMap<UserPackage, UserPackageDTO>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
-                .ForMember(dest => dest.PackageId, opt => opt.MapFrom(src => src.PackageId))
-                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.StartDate))
-                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.EndDate))
-                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
-                .ForMember(dest => dest.Package, opt => opt.MapFrom(src => src.Package))
-                .ReverseMap();
-
             #endregion
 
             #region ServicePackage

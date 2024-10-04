@@ -18,9 +18,9 @@ namespace Elepla.API.Controllers
         #region Get All Service Packages
         [HttpGet]
         //[Authorize]
-        public async Task<IActionResult> GetAllServicePackagesAsync(int pageIndex = 0, int pageSize = 10)
+        public async Task<IActionResult> GetAllServicePackagesAsync(int pageIndex = 0, int pageSize = 10, string packageName = null)
         {
-            var response = await _servicePackageService.GetAllServicePackagesAsync(pageIndex, pageSize);
+            var response = await _servicePackageService.GetAllServicePackagesAsync(pageIndex, pageSize, packageName);
             if (response.Success)
             {
                 return Ok(response);

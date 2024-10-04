@@ -8,6 +8,7 @@ using Elepla.Service.Models.ViewModels.ServicePackageViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace Elepla.Service.Services
@@ -27,11 +28,18 @@ namespace Elepla.Service.Services
             _claimsService = claimsService;
         }
 
-        // Get all service packages with pagination
-        public async Task<ResponseModel> GetAllServicePackagesAsync(int pageIndex, int pageSize)
+        // Get all service packages with pagination and optional filtering by name
+        public async Task<ResponseModel> GetAllServicePackagesAsync(int pageIndex, int pageSize, string packageName = null)
         {
+            Expression<Func<ServicePackage, bool>> filter = r => !r.IsDeleted;
+
+            if (!string.IsNullOrWhiteSpace(packageName))
+            {
+                filter = r => !r.IsDeleted && r.PackageName.Contains(packageName);
+            }
+
             var packages = await _unitOfWork.ServicePackageRepository.GetAsync(
-                filter: r => !r.IsDeleted, 
+                filter: filter,
                 pageIndex: pageIndex,
                 pageSize: pageSize
             );
@@ -45,6 +53,7 @@ namespace Elepla.Service.Services
                 Data = packageDtos
             };
         }
+
 
         // Get a service package by its ID
         public async Task<ResponseModel> GetServicePackageByIdAsync(string packageId)

@@ -12,7 +12,7 @@ namespace Elepla.Service.Interfaces
     public interface IServicePackageService
     {
         // Get all service packages
-        Task<ResponseModel> GetAllServicePackagesAsync(int pageIndex, int pageSize);
+        Task<ResponseModel> GetAllServicePackagesAsync(int pageIndex, int pageSize, string packageName = null);
 
         // Get a specific service package by its ID
         Task<ResponseModel> GetServicePackageByIdAsync(string packageId);
