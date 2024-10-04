@@ -3,6 +3,7 @@ using Elepla.Domain.Entities;
 using Elepla.Domain.Enums;
 using Elepla.Repository.Common;
 using Elepla.Service.Models.ViewModels.AccountViewModels;
+using Elepla.Service.Models.ViewModels.ArticleViewModels;
 using Elepla.Service.Models.ViewModels.AuthViewModels;
 using Elepla.Service.Models.ViewModels.CategoryViewModels;
 using Elepla.Service.Models.ViewModels.PaymentViewModels;
