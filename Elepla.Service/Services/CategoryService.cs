@@ -75,16 +75,15 @@ namespace Elepla.Service.Services
 				category.Url = _urlService.RemoveDiacritics(model.Name).Replace(" ", "-").ToLower();
 				await _unitOfWork.CategoryRepository.AddAsync(category);
 				await _unitOfWork.SaveChangeAsync();
-				return new SuccessResponseModel<object>
+				return new ResponseModel
 				{
 					Success = true,
-					Message = "Category create successfully.",
-					Data = category
+					Message = "Category create successfully."
 				};
 			}
 			catch (Exception ex)
 			{
-				return new ErrorResponseModel<object>
+				return new ResponseModel
 				{
 					Success = false,
 					Message = ex.Message
@@ -99,7 +98,7 @@ namespace Elepla.Service.Services
 				var category = await _unitOfWork.CategoryRepository.GetByIdAsync(model.Id);
 				if (category == null)
 				{
-					return new ErrorResponseModel<object>
+					return new ResponseModel
 					{
 						Success = false,
 						Message = "Category not found."
@@ -108,7 +107,7 @@ namespace Elepla.Service.Services
 
 				if (category.IsDeleted == true)
 				{
-					return new ErrorResponseModel<object>
+					return new ResponseModel
 					{
 						Success = false,
 						Message = "Can't modify category is deleted."
@@ -139,7 +138,7 @@ namespace Elepla.Service.Services
 				}
 				catch (Exception ex)
 				{
-					return new ErrorResponseModel<object>
+					return new ResponseModel
 					{
 						Success = false,
 						Message = ex.Message
@@ -148,7 +147,7 @@ namespace Elepla.Service.Services
 			}
 			catch (Exception ex)
 			{
-				return new ErrorResponseModel<object>
+				return new ResponseModel
 				{
 					Success = false,
 					Message = ex.Message
@@ -163,7 +162,7 @@ namespace Elepla.Service.Services
 				var category = await _unitOfWork.CategoryRepository.GetByIdAsync(id);
 				if (category == null)
 				{
-					return new ErrorResponseModel<object>
+					return new ResponseModel
 					{
 						Success = false,
 						Message = "Category not found."
@@ -172,7 +171,7 @@ namespace Elepla.Service.Services
 
 				if (category.IsDeleted == true)
 				{
-					return new ErrorResponseModel<object>
+					return new ResponseModel
 					{
 						Success = false,
 						Message = "Can't delete category is deleted."
@@ -181,16 +180,15 @@ namespace Elepla.Service.Services
 
 				_unitOfWork.CategoryRepository.SoftRemove(category);
 				await _unitOfWork.SaveChangeAsync();
-				return new SuccessResponseModel<object>
+				return new ResponseModel
 				{
 					Success = true,
-					Message = "Category deleted successfully.",
-					Data = category
+					Message = "Category deleted successfully."
 				};
 			}
 			catch (Exception ex)
 			{
-				return new ErrorResponseModel<object>
+				return new ResponseModel
 				{
 					Success = false,
 					Message = ex.Message

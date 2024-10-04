@@ -5,10 +5,8 @@ using Elepla.Repository.Common;
 using Elepla.Service.Models.ViewModels.AccountViewModels;
 using Elepla.Service.Models.ViewModels.AuthViewModels;
 using Elepla.Service.Models.ViewModels.CategoryViewModels;
-using Elepla.Service.Models.ViewModels.PaymentViewModels;
+using Elepla.Service.Models.ViewModels.QuestionBankViewModels;
 using Elepla.Service.Models.ViewModels.RoleViewModels;
-using Elepla.Service.Models.ViewModels.ServicePackageViewModels;
-using Elepla.Service.Models.ViewModels.UserPackageModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -100,6 +98,7 @@ namespace Elepla.Service.Mappers
 			CreateMap<Category, ViewListCategoryDTO>()
 				.ForMember(dest => dest.CategoryId, opt => opt.MapFrom(src => src.CategoryId))
 				.ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+				.ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
 				.ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
 				.ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
 				.ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
@@ -126,86 +125,83 @@ namespace Elepla.Service.Mappers
 				.ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
 				.ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
 				.ReverseMap();
-            #endregion
+			#endregion
 
+			#region Article
+			CreateMap<Article, ViewListArticleDTO>()
+				.ForMember(dest => dest.ArticleId, opt => opt.MapFrom(src => src.ArticleId))
+				.ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
+				.ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
+				.ForMember(dest => dest.Excerpt, opt => opt.MapFrom(src => src.Excerpt))
+				.ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+				.ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
+				.ForMember(dest => dest.CreatedBy, opt => opt.MapFrom(src => src.CreatedBy))
+				.ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.UpdatedAt))
+				.ForMember(dest => dest.UpdatedBy, opt => opt.MapFrom(src => src.UpdatedBy))
+				.ForMember(dest => dest.DeletedAt, opt => opt.MapFrom(src => src.DeletedAt))
+				.ForMember(dest => dest.DeletedBy, opt => opt.MapFrom(src => src.DeletedBy))
+				.ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => src.IsDeleted))
+				.ReverseMap();
 
-            #region UserPackage
+			CreateMap<Article, ViewDetailArticleDTO>()
+				.ForMember(dest => dest.ArticleId, opt => opt.MapFrom(src => src.ArticleId))
+				.ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
+				.ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
+				.ForMember(dest => dest.Content, opt => opt.MapFrom(src => src.Content))
+				.ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+				.ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
+				.ForMember(dest => dest.CreatedBy, opt => opt.MapFrom(src => src.CreatedBy))
+				.ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.UpdatedAt))
+				.ForMember(dest => dest.UpdatedBy, opt => opt.MapFrom(src => src.UpdatedBy))
+				.ForMember(dest => dest.DeletedAt, opt => opt.MapFrom(src => src.DeletedAt))
+				.ForMember(dest => dest.DeletedBy, opt => opt.MapFrom(src => src.DeletedBy))
+				.ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => src.IsDeleted))
+				.ReverseMap();
 
-            // Mapping UserPackage to UserPackageDTO
-            CreateMap<UserPackage, UserPackageDTO>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
-                .ForMember(dest => dest.PackageId, opt => opt.MapFrom(src => src.PackageId))
-                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.StartDate))
-                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.EndDate))
-                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
-                .ForMember(dest => dest.Package, opt => opt.MapFrom(src => src.Package)) 
-                .ReverseMap();
+			CreateMap<CreateArticleDTO, Article>()
+				.ForMember(dest => dest.ArticleId, opt => opt.MapFrom(src => Guid.NewGuid().ToString()))
+				.ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
+				.ForMember(dest => dest.Content, opt => opt.MapFrom(src => src.Content))
+				.ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+				.ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => false))
+				.ReverseMap();
 
-            #endregion
+			CreateMap<UpdateArticleDTO, Article>()
+				.ForMember(dest => dest.ArticleId, opt => opt.MapFrom(src => src.ArticleId))
+				.ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
+				.ForMember(dest => dest.Content, opt => opt.MapFrom(src => src.Content))
+				.ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+				.ReverseMap();
+			#endregion
 
-            #region ServicePackage
+			#region QuestionBank
+			CreateMap<QuestionBank, ViewListQuestionBankDTO>()
+				.ForMember(dest => dest.QuestionId, opt => opt.MapFrom(src => src.QuestionId))
+				.ForMember(dest => dest.Question, opt => opt.MapFrom(src => src.Question))
+				.ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+				.ForMember(dest => dest.Plum, opt => opt.MapFrom(src => src.Plum))
+				.ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
+				.ForMember(dest => dest.CreatedBy, opt => opt.MapFrom(src => src.CreatedBy))
+				.ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.UpdatedAt))
+				.ForMember(dest => dest.UpdatedBy, opt => opt.MapFrom(src => src.UpdatedBy))
+				.ForMember(dest => dest.DeletedAt, opt => opt.MapFrom(src => src.DeletedAt))
+				.ForMember(dest => dest.DeletedBy, opt => opt.MapFrom(src => src.DeletedBy))
+				.ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => src.IsDeleted))
+				.ReverseMap();
 
-            // Mapping ServicePackage to ServicePackageDTO
-            CreateMap<ServicePackage, ServicePackageDTO>()
-                .ForMember(dest => dest.PackageId, opt => opt.MapFrom(src => src.PackageId))
-                .ForMember(dest => dest.PackageName, opt => opt.MapFrom(src => src.PackageName))
-                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
-                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Price))
-                .ForMember(dest => dest.Discount, opt => opt.MapFrom(src => src.Discount))
-                .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration))
-                .ForMember(dest => dest.MaxLessonPlans, opt => opt.MapFrom(src => src.MaxLessonPlans))
-                .ReverseMap();
+			CreateMap<CreateQuestionDTO, QuestionBank>()
+				.ForMember(dest => dest.Question, opt => opt.MapFrom(src => src.Question))
+				.ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+				.ForMember(dest => dest.Plum, opt => opt.MapFrom(src => src.Plum))
+				.ReverseMap();
 
-            // Mapping CreateServicePackageDTO to ServicePackage
-            CreateMap<CreateServicePackageDTO, ServicePackage>()
-                .ForMember(dest => dest.PackageId, opt => opt.MapFrom(src => Guid.NewGuid().ToString()))
-                .ForMember(dest => dest.PackageName, opt => opt.MapFrom(src => src.PackageName))
-                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
-                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Price))
-                .ForMember(dest => dest.Discount, opt => opt.MapFrom(src => src.Discount))
-                .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration))
-                .ForMember(dest => dest.MaxLessonPlans, opt => opt.MapFrom(src => src.MaxLessonPlans))
-                .ReverseMap();
-
-            // Mapping UpdateServicePackageDTO to ServicePackage
-            CreateMap<UpdateServicePackageDTO, ServicePackage>()
-                .ForMember(dest => dest.PackageName, opt => opt.MapFrom(src => src.PackageName))
-                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
-                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Price))
-                .ForMember(dest => dest.Discount, opt => opt.MapFrom(src => src.Discount))
-                .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration))
-                .ForMember(dest => dest.MaxLessonPlans, opt => opt.MapFrom(src => src.MaxLessonPlans))
-                .ReverseMap();
-
-            #endregion
-
-
-            #region Payment
-
-            // Mapping Payment to PaymentDTO
-            CreateMap<Payment, PaymentDTO>()
-                .ForMember(dest => dest.PaymentId, opt => opt.MapFrom(src => src.PaymentId))
-                .ForMember(dest => dest.TotalAmount, opt => opt.MapFrom(src => src.TotalAmount))
-                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
-                .ForMember(dest => dest.TeacherId, opt => opt.MapFrom(src => src.TeacherId))
-                .ForMember(dest => dest.PackageName, opt => opt.MapFrom(src => src.Package.PackageName)) // Package name from associated ServicePackage
-                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
-                .ReverseMap();
-
-            // Mapping Payment to PaymentDetailDTO
-            CreateMap<Payment, PaymentDetailDTO>()
-                .ForMember(dest => dest.PaymentId, opt => opt.MapFrom(src => src.PaymentId))
-                .ForMember(dest => dest.TotalAmount, opt => opt.MapFrom(src => src.TotalAmount))
-                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
-                .ForMember(dest => dest.TeacherId, opt => opt.MapFrom(src => src.TeacherId))
-                .ForMember(dest => dest.PackageName, opt => opt.MapFrom(src => src.Package.PackageName))  // Package name from associated ServicePackage
-                .ForMember(dest => dest.PackageDescription, opt => opt.MapFrom(src => src.Package.Description))  // Package description from associated ServicePackage
-                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
-                .ReverseMap();
-
-            #endregion
-
-        }
-    }
+			CreateMap<UpdateQuestionDTO, QuestionBank>()
+				.ForMember(dest => dest.QuestionId, opt => opt.MapFrom(src => src.Id))
+				.ForMember(dest => dest.Question, opt => opt.MapFrom(src => src.Question))
+				.ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+				.ForMember(dest => dest.Plum, opt => opt.MapFrom(src => src.Plum))
+				.ReverseMap();
+			#endregion
+		}
+	}
 }
