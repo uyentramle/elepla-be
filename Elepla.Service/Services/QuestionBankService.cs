@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Elepla.Domain.Entities;
 using Elepla.Repository.Common;
 using Elepla.Repository.Interfaces;
 using Elepla.Service.Interfaces;
@@ -38,6 +39,52 @@ namespace Elepla.Service.Services
 				Message = "Question retrieved successfully.",
 				Data = questionDtos
 			};
+		}
+
+		public async Task<ResponseModel> GetQuestionBankByIdAsync(string id)
+		{
+			var question = await _unitOfWork.QuestionBankRepository.GetByIdAsync(id);
+			if (question == null)
+			{
+				return new ResponseModel
+				{
+					Success = false,
+					Message = "Question not found."
+				};
+			}
+
+			var questionDto = _mapper.Map<ViewListQuestionBankDTO>(question);
+
+			return new SuccessResponseModel<object>
+			{
+				Success = true,
+				Message = "Question retrieved successfully.",
+				Data = questionDto
+			};
+		}
+
+		public async Task<ResponseModel> CreateQuestionAsync(CreateQuestionDTO model)
+		{
+			try
+			{
+				var question = _mapper.Map<QuestionBank>(model);
+				await _unitOfWork.QuestionBankRepository.AddAsync(question);
+				await _unitOfWork.SaveChangeAsync();
+
+				return new ResponseModel
+				{
+					Success = true,
+					Message = "Question create successfully."
+				};
+			}
+			catch (Exception ex)
+			{
+				return new ErrorResponseModel<object>
+				{
+					Success = false,
+					Message = ex.Message
+				};
+			}
 		}
 	}
 }

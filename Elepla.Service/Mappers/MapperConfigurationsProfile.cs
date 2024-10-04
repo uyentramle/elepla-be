@@ -141,6 +141,12 @@ namespace Elepla.Service.Mappers
 				.ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => src.IsDeleted))
 				.ReverseMap();
 
+			CreateMap<CreateQuestionDTO, QuestionBank>()
+				.ForMember(dest => dest.Question, opt => opt.MapFrom(src => src.Question))
+				.ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+				.ForMember(dest => dest.Plum, opt => opt.MapFrom(src => src.Plum))
+				.ReverseMap();
+
 			#endregion
 		}
 	}
