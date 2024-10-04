@@ -34,5 +34,19 @@ namespace Elepla.API.Controllers
 			var response = await _questionBankService.CreateQuestionAsync(model);
 			return Ok(response);
 		}
+
+		[HttpPut]
+		public async Task<IActionResult> UpdateQuestionAsync(UpdateQuestionDTO model)
+		{
+			var response = await _questionBankService.UpdateQuestionAsync(model);
+			return Ok(response);
+		}
+
+		[HttpDelete]
+		public async Task<IActionResult> DeleteQuestionAsync(string id)
+		{
+			var response = await _questionBankService.DeleteQuestionAsync(id);
+			return Ok(response);
+		}
 	}
 }

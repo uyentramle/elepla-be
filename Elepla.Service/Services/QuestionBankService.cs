@@ -86,5 +86,88 @@ namespace Elepla.Service.Services
 				};
 			}
 		}
+
+		public async Task<ResponseModel> UpdateQuestionAsync(UpdateQuestionDTO model)
+		{
+			try
+			{
+				var question = await _unitOfWork.QuestionBankRepository.GetByIdAsync(model.QuestionId);
+				if (question == null)
+				{
+					return new ResponseModel
+					{
+						Success = false,
+						Message = "Question not found."
+					};
+				}
+				if (question.IsDeleted == true)
+				{
+					return new ResponseModel
+					{
+						Success = false,
+						Message = "Can't modify question is deleted."
+					};
+				}
+
+				_mapper.Map(model, question);
+				_unitOfWork.QuestionBankRepository.Update(question);
+				await _unitOfWork.SaveChangeAsync();
+
+				return new ResponseModel
+				{
+					Success = true,
+					Message = "Question updated successfully."
+				};
+			}
+			catch (Exception ex)
+			{
+				return new ErrorResponseModel<object>
+				{
+					Success = false,
+					Message = ex.Message
+				};
+			}
+		}
+
+		public async Task<ResponseModel> DeleteQuestionAsync(string id)
+		{
+			try
+			{
+				var question = await _unitOfWork.QuestionBankRepository.GetByIdAsync(id);
+				if (question == null)
+				{
+					return new ResponseModel
+					{
+						Success = false,
+						Message = "Question not found."
+					};
+				}
+				if (question.IsDeleted == true)
+				{
+					return new ResponseModel
+					{
+						Success = false,
+						Message = "Can't delete question is deleted."
+					};
+				}
+
+				_unitOfWork.QuestionBankRepository.SoftRemove(question);
+				await _unitOfWork.SaveChangeAsync();
+
+				return new ResponseModel
+				{
+					Success = true,
+					Message = "Question deleted successfully."
+				};
+			}
+			catch (Exception ex)
+			{
+				return new ErrorResponseModel<object>
+				{
+					Success = false,
+					Message = ex.Message
+				};
+			}
+		}
 	}
 }
