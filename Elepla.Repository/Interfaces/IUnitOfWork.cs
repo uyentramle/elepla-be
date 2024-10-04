@@ -18,6 +18,7 @@ namespace Elepla.Repository.Interfaces
         IServicePackageRepository ServicePackageRepository { get; }
         IUserPackageRepository UserPackageRepository { get; }
         IPaymentRepository PaymentRepository { get; }
+        IQuestionBankRepository QuestionBankRepository { get; }
         Task<int> SaveChangeAsync();
     }
 }

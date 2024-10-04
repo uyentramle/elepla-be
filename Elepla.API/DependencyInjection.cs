@@ -140,6 +140,10 @@ namespace Elepla.API
             services.AddScoped<IPaymentRepository, PaymentRepository>();
             services.AddScoped<IPaymentService, PaymentService>();
 
+            // Question Bank
+            services.AddScoped<IQuestionBankRepository, QuestionBankRepository>();
+            services.AddScoped<IQuestionBankService, QuestionBankService>();
+
             services.AddDbContext<AppDbContext>(option => option.UseSqlServer(databaseConnection));
 
             services.AddAutoMapper(typeof(MapperConfigurationsProfile).Assembly);
