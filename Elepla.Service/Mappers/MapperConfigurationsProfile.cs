@@ -5,6 +5,7 @@ using Elepla.Repository.Common;
 using Elepla.Service.Models.ViewModels.AccountViewModels;
 using Elepla.Service.Models.ViewModels.AuthViewModels;
 using Elepla.Service.Models.ViewModels.CategoryViewModels;
+using Elepla.Service.Models.ViewModels.QuestionBankViewModels;
 using Elepla.Service.Models.ViewModels.RoleViewModels;
 using System;
 using System.Collections.Generic;
@@ -123,6 +124,23 @@ namespace Elepla.Service.Mappers
 				.ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
 				.ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
 				.ReverseMap();
+			#endregion
+
+			#region QuestionBank
+			CreateMap<QuestionBank, ViewListQuestionBankDTO>()
+				.ForMember(dest => dest.QuestionId, opt => opt.MapFrom(src => src.QuestionId))
+				.ForMember(dest => dest.Question, opt => opt.MapFrom(src => src.Question))
+				.ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+				.ForMember(dest => dest.Plum, opt => opt.MapFrom(src => src.Plum))
+				.ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
+				.ForMember(dest => dest.CreatedBy, opt => opt.MapFrom(src => src.CreatedBy))
+				.ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.UpdatedAt))
+				.ForMember(dest => dest.UpdatedBy, opt => opt.MapFrom(src => src.UpdatedBy))
+				.ForMember(dest => dest.DeletedAt, opt => opt.MapFrom(src => src.DeletedAt))
+				.ForMember(dest => dest.DeletedBy, opt => opt.MapFrom(src => src.DeletedBy))
+				.ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => src.IsDeleted))
+				.ReverseMap();
+
 			#endregion
 		}
 	}

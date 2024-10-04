@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Elepla.Service.Models.ResponseModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,5 +9,6 @@ namespace Elepla.Service.Interfaces
 {
 	public interface IQuestionBankService
 	{
+		Task<ResponseModel> GetAllQuestionBankAsync(int pageIndex, int pageSize);
 	}
 }
