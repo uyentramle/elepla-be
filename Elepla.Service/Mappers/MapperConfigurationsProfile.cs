@@ -57,7 +57,8 @@ namespace Elepla.Service.Mappers
                 .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.UpdatedAt))
                 .ForMember(dest => dest.UpdatedBy, opt => opt.MapFrom(src => src.UpdatedBy))
                 .ForMember(dest => dest.DeletedAt, opt => opt.MapFrom(src => src.DeletedAt))
-                .ForMember(dest => dest.DeletedBy, opt => opt.MapFrom(src => src.DeletedBy)).ReverseMap();
+                .ForMember(dest => dest.DeletedBy, opt => opt.MapFrom(src => src.DeletedBy))
+                .ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => src.IsDeleted)).ReverseMap();
 
             CreateMap<UpdateUserProfileDTO, User>()
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
@@ -70,6 +71,41 @@ namespace Elepla.Service.Mappers
                 .ForMember(dest => dest.Ward, opt => opt.MapFrom(src => src.Ward))
                 .ForMember(dest => dest.SchoolName, opt => opt.MapFrom(src => src.SchoolName))
                 .ForMember(dest => dest.Teach, opt => opt.MapFrom(src => src.Teach)).ReverseMap();
+
+			CreateMap<User, ViewListUserDTO>()
+                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
+                .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.FirstName))
+                .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.LastName))
+                .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.Username))
+                .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.PhoneNumber))
+                .ForMember(dest => dest.Gender, opt => opt.MapFrom(src => src.Gender))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+                .ForMember(dest => dest.LastLogin, opt => opt.MapFrom(src => src.LastLogin))
+                .ForMember(dest => dest.Role, opt => opt.MapFrom(src => src.Role.Name))
+                .ForMember(dest => dest.Avatar, opt => opt.MapFrom(src => src.Avatar.ImageUrl))
+                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
+				.ForMember(dest => dest.CreatedBy, opt => opt.MapFrom(src => src.CreatedBy))
+                .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.UpdatedAt))
+                .ForMember(dest => dest.UpdatedBy, opt => opt.MapFrom(src => src.UpdatedBy))
+                .ForMember(dest => dest.DeletedAt, opt => opt.MapFrom(src => src.DeletedAt))
+                .ForMember(dest => dest.DeletedBy, opt => opt.MapFrom(src => src.DeletedBy))
+                .ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => src.IsDeleted)).ReverseMap();
+
+			CreateMap<CreateUserByAdminDTO, User>()
+                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => Guid.NewGuid().ToString()))
+                .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.FirstName))
+				.ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.LastName))
+				.ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.Username))
+				.ForMember(dest => dest.Gender, opt => opt.MapFrom(src => src.Gender))
+				.ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+                .ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => false)).ReverseMap();
+
+			CreateMap<UpdateUserByAdminDTO, User>()
+                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
+                .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.FirstName))
+                .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.LastName))
+                .ForMember(dest => dest.Gender, opt => opt.MapFrom(src => src.Gender))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status)).ReverseMap();
             #endregion
 
             #region Role
