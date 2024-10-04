@@ -20,9 +20,9 @@ namespace Elepla.Repository.Repositories
         }
 
         // Lấy vai trò theo tên
-        public async Task<Role> GetRoleByNameAsync(string roleName)
+        public async Task<Role?> GetRoleByNameAsync(string roleName)
         {
-            return await _dbContext.Roles.FirstOrDefaultAsync(r => r.Name == roleName);
+            return await _dbContext.Roles.FirstOrDefaultAsync(r => r.Name == roleName && !r.IsDeleted);
         }
 
         // Lấy danh sách người dùng trong vai trò

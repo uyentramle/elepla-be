@@ -20,5 +20,10 @@ namespace Elepla.Service.Interfaces
         Task<ResponseModel> SendVerificationCodeEmailAsync(NewEmailDTO model);
         Task<ResponseModel> VerifyAndUpdateNewEmailAsync(ChangeEmailDTO model);
         Task<ResponseModel> LinkAccountWithUsernameAsync(UpdateUserAccountDTO model);
+        Task<ResponseModel> GetAllUserAsync(string? keyword, bool? status, int pageIndex, int pageSize);
+        Task<ResponseModel> CreateUserAsync(CreateUserByAdminDTO model);
+        Task<ResponseModel> UpdateUserAsync(UpdateUserByAdminDTO model);
+        Task<ResponseModel> DeleteUserAsync(string userId);
+        Task<ResponseModel> BlockOrUnBlockUserByAdmin(BlockOrUnBlockAccountDTO model);
     }
 }
