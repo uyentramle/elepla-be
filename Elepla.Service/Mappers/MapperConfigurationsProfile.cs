@@ -243,9 +243,8 @@ namespace Elepla.Service.Mappers
             #endregion
 
             #region ServicePackage
-
-            // Mapping ServicePackage to ServicePackageDTO
-            CreateMap<ServicePackage, ServicePackageDTO>()
+            // Mapping ServicePackage to ViewServicePackageDTO
+            CreateMap<ServicePackage, ViewServicePackageDTO>()
                 .ForMember(dest => dest.PackageId, opt => opt.MapFrom(src => src.PackageId))
                 .ForMember(dest => dest.PackageName, opt => opt.MapFrom(src => src.PackageName))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
@@ -253,6 +252,13 @@ namespace Elepla.Service.Mappers
                 .ForMember(dest => dest.Discount, opt => opt.MapFrom(src => src.Discount))
                 .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration))
                 .ForMember(dest => dest.MaxLessonPlans, opt => opt.MapFrom(src => src.MaxLessonPlans))
+                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
+                .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom(src => src.CreatedBy))
+                .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.UpdatedAt))
+                .ForMember(dest => dest.UpdatedBy, opt => opt.MapFrom(src => src.UpdatedBy))
+                .ForMember(dest => dest.DeletedAt, opt => opt.MapFrom(src => src.DeletedAt))
+                .ForMember(dest => dest.DeletedBy, opt => opt.MapFrom(src => src.DeletedBy))
+                .ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => src.IsDeleted))
                 .ReverseMap();
 
             // Mapping CreateServicePackageDTO to ServicePackage
@@ -268,6 +274,7 @@ namespace Elepla.Service.Mappers
 
             // Mapping UpdateServicePackageDTO to ServicePackage
             CreateMap<UpdateServicePackageDTO, ServicePackage>()
+                .ForMember(dest => dest.PackageId, opt => opt.MapFrom(src => src.PackageId))
                 .ForMember(dest => dest.PackageName, opt => opt.MapFrom(src => src.PackageName))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Price))
@@ -275,12 +282,9 @@ namespace Elepla.Service.Mappers
                 .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration))
                 .ForMember(dest => dest.MaxLessonPlans, opt => opt.MapFrom(src => src.MaxLessonPlans))
                 .ReverseMap();
-
             #endregion
 
-
             #region Payment
-
             // Mapping Payment to PaymentDTO
             CreateMap<Payment, PaymentDTO>()
                 .ForMember(dest => dest.PaymentId, opt => opt.MapFrom(src => src.PaymentId))
@@ -301,7 +305,6 @@ namespace Elepla.Service.Mappers
                 .ForMember(dest => dest.PackageDescription, opt => opt.MapFrom(src => src.Package.Description))  // Package description from associated ServicePackage
                 .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
                 .ReverseMap();
-
             #endregion
         }
     }

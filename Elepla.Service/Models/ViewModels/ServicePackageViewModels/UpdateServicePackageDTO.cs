@@ -8,6 +8,7 @@ namespace Elepla.Service.Models.ViewModels.ServicePackageViewModels
 {
     public class UpdateServicePackageDTO
     {
+        public string PackageId { get; set; }
         public string PackageName { get; set; }
         public string? Description { get; set; }
         public decimal Price { get; set; }

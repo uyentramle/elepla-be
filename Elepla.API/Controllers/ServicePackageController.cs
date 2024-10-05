@@ -18,9 +18,9 @@ namespace Elepla.API.Controllers
         #region Get All Service Packages
         [HttpGet]
         //[Authorize]
-        public async Task<IActionResult> GetAllServicePackagesAsync(int pageIndex = 0, int pageSize = 10, string packageName = null)
+        public async Task<IActionResult> GetAllServicePackagesAsync(string? keyword, int pageIndex = 0, int pageSize = 10)
         {
-            var response = await _servicePackageService.GetAllServicePackagesAsync(pageIndex, pageSize, packageName);
+            var response = await _servicePackageService.GetAllServicePackagesAsync(keyword, pageIndex, pageSize);
             if (response.Success)
             {
                 return Ok(response);
@@ -30,7 +30,7 @@ namespace Elepla.API.Controllers
         #endregion
 
         #region Get Service Package by ID
-        [HttpGet("{packageId}")]
+        [HttpGet]
         //[Authorize]
         public async Task<IActionResult> GetServicePackageByIdAsync(string packageId)
         {
@@ -46,9 +46,14 @@ namespace Elepla.API.Controllers
         #region Add New Service Package
         [HttpPost]
         //[Authorize]
-        public async Task<IActionResult> AddServicePackageAsync([FromBody] CreateServicePackageDTO packageDTO)
+        public async Task<IActionResult> AddServicePackageAsync(CreateServicePackageDTO model)
         {
-            var response = await _servicePackageService.AddServicePackageAsync(packageDTO);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var response = await _servicePackageService.AddServicePackageAsync(model);
             if (response.Success)
             {
                 return Ok(response);
@@ -58,11 +63,16 @@ namespace Elepla.API.Controllers
         #endregion
 
         #region Update Service Package
-        [HttpPut("{packageId}")]
+        [HttpPut]
         //[Authorize]
-        public async Task<IActionResult> UpdateServicePackageAsync(string packageId, [FromBody] UpdateServicePackageDTO packageDTO)
+        public async Task<IActionResult> UpdateServicePackageAsync(UpdateServicePackageDTO model)
         {
-            var response = await _servicePackageService.UpdateServicePackageAsync(packageId, packageDTO);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var response = await _servicePackageService.UpdateServicePackageAsync(model);
             if (response.Success)
             {
                 return Ok(response);

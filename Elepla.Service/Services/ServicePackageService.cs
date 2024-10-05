@@ -17,34 +17,24 @@ namespace Elepla.Service.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        private readonly ITimeService _timeService;
-        private readonly IClaimsService _claimsService;
 
-        public ServicePackageService(IUnitOfWork unitOfWork, IMapper mapper, ITimeService timeService, IClaimsService claimsService)
+        public ServicePackageService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
-            _timeService = timeService;
-            _claimsService = claimsService;
         }
 
         // Get all service packages with pagination and optional filtering by name
-        public async Task<ResponseModel> GetAllServicePackagesAsync(int pageIndex, int pageSize, string packageName = null)
+        public async Task<ResponseModel> GetAllServicePackagesAsync(string? keyword, int pageIndex, int pageSize)
         {
-            Expression<Func<ServicePackage, bool>> filter = r => !r.IsDeleted;
-
-            if (!string.IsNullOrWhiteSpace(packageName))
-            {
-                filter = r => !r.IsDeleted && r.PackageName.Contains(packageName);
-            }
-
             var packages = await _unitOfWork.ServicePackageRepository.GetAsync(
-                filter: filter,
-                pageIndex: pageIndex,
-                pageSize: pageSize
+                                filter: p => !p.IsDeleted && (string.IsNullOrEmpty(keyword) || p.PackageName.Contains(keyword)),
+                                orderBy: p => p.OrderBy(p => p.Price),
+                                pageIndex: pageIndex,
+                                pageSize: pageSize
             );
 
-            var packageDtos = _mapper.Map<Pagination<ServicePackageDTO>>(packages);
+            var packageDtos = _mapper.Map<Pagination<ViewServicePackageDTO>>(packages);
 
             return new SuccessResponseModel<object>
             {
@@ -62,14 +52,14 @@ namespace Elepla.Service.Services
 
             if (package == null)
             {
-                return new ErrorResponseModel<object>
+                return new ResponseModel
                 {
                     Success = false,
                     Message = "Service package not found."
                 };
             }
 
-            var result = _mapper.Map<ServicePackageDTO>(package);
+            var result = _mapper.Map<ViewServicePackageDTO>(package);
 
             return new SuccessResponseModel<object>
             {
@@ -85,18 +75,14 @@ namespace Elepla.Service.Services
             try
             {
                 var package = _mapper.Map<ServicePackage>(model);
-                package.PackageId = Guid.NewGuid().ToString(); 
-                package.CreatedAt = _timeService.GetCurrentTime();
-                package.CreatedBy = _claimsService.GetCurrentUserId().ToString();
 
                 await _unitOfWork.ServicePackageRepository.AddAsync(package);
                 await _unitOfWork.SaveChangeAsync();
 
-                return new SuccessResponseModel<object>
+                return new ResponseModel
                 {
                     Success = true,
                     Message = "Service package created successfully.",
-                    Data = package
                 };
             }
             catch (Exception ex)
@@ -104,20 +90,21 @@ namespace Elepla.Service.Services
                 return new ErrorResponseModel<object>
                 {
                     Success = false,
-                    Message = ex.Message
+                    Message = "An error occurred while creating the service package.",
+                    Errors = new List<string> { ex.Message }
                 };
             }
         }
 
         // Update an existing service package
-        public async Task<ResponseModel> UpdateServicePackageAsync(string packageId, UpdateServicePackageDTO model)
+        public async Task<ResponseModel> UpdateServicePackageAsync(UpdateServicePackageDTO model)
         {
             try
             {
-                var package = await _unitOfWork.ServicePackageRepository.GetByIdAsync(packageId);
+                var package = await _unitOfWork.ServicePackageRepository.GetByIdAsync(model.PackageId);
                 if (package == null)
                 {
-                    return new ErrorResponseModel<object>
+                    return new ResponseModel
                     {
                         Success = false,
                         Message = "Service package not found."
@@ -126,7 +113,7 @@ namespace Elepla.Service.Services
 
                 if (package.IsDeleted == true)
                 {
-                    return new ErrorResponseModel<object>
+                    return new ResponseModel
                     {
                         Success = false,
                         Message = "Cannot modify a deleted service package."
@@ -134,17 +121,14 @@ namespace Elepla.Service.Services
                 }
 
                 _mapper.Map(model, package);
-                package.UpdatedAt = _timeService.GetCurrentTime();
-                package.UpdatedBy = _claimsService.GetCurrentUserId().ToString();
 
                 _unitOfWork.ServicePackageRepository.Update(package);
                 await _unitOfWork.SaveChangeAsync();
 
-                return new SuccessResponseModel<object>
+                return new ResponseModel
                 {
                     Success = true,
                     Message = "Service package updated successfully.",
-                    Data = package
                 };
             }
             catch (Exception ex)
@@ -152,7 +136,8 @@ namespace Elepla.Service.Services
                 return new ErrorResponseModel<object>
                 {
                     Success = false,
-                    Message = ex.Message
+                    Message = "An error occurred while updating the service package.",
+                    Errors = new List<string> { ex.Message }
                 };
             }
         }
@@ -165,7 +150,7 @@ namespace Elepla.Service.Services
                 var package = await _unitOfWork.ServicePackageRepository.GetByIdAsync(packageId);
                 if (package == null)
                 {
-                    return new ErrorResponseModel<object>
+                    return new ResponseModel
                     {
                         Success = false,
                         Message = "Service package not found."
@@ -174,7 +159,7 @@ namespace Elepla.Service.Services
 
                 if (package.IsDeleted == true)
                 {
-                    return new ErrorResponseModel<object>
+                    return new ResponseModel
                     {
                         Success = false,
                         Message = "Service package is already deleted."
@@ -184,11 +169,10 @@ namespace Elepla.Service.Services
                 _unitOfWork.ServicePackageRepository.SoftRemove(package);
                 await _unitOfWork.SaveChangeAsync();
 
-                return new SuccessResponseModel<object>
+                return new ResponseModel
                 {
                     Success = true,
                     Message = "Service package deleted successfully.",
-                    Data = package
                 };
             }
             catch (Exception ex)
@@ -196,7 +180,8 @@ namespace Elepla.Service.Services
                 return new ErrorResponseModel<object>
                 {
                     Success = false,
-                    Message = ex.Message
+                    Message = "An error occurred while deleting the service package.",
+                    Errors = new List<string> { ex.Message }
                 };
             }
         }

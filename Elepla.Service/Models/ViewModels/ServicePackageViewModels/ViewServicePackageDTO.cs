@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Elepla.Service.Models.ViewModels.ServicePackageViewModels
 {
-    public class ServicePackageDTO
+    public class ViewServicePackageDTO
     {
         public string PackageId { get; set; }
         public string PackageName { get; set; }
@@ -15,6 +15,13 @@ namespace Elepla.Service.Models.ViewModels.ServicePackageViewModels
         public decimal Discount { get; set; }
         public int Duration { get; set; }
         public int MaxLessonPlans { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public string CreatedBy { get; set; }
+        public DateTime UpdatedAt { get; set; }
+        public string UpdatedBy { get; set; }
+        public DateTime DeletedAt { get; set; }
+        public string DeletedBy { get; set; }
+        public bool IsDeleted { get; set; }
     }
 
 }
