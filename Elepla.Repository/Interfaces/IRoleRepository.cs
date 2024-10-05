@@ -9,7 +9,7 @@ namespace Elepla.Repository.Interfaces
 {
     public interface IRoleRepository : IGenericRepository<Role>
     {
-        Task<Role> GetRoleByNameAsync(string roleName);
+        Task<Role?> GetRoleByNameAsync(string roleName);
         Task<IEnumerable<User>> GetUsersInRoleAsync(string roleName);
         Task<bool> RoleExistsAsync(string roleName);
     }

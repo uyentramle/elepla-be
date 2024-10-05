@@ -169,5 +169,77 @@ namespace Elepla.API.Controllers
             return BadRequest(response);
         }
         #endregion
+
+        #region Manage User By Admin
+        [HttpGet]
+        //[Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetAllUsersForAdminAsync(string? keyword, bool? status, int pageIndex = 0, int pageSize = 10)
+        {
+            var response = await _accountService.GetAllUserAsync(keyword, status, pageIndex, pageSize);
+            if (response != null)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
+        }
+
+        [HttpPost]
+        //[Authorize(Roles = "Admin")]
+        public async Task<IActionResult> CreateUserByAdminAsync(CreateUserByAdminDTO model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var response = await _accountService.CreateUserAsync(model);
+            if (response.Success)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
+        }
+
+        [HttpPut]
+        //[Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateUserByAdminAsync(UpdateUserByAdminDTO model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var response = await _accountService.UpdateUserAsync(model);
+            if (response.Success)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
+        }
+
+        [HttpDelete]
+        //[Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteUserByAdminAsync(string userId)
+        {
+            var response = await _accountService.DeleteUserAsync(userId);
+            if (response.Success)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
+        }
+
+        [HttpPut]
+        //[Authorize(Roles = "Admin")]
+        public async Task<IActionResult> BlockOrUnBlockUserByAdmin(BlockOrUnBlockAccountDTO model)
+        {
+            var response = await _accountService.BlockOrUnBlockUserByAdmin(model);
+            if (response.Success)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
+        }
+        #endregion
     }
 }

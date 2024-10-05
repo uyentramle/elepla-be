@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Elepla.Domain.Entities;
+using Elepla.Repository.Common;
 using Elepla.Repository.Interfaces;
 using Elepla.Service.Common;
 using Elepla.Service.Interfaces;
@@ -31,7 +32,7 @@ namespace Elepla.Service.Services
         }
 
         #region Manage User Profile
-        // Get user profile
+        // Get existingUser profile
         public async Task<ResponseModel> GetUserProfileAsync(string userId)
         {
             try
@@ -65,7 +66,7 @@ namespace Elepla.Service.Services
             }
         }
 
-        // Update user profile
+        // Update existingUser profile
         public async Task<ResponseModel> UpdateUserProfileAsync(UpdateUserProfileDTO model)
         {
             try
@@ -76,7 +77,7 @@ namespace Elepla.Service.Services
                     return new ResponseModel { Success = false, Message = "User not found." };
                 }
 
-                // Sử dụng mapper để cập nhật thuộc tính của đối tượng user từ model
+                // Sử dụng mapper để cập nhật thuộc tính của đối tượng existingUser từ model
                 _mapper.Map(model, user);
 
                 _unitOfWork.AccountRepository.Update(user);
@@ -96,7 +97,7 @@ namespace Elepla.Service.Services
             }
         }
 
-        // Update user avatar
+        // Update existingUser avatar
         public async Task<ResponseModel> UpdateUserAvatarAsync(UpdateUserAvatarDTO model)
         {
             try
@@ -178,7 +179,7 @@ namespace Elepla.Service.Services
                 await _unitOfWork.ImageRepository.AddAsync(newAvatar);
                 await _unitOfWork.SaveChangeAsync();
 
-                // Cập nhật avatar cho user
+                // Cập nhật avatar cho existingUser
                 user.AvatarId = newAvatar.ImageId;
 
                 _unitOfWork.AccountRepository.Update(user);
@@ -266,7 +267,7 @@ namespace Elepla.Service.Services
             return new Random().Next(100000, 999999).ToString();
         }
 
-        // Send verification code to the new phone number when user wants to change phone number
+        // Send verification code to the new phone number when existingUser wants to change phone number
         public async Task<ResponseModel> SendVerificationCodeAsync(NewPhoneNumberDTO model)
         {
             try
@@ -378,7 +379,7 @@ namespace Elepla.Service.Services
         #endregion
 
         #region Update User Email Or Link Email
-        // Send verification code to the new email when user wants to change email
+        // Send verification code to the new email when existingUser wants to change email
         public async Task<ResponseModel> SendVerificationCodeEmailAsync(NewEmailDTO model)
         {
             try
@@ -555,6 +556,260 @@ namespace Elepla.Service.Services
                 {
                     Success = false,
                     Message = "An error occurred while updating user account.",
+                    Errors = new List<string> { ex.Message }
+                };
+            }
+        }
+        #endregion
+
+        #region Manage User For Admin
+        // Get all users with filter by last name, first name, phone number, status
+        public async Task<ResponseModel> GetAllUserAsync(string? keyword, bool? status, int pageIndex, int pageSize)
+        {
+            try
+            {
+                var users = await _unitOfWork.AccountRepository.GetAsync(
+                               filter: u => !u.IsDeleted && (string.IsNullOrEmpty(keyword) ||
+                                                            u.LastName.Contains(keyword) ||
+                                                            u.FirstName.Contains(keyword) ||
+                                                            u.PhoneNumber.Contains(keyword)) &&
+                                                            (!status.HasValue || u.Status == status.Value),
+                               orderBy: u => u.OrderBy(u => u.UserId),
+                               includeProperties: "Role,Avatar",
+                               pageIndex: pageIndex,
+                               pageSize: pageSize
+                               );
+
+                var userDtos = _mapper.Map<Pagination<ViewListUserDTO>>(users);
+
+                foreach (var userDto in userDtos.Items)
+                {
+                    var user = await _unitOfWork.AccountRepository.GetByIdAsync(userDto.UserId);
+
+                    userDto.CreatedBy = string.IsNullOrEmpty(user.CreatedBy) ? null : (await _unitOfWork.AccountRepository.GetByIdAsync(user.CreatedBy))?.Username ?? user.CreatedBy;
+                    userDto.UpdatedBy = string.IsNullOrEmpty(user.UpdatedBy) ? null : (await _unitOfWork.AccountRepository.GetByIdAsync(user.UpdatedBy))?.Username ?? user.UpdatedBy;
+                    userDto.DeletedBy = string.IsNullOrEmpty(user.DeletedBy) ? null : (await _unitOfWork.AccountRepository.GetByIdAsync(user.DeletedBy))?.Username ?? user.DeletedBy;
+                }
+
+                return new SuccessResponseModel<object>
+                {
+                    Success = true,
+                    Message = "Users found.",
+                    Data = userDtos
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ErrorResponseModel<object>
+                {
+                    Success = false,
+                    Message = "An error occurred while retrieving users.",
+                    Errors = new List<string> { ex.Message }
+                };
+            }
+        }
+
+        // Add a new user by admin
+        public async Task<ResponseModel> CreateUserAsync(CreateUserByAdminDTO model)
+        {
+            try
+            {
+                // Kiểm tra xem username có đủ độ dài yêu cầu không (tối thiểu 6 ký tự)
+                if (model.Username.Length < 6 || model.Username.Length > 20)
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "Username must be between 6 and 20 characters long."
+                    };
+                }
+
+                // Kiểm tra xem username đã được sử dụng chưa
+                var existingUser = await _unitOfWork.AccountRepository.GetUserByUsernameAsync(model.Username);
+                if (existingUser != null)
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "Username is already taken."
+                    };
+                }
+
+                // Kiểm tra tên role có tồn tại không
+                var existingRole = await _unitOfWork.RoleRepository.GetRoleByNameAsync(model.RoleName);
+                if (existingRole is null)
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "Role not exists."
+                    };
+                }
+
+                var user = _mapper.Map<User>(model);
+
+                // Kiểm tra mật khẩu có đúng định dạng không
+                var passwordErrors = _passwordHasher.ValidatePassword(model.Password);
+                if (passwordErrors.Any())
+                {
+                    return new ErrorResponseModel<string>
+                    {
+                        Success = false,
+                        Message = "Password is not in correct format.",
+                        Errors = passwordErrors.ToList()
+                    };
+                }
+
+                // Băm mật khẩu
+                user.PasswordHash = _passwordHasher.HashPassword(model.Password);
+
+                // Gán RoleId cho existingUser
+                user.RoleId = existingRole.RoleId;
+
+                // Tạo mới existingUser
+                await _unitOfWork.AccountRepository.AddAsync(user);
+                await _unitOfWork.SaveChangeAsync();
+
+                return new ResponseModel
+                {
+                    Success = true,
+                    Message = "User created successfully.",
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ErrorResponseModel<string>
+                {
+                    Success = false,
+                    Message = "An error occurred while creating user.",
+                    Errors = new List<string> { ex.Message }
+                };
+            }
+        }
+
+        // Update user by admin
+        public async Task<ResponseModel> UpdateUserAsync(UpdateUserByAdminDTO model)
+        {
+            try
+            {
+                // Kiểm tra người dùng có tồn tại không
+                var existingUser = await _unitOfWork.AccountRepository.GetByIdAsync(model.UserId);
+                if (existingUser == null)
+                {
+                    return new ResponseModel 
+                    { 
+                        Success = false, 
+                        Message = "User not found." 
+                    };
+                }
+
+                // Kiểm tra tên role có tồn tại không
+                var existingRole = await _unitOfWork.RoleRepository.GetRoleByNameAsync(model.RoleName);
+                if (existingRole is null)
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "Role not exists."
+                    };
+                }
+
+                // Sử dụng mapper để cập nhật thuộc tính của đối tượng existingUser từ model
+                var user = _mapper.Map(model, existingUser);
+
+                // Gán RoleId cho user
+                user.RoleId = existingRole.RoleId;
+
+                _unitOfWork.AccountRepository.Update(user);
+                await _unitOfWork.SaveChangeAsync();
+
+                return new ResponseModel
+                {
+                    Success = true,
+                    Message = "User updated successfully."
+                };
+
+            }
+            catch (Exception ex)
+            {
+                return new ErrorResponseModel<string>
+                {
+                    Success = false,
+                    Message = "An error occurred while updating user.",
+                    Errors = new List<string> { ex.Message }
+                };
+            }
+        }
+
+        // Delete user by admin
+        public async Task<ResponseModel> DeleteUserAsync(string userId)
+        {
+            try
+            {
+                var user = await _unitOfWork.AccountRepository.GetByIdAsync(userId);
+                if (user == null)
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "User not found."
+                    };
+                }
+
+                // Xóa người dùng (xóa mềm)
+                _unitOfWork.AccountRepository.SoftRemove(user);
+                await _unitOfWork.SaveChangeAsync();
+
+                return new ResponseModel
+                {
+                    Success = true,
+                    Message = "User deleted successfully."
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ErrorResponseModel<string>
+                {
+                    Success = false,
+                    Message = "An error occurred while deleting user.",
+                    Errors = new List<string> { ex.Message }
+                };
+            }
+        }
+
+        // Block or unblock user by admin
+        public async Task<ResponseModel> BlockOrUnBlockUserByAdmin(BlockOrUnBlockAccountDTO model)
+        {
+            try
+            {
+                var user = await _unitOfWork.AccountRepository.GetByIdAsync(model.UserId);
+
+                if (user == null)
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "User not found."
+                    };
+                }
+
+                user.Status = model.Status;
+
+                _unitOfWork.AccountRepository.Update(user);
+                await _unitOfWork.SaveChangeAsync();
+
+                return new ResponseModel
+                {
+                    Success = true,
+                    Message = model.Status ? "User unblocked successfully." : "User blocked successfully."
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ErrorResponseModel<string>
+                {
+                    Success = false,
+                    Message = "An error occurred while blocking or unblocking user.",
                     Errors = new List<string> { ex.Message }
                 };
             }
