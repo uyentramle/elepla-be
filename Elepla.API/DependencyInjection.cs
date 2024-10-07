@@ -144,6 +144,47 @@ namespace Elepla.API
             services.AddScoped<IQuestionBankRepository, QuestionBankRepository>();
             services.AddScoped<IQuestionBankService, QuestionBankService>();
 
+            // Subject
+            services.AddScoped<ISubjectRepository, SubjectRepository>();
+            services.AddScoped<ISubjectService, SubjectService>();
+
+            // Curriculum Framework
+            services.AddScoped<ICurriculumFrameworkRepository, CurriculumFrameworkRepository>();
+            services.AddScoped<ICurriculumFrameworkService, CurriculumFrameworkService>();
+
+            // Grade
+            services.AddScoped<IGradeRepository, GradeRepository>();
+            services.AddScoped<IGradeService, GradeService>();
+
+            // Subject In Curriculum
+            services.AddScoped<ISubjectInCurriculumRepository, SubjectInCurriculumRepository>();
+            services.AddScoped<ISubjectInCurriculumService, SubjectInCurriculumService>();
+
+            // Chapter
+
+            // Lesson
+            services.AddScoped<ILessonRepository, LessonRepository>();
+            services.AddScoped<ILessonService, LessonService>();
+
+            // Planbook Collection
+            services.AddScoped<IPlanbookCollectionRepository, PlanbookCollectionRepository>();
+            services.AddScoped<IPlanbookCollectionService, PlanbookCollectionService>();
+
+            // Planbook
+            services.AddScoped<IPlanbookRepository, PlanbookRepository>();
+            services.AddScoped<IPlanbookService, PlanbookService>();
+
+            // Activity
+            services.AddScoped<IActivityRepository, ActivityRepository>();
+
+            // Teaching Schedule
+            services.AddScoped<ITeachingScheduleRepository, TeachingScheduleRepository>();
+            services.AddScoped<ITeachingScheduleService, TeachingScheduleService>();
+
+            // Feedback
+            services.AddScoped<IFeedbackRepository, FeedbackRepository>();
+            services.AddScoped<IFeedbackService, FeedbackService>();
+
             services.AddDbContext<AppDbContext>(option => option.UseSqlServer(databaseConnection));
 
             services.AddAutoMapper(typeof(MapperConfigurationsProfile).Assembly);

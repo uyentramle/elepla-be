@@ -8,10 +8,20 @@ namespace Elepla.Domain.Entities
 {
 	public class QuestionBank : BaseEntity
 	{
-		public string QuestionId { get; set; }
-		public string Question { get; set; }
+        // Primary Key
+        public string QuestionId { get; set; }
+
+        // Attributes
+        public string Question { get; set; }
 		public string Type { get; set; }
 		public string Plum { get; set; }
 
-	}
+        // Foreign Key
+        public string? ChapterId { get; set; }
+        public string? LessonId { get; set; }
+
+        // Navigation properties
+        public virtual Chapter Chapter { get; set; }
+        public virtual Lesson Lesson { get; set; }
+    }
 }

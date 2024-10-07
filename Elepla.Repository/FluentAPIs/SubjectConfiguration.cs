@@ -15,7 +15,10 @@ namespace Elepla.Repository.FluentAPIs
 		{
 			builder.ToTable("Subject");
 			builder.HasKey(x => x.SubjectId);
-			builder.Property(x => x.Name).IsRequired();
-		}
+			builder.Property(x => x.Name).HasMaxLength(50).IsRequired();
+			builder.HasMany(x => x.SubjectInCurriculums)
+				.WithOne(x => x.Subject)
+				.HasForeignKey(x => x.SubjectId);
+        }
 	}
 }

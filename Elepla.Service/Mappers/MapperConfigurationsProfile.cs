@@ -54,7 +54,7 @@ namespace Elepla.Service.Mappers
                 .ForMember(dest => dest.Gender, opt => opt.MapFrom(src => src.Gender))
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
                 .ForMember(dest => dest.LastLogin, opt => opt.MapFrom(src => src.LastLogin))
-                .ForMember(dest => dest.Address, opt => opt.MapFrom(src => string.Join(", ", new[] { src.AddressText, src.Ward, src.District, src.City }.Where(s => !string.IsNullOrWhiteSpace(s)))))
+                .ForMember(dest => dest.Address, opt => opt.MapFrom(src => string.Join(", ", new[] { src.AddressLine, src.Ward, src.District, src.City }.Where(s => !string.IsNullOrWhiteSpace(s)))))
                 .ForMember(dest => dest.SchoolName, opt => opt.MapFrom(src => src.SchoolName))
                 .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
                 .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom(src => src.CreatedBy))
@@ -69,7 +69,7 @@ namespace Elepla.Service.Mappers
                 .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.FirstName))
                 .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.LastName))
                 .ForMember(dest => dest.Gender, opt => opt.MapFrom(src => src.Gender))
-                .ForMember(dest => dest.AddressText, opt => opt.MapFrom(src => src.AddressLine))
+                .ForMember(dest => dest.AddressLine, opt => opt.MapFrom(src => src.AddressLine))
                 .ForMember(dest => dest.City, opt => opt.MapFrom(src => src.City))
                 .ForMember(dest => dest.District, opt => opt.MapFrom(src => src.District))
                 .ForMember(dest => dest.Ward, opt => opt.MapFrom(src => src.Ward))
@@ -116,7 +116,6 @@ namespace Elepla.Service.Mappers
             CreateMap<Role, ViewListRoleDTO>()
 				.ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.RoleId))
 				.ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-				.ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
 				.ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault))
 				.ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
 				.ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.UpdatedAt))
@@ -125,16 +124,15 @@ namespace Elepla.Service.Mappers
 
 			CreateMap<CreateRoleDTO, Role>()
 				.ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.RoleName))
-				.ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description)).ReverseMap();
+				.ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => false)).ReverseMap();
 
-			CreateMap<UpdateRoleDTO, Role>()
+            CreateMap<UpdateRoleDTO, Role>()
 				.ForMember(dest => dest.RoleId, opt => opt.MapFrom(src => src.Id))
-				.ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.RoleName))
-				.ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description)).ReverseMap();
-			#endregion
+				.ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.RoleName)).ReverseMap();
+            #endregion
 
-			#region Category
-			CreateMap<Category, ViewListCategoryDTO>()
+            #region Category
+            CreateMap<Category, ViewListCategoryDTO>()
 				.ForMember(dest => dest.CategoryId, opt => opt.MapFrom(src => src.CategoryId))
 				.ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
 				.ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))

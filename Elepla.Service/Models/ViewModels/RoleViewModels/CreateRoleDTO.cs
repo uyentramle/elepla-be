@@ -9,6 +9,5 @@ namespace Elepla.Service.Models.ViewModels.RoleViewModels
     public class CreateRoleDTO
     {
         public string RoleName { get; set; }
-        public string? Description { get; set; }
     }
 }

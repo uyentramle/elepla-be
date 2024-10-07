@@ -26,7 +26,17 @@ namespace Elepla.Repository.Data
         public DbSet<ArticleCategory> ArticleCategories { get; set; }
         public DbSet<ArticleImage> ArticleImages { get; set; }
         public DbSet<Subject> Subjects { get; set; }
+        public DbSet<CurriculumFramework> CurriculumFrameworks { get; set; }
+        public DbSet<Grade> Grades { get; set; }
+        public DbSet<SubjectInCurriculum> SubjectInCurriculums { get; set; }
+        public DbSet<Chapter> Chapters { get; set; }
+        public DbSet<Lesson> Lessons { get; set; }
         public DbSet<QuestionBank> QuestionBanks { get; set; }
+        public DbSet<PlanbookCollection> PlanbookCollections { get; set; }
+        public DbSet<Planbook> Planbooks { get; set; }
+        public DbSet<Activity> Activitys { get; set; }
+        public DbSet<TeachingSchedule> TeachingSchedules { get; set; }
+        public DbSet<Feedback> Feedbacks { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -43,7 +53,17 @@ namespace Elepla.Repository.Data
             modelBuilder.ApplyConfiguration(new ArticleCategoryConfiguration());
             modelBuilder.ApplyConfiguration(new ArticleImageConfiguration());
 			modelBuilder.ApplyConfiguration(new SubjectConfiguration());
+            modelBuilder.ApplyConfiguration(new CurriculumFrameworkConfiguration());
+            modelBuilder.ApplyConfiguration(new GradeConfiguration());
+            modelBuilder.ApplyConfiguration(new SubjectInCurriculumConfiguration());
+            modelBuilder.ApplyConfiguration(new ChapterConfiguration());
+            modelBuilder.ApplyConfiguration(new LessonConfiguration());
             modelBuilder.ApplyConfiguration(new QuestionBankConfiguration());
-		}
+            modelBuilder.ApplyConfiguration(new PlanbookCollectionConfiguration());
+            modelBuilder.ApplyConfiguration(new PlanbookConfiguration());
+            modelBuilder.ApplyConfiguration(new ActivityConfiguration());
+            modelBuilder.ApplyConfiguration(new TeachingScheduleConfiguration());
+            modelBuilder.ApplyConfiguration(new FeedbackConfiguration());
+        }
     }
 }

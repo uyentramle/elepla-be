@@ -22,6 +22,16 @@ namespace Elepla.Repository.Repositories
         private readonly IUserPackageRepository _userPackageRepository;
         private readonly IPaymentRepository _paymentRepository;
         private readonly IQuestionBankRepository _questionBankRepository;
+        private readonly ISubjectRepository _subjectRepository;
+        private readonly ICurriculumFrameworkRepository _curriculumFrameworkRepository;
+        private readonly IGradeRepository _gradeRepository;
+        private readonly ISubjectInCurriculumRepository _subjectInCurriculumRepository;
+        private readonly ILessonRepository _lessonRepository;
+        private readonly IPlanbookCollectionRepository _planbookCollectionRepository;
+        private readonly IPlanbookRepository _planbookRepository;
+        private readonly IActivityRepository _activityRepository;
+        private readonly ITeachingScheduleRepository _teachingScheduleRepository;
+        private readonly IFeedbackRepository _feedbackRepository;
 
         public UnitOfWork(AppDbContext dbContext,
             IAccountRepository accountRepository,
@@ -34,7 +44,17 @@ namespace Elepla.Repository.Repositories
             IServicePackageRepository servicePackageRepository,
             IUserPackageRepository userPackageRepository,
             IPaymentRepository paymentRepository,
-            IQuestionBankRepository questionBankRepository)
+            IQuestionBankRepository questionBankRepository,
+            ISubjectRepository subjectRepository,
+            ICurriculumFrameworkRepository curriculumFrameworkRepository,
+            IGradeRepository gradeRepository,
+            ISubjectInCurriculumRepository subjectInCurriculumRepository,
+            ILessonRepository lessonRepository,
+            IPlanbookCollectionRepository planbookCollectionRepository,
+            IPlanbookRepository planbookRepository,
+            IActivityRepository activityRepository,
+            ITeachingScheduleRepository teachingScheduleRepository,
+            IFeedbackRepository feedbackRepository)
         {
             _dbContext = dbContext;
             _accountRepository = accountRepository;
@@ -48,6 +68,16 @@ namespace Elepla.Repository.Repositories
             _userPackageRepository = userPackageRepository;
             _paymentRepository = paymentRepository;
             _questionBankRepository = questionBankRepository;
+            _subjectRepository = subjectRepository;
+            _curriculumFrameworkRepository = curriculumFrameworkRepository;
+            _gradeRepository = gradeRepository;
+            _subjectInCurriculumRepository = subjectInCurriculumRepository;
+            _lessonRepository = lessonRepository;
+            _planbookCollectionRepository = planbookCollectionRepository;
+            _planbookRepository = planbookRepository;
+            _activityRepository = activityRepository;
+            _teachingScheduleRepository = teachingScheduleRepository;
+            _feedbackRepository = feedbackRepository;
         }
 
         public IAccountRepository AccountRepository => _accountRepository;
@@ -71,6 +101,26 @@ namespace Elepla.Repository.Repositories
         public IPaymentRepository PaymentRepository => _paymentRepository;
 
         public IQuestionBankRepository QuestionBankRepository => _questionBankRepository;
+
+        public ISubjectRepository SubjectRepository => _subjectRepository;
+
+        public ICurriculumFrameworkRepository CurriculumFrameworkRepository => _curriculumFrameworkRepository;
+
+        public IGradeRepository GradeRepository => _gradeRepository;
+
+        public ISubjectInCurriculumRepository SubjectInCurriculumRepository => _subjectInCurriculumRepository;
+
+        public ILessonRepository LessonRepository => _lessonRepository;
+
+        public IPlanbookCollectionRepository PlanbookCollectionRepository => _planbookCollectionRepository;
+
+        public IPlanbookRepository PlanbookRepository => _planbookRepository;
+
+        public IActivityRepository ActivityRepository => _activityRepository;
+
+        public ITeachingScheduleRepository TeachingScheduleRepository => _teachingScheduleRepository;
+
+        public IFeedbackRepository FeedbackRepository => _feedbackRepository;
 
         public async Task<int> SaveChangeAsync()
         {

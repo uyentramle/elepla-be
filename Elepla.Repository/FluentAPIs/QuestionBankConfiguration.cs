@@ -15,6 +15,12 @@ namespace Elepla.Repository.FluentAPIs
 		{
 			builder.ToTable("QuestionBank");
 			builder.HasKey(x => x.QuestionId);
-		}
+			builder.HasOne(x => x.Chapter)
+				.WithMany(x => x.QuestionBanks)
+				.HasForeignKey(x => x.ChapterId);
+			builder.HasOne(x => x.Lesson)
+				.WithMany(x => x.QuestionBanks)
+				.HasForeignKey(x => x.LessonId);
+        }
 	}
 }

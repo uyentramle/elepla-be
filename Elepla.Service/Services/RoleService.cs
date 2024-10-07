@@ -72,7 +72,6 @@ namespace Elepla.Service.Services
                 if (existingRole.IsDeleted)
                 {
                     // Role đã bị xóa mềm, cập nhật lại role này
-                    existingRole.Description = model.Description;
                     existingRole.IsDeleted = false;
                     _unitOfWork.RoleRepository.Update(existingRole);
                     await _unitOfWork.SaveChangeAsync();

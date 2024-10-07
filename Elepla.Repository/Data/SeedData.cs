@@ -16,6 +16,9 @@ namespace Elepla.Repository.Data
         {
             await InitializeRole(unitOfWork);
             await InitializeAccount(unitOfWork);
+            await InitializeSubject(unitOfWork);
+            await InitializeCurriculum(unitOfWork);
+            await InitializeGrade(unitOfWork);
         }
 
         private static async Task InitializeRole(IUnitOfWork unitOfWork)
@@ -141,6 +144,81 @@ namespace Elepla.Repository.Data
                     };
 
                     await unitOfWork.AccountRepository.AddAsync(teacher);
+                }
+            }
+
+            await unitOfWork.SaveChangeAsync();
+        }
+
+        private static async Task InitializeSubject(IUnitOfWork unitOfWork)
+        {
+            var subjects = new List<string> { "Toán", "Ngữ Văn", "Tiếng Anh", "Vật Lý", "Hóa Học", "Sinh Học", "Lịch Sử", "Địa Lý", "Tin Học", "Công Nghệ", "Giáo Dục Công Dân" };
+
+            foreach (var subjectName in subjects)
+            {
+                var subjectExists = await unitOfWork.SubjectRepository.SubjectExistsAsync(subjectName);
+                if (!subjectExists)
+                {
+                    var subject = new Subject
+                    {
+                        SubjectId = Guid.NewGuid().ToString(),
+                        Name = subjectName,
+                        CreatedAt = DateTime.UtcNow.ToLocalTime(),
+                        CreatedBy = "system",
+                        IsDeleted = false
+                    };
+
+                    await unitOfWork.SubjectRepository.AddAsync(subject);
+                }
+            }
+
+            await unitOfWork.SaveChangeAsync();
+        }
+
+        private static async Task InitializeCurriculum(IUnitOfWork unitOfWork)
+        {
+            var curriculums = new List<string> { "Kết nối tri thức", "Chân trời sáng tạo", "Cánh diều" };
+
+            foreach (var curriculumName in curriculums)
+            {
+                var curriculumExists = await unitOfWork.CurriculumFrameworkRepository.CurriculumFrameworkExistsAsync(curriculumName);
+                if (!curriculumExists)
+                {
+                    var curriculum = new CurriculumFramework
+                    {
+                        CurriculumId = Guid.NewGuid().ToString(),
+                        Name = curriculumName,
+                        CreatedAt = DateTime.UtcNow.ToLocalTime(),
+                        CreatedBy = "system",
+                        IsDeleted = false
+                    };
+
+                    await unitOfWork.CurriculumFrameworkRepository.AddAsync(curriculum);
+                }
+            }
+
+            await unitOfWork.SaveChangeAsync();
+        }
+
+        private static async Task InitializeGrade(IUnitOfWork unitOfWork)
+        {
+            var grades = new List<string> { "Lớp 10", "Lớp 11", "Lớp 12" };
+
+            foreach (var gradeName in grades)
+            {
+                var gradeExists = await unitOfWork.GradeRepository.GradeExistsAsync(gradeName);
+                if (!gradeExists)
+                {
+                    var grade = new Grade
+                    {
+                        GradeId = Guid.NewGuid().ToString(),
+                        Name = gradeName,
+                        CreatedAt = DateTime.UtcNow.ToLocalTime(),
+                        CreatedBy = "system",
+                        IsDeleted = false
+                    };
+
+                    await unitOfWork.GradeRepository.AddAsync(grade);
                 }
             }
 

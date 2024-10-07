@@ -8,9 +8,14 @@ namespace Elepla.Domain.Entities
 {
 	public class Subject : BaseEntity
 	{
-		public string SubjectId { get; set; }
-		public string Name { get; set; }
+        // Primary Key
+        public string SubjectId { get; set; }
+
+        // Attributes
+        public string Name { get; set; }
 		public string? Description { get; set; }
 
-	}
+        // Navigation properties
+        public virtual ICollection<SubjectInCurriculum> SubjectInCurriculums { get; set; } = new List<SubjectInCurriculum>();
+    }
 }

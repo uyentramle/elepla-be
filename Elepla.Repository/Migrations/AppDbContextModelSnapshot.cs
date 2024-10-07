@@ -22,6 +22,41 @@ namespace Elepla.Repository.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("Elepla.Domain.Entities.Activity", b =>
+                {
+                    b.Property<string>("ActivityId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Content")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Implementation")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Index")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Objective")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PlanbookId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Product")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ActivityId");
+
+                    b.HasIndex("PlanbookId");
+
+                    b.ToTable("Activity", (string)null);
+                });
+
             modelBuilder.Entity("Elepla.Domain.Entities.Article", b =>
                 {
                     b.Property<string>("ArticleId")
@@ -146,6 +181,177 @@ namespace Elepla.Repository.Migrations
                     b.ToTable("Category", (string)null);
                 });
 
+            modelBuilder.Entity("Elepla.Domain.Entities.Chapter", b =>
+                {
+                    b.Property<string>("ChapterId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SubjectInCurriculumId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ChapterId");
+
+                    b.HasIndex("SubjectInCurriculumId");
+
+                    b.ToTable("Chapter", (string)null);
+                });
+
+            modelBuilder.Entity("Elepla.Domain.Entities.CurriculumFramework", b =>
+                {
+                    b.Property<string>("CurriculumId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("CurriculumId");
+
+                    b.ToTable("CurriculumFramework", (string)null);
+                });
+
+            modelBuilder.Entity("Elepla.Domain.Entities.Feedback", b =>
+                {
+                    b.Property<string>("FeedbackId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Content")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("PlanbookId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int?>("Rate")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TeacherId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("FeedbackId");
+
+                    b.HasIndex("PlanbookId");
+
+                    b.HasIndex("TeacherId");
+
+                    b.ToTable("Feedback", (string)null);
+                });
+
+            modelBuilder.Entity("Elepla.Domain.Entities.Grade", b =>
+                {
+                    b.Property<string>("GradeId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("GradeId");
+
+                    b.ToTable("Grade", (string)null);
+                });
+
             modelBuilder.Entity("Elepla.Domain.Entities.Image", b =>
                 {
                     b.Property<string>("ImageId")
@@ -183,6 +389,54 @@ namespace Elepla.Repository.Migrations
                     b.HasKey("ImageId");
 
                     b.ToTable("Image", (string)null);
+                });
+
+            modelBuilder.Entity("Elepla.Domain.Entities.Lesson", b =>
+                {
+                    b.Property<string>("LessonId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ChapterId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Content")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Objectives")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("LessonId");
+
+                    b.HasIndex("ChapterId");
+
+                    b.ToTable("Lesson", (string)null);
                 });
 
             modelBuilder.Entity("Elepla.Domain.Entities.Payment", b =>
@@ -235,9 +489,141 @@ namespace Elepla.Repository.Migrations
                     b.ToTable("Payment", (string)null);
                 });
 
+            modelBuilder.Entity("Elepla.Domain.Entities.Planbook", b =>
+                {
+                    b.Property<string>("PlanbookId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ClassName")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("CollectionId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("DurationInPeriods")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("KnowledgeObjective")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LessonId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("QualitiesObjective")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SchoolName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("SkillsObjective")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TeacherName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("TeachingTools")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("PlanbookId");
+
+                    b.HasIndex("CollectionId");
+
+                    b.HasIndex("LessonId");
+
+                    b.ToTable("Planbook", (string)null);
+                });
+
+            modelBuilder.Entity("Elepla.Domain.Entities.PlanbookCollection", b =>
+                {
+                    b.Property<string>("CollectionId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("CollectionName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("TeacherId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("CollectionId");
+
+                    b.HasIndex("TeacherId");
+
+                    b.ToTable("PlanbookCollection", (string)null);
+                });
+
             modelBuilder.Entity("Elepla.Domain.Entities.QuestionBank", b =>
                 {
                     b.Property<string>("QuestionId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ChapterId")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreatedAt")
@@ -254,6 +640,9 @@ namespace Elepla.Repository.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
+
+                    b.Property<string>("LessonId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Plum")
                         .IsRequired()
@@ -274,6 +663,10 @@ namespace Elepla.Repository.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("QuestionId");
+
+                    b.HasIndex("ChapterId");
+
+                    b.HasIndex("LessonId");
 
                     b.ToTable("QuestionBank", (string)null);
                 });
@@ -296,9 +689,6 @@ namespace Elepla.Repository.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("DeletedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsDefault")
@@ -399,7 +789,8 @@ namespace Elepla.Repository.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -412,12 +803,123 @@ namespace Elepla.Repository.Migrations
                     b.ToTable("Subject", (string)null);
                 });
 
+            modelBuilder.Entity("Elepla.Domain.Entities.SubjectInCurriculum", b =>
+                {
+                    b.Property<string>("SubjectInCurriculumId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CurriculumId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("GradeId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("SubjectId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("SubjectInCurriculumId");
+
+                    b.HasIndex("CurriculumId");
+
+                    b.HasIndex("GradeId");
+
+                    b.HasIndex("SubjectId");
+
+                    b.ToTable("SubjectInCurriculum", (string)null);
+                });
+
+            modelBuilder.Entity("Elepla.Domain.Entities.TeachingSchedule", b =>
+                {
+                    b.Property<string>("ScheduleId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ClassName")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EndTime")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("PlanbookId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("StartTime")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TeacherId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ScheduleId");
+
+                    b.HasIndex("PlanbookId");
+
+                    b.HasIndex("TeacherId");
+
+                    b.ToTable("TeachingSchedule", (string)null);
+                });
+
             modelBuilder.Entity("Elepla.Domain.Entities.User", b =>
                 {
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("AddressText")
+                    b.Property<string>("AddressLine")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("AvatarId")
@@ -584,6 +1086,17 @@ namespace Elepla.Repository.Migrations
                     b.ToTable("UserPackage", (string)null);
                 });
 
+            modelBuilder.Entity("Elepla.Domain.Entities.Activity", b =>
+                {
+                    b.HasOne("Elepla.Domain.Entities.Planbook", "Planbook")
+                        .WithMany("Activities")
+                        .HasForeignKey("PlanbookId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Planbook");
+                });
+
             modelBuilder.Entity("Elepla.Domain.Entities.ArticleCategory", b =>
                 {
                     b.HasOne("Elepla.Domain.Entities.Article", "Article")
@@ -622,6 +1135,47 @@ namespace Elepla.Repository.Migrations
                     b.Navigation("Image");
                 });
 
+            modelBuilder.Entity("Elepla.Domain.Entities.Chapter", b =>
+                {
+                    b.HasOne("Elepla.Domain.Entities.SubjectInCurriculum", "SubjectInCurriculum")
+                        .WithMany("Chapters")
+                        .HasForeignKey("SubjectInCurriculumId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("SubjectInCurriculum");
+                });
+
+            modelBuilder.Entity("Elepla.Domain.Entities.Feedback", b =>
+                {
+                    b.HasOne("Elepla.Domain.Entities.Planbook", "Planbook")
+                        .WithMany("Feedbacks")
+                        .HasForeignKey("PlanbookId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Elepla.Domain.Entities.User", "Teacher")
+                        .WithMany("Feedbacks")
+                        .HasForeignKey("TeacherId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Planbook");
+
+                    b.Navigation("Teacher");
+                });
+
+            modelBuilder.Entity("Elepla.Domain.Entities.Lesson", b =>
+                {
+                    b.HasOne("Elepla.Domain.Entities.Chapter", "Chapter")
+                        .WithMany("Lessons")
+                        .HasForeignKey("ChapterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Chapter");
+                });
+
             modelBuilder.Entity("Elepla.Domain.Entities.Payment", b =>
                 {
                     b.HasOne("Elepla.Domain.Entities.ServicePackage", "Package")
@@ -637,6 +1191,97 @@ namespace Elepla.Repository.Migrations
                         .IsRequired();
 
                     b.Navigation("Package");
+
+                    b.Navigation("Teacher");
+                });
+
+            modelBuilder.Entity("Elepla.Domain.Entities.Planbook", b =>
+                {
+                    b.HasOne("Elepla.Domain.Entities.PlanbookCollection", "PlanbookCollection")
+                        .WithMany("Planbooks")
+                        .HasForeignKey("CollectionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Elepla.Domain.Entities.Lesson", "Lesson")
+                        .WithMany("Planbooks")
+                        .HasForeignKey("LessonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Lesson");
+
+                    b.Navigation("PlanbookCollection");
+                });
+
+            modelBuilder.Entity("Elepla.Domain.Entities.PlanbookCollection", b =>
+                {
+                    b.HasOne("Elepla.Domain.Entities.User", "Teacher")
+                        .WithMany("PlanbookCollections")
+                        .HasForeignKey("TeacherId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Teacher");
+                });
+
+            modelBuilder.Entity("Elepla.Domain.Entities.QuestionBank", b =>
+                {
+                    b.HasOne("Elepla.Domain.Entities.Chapter", "Chapter")
+                        .WithMany("QuestionBanks")
+                        .HasForeignKey("ChapterId");
+
+                    b.HasOne("Elepla.Domain.Entities.Lesson", "Lesson")
+                        .WithMany("QuestionBanks")
+                        .HasForeignKey("LessonId");
+
+                    b.Navigation("Chapter");
+
+                    b.Navigation("Lesson");
+                });
+
+            modelBuilder.Entity("Elepla.Domain.Entities.SubjectInCurriculum", b =>
+                {
+                    b.HasOne("Elepla.Domain.Entities.CurriculumFramework", "Curriculum")
+                        .WithMany("SubjectInCurriculums")
+                        .HasForeignKey("CurriculumId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Elepla.Domain.Entities.Grade", "Grade")
+                        .WithMany("SubjectInCurriculums")
+                        .HasForeignKey("GradeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Elepla.Domain.Entities.Subject", "Subject")
+                        .WithMany("SubjectInCurriculums")
+                        .HasForeignKey("SubjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Curriculum");
+
+                    b.Navigation("Grade");
+
+                    b.Navigation("Subject");
+                });
+
+            modelBuilder.Entity("Elepla.Domain.Entities.TeachingSchedule", b =>
+                {
+                    b.HasOne("Elepla.Domain.Entities.Planbook", "Planbook")
+                        .WithMany("TeachingSchedules")
+                        .HasForeignKey("PlanbookId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Elepla.Domain.Entities.User", "Teacher")
+                        .WithMany("TeachingSchedules")
+                        .HasForeignKey("TeacherId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Planbook");
 
                     b.Navigation("Teacher");
                 });
@@ -697,6 +1342,23 @@ namespace Elepla.Repository.Migrations
                     b.Navigation("ArticleCategories");
                 });
 
+            modelBuilder.Entity("Elepla.Domain.Entities.Chapter", b =>
+                {
+                    b.Navigation("Lessons");
+
+                    b.Navigation("QuestionBanks");
+                });
+
+            modelBuilder.Entity("Elepla.Domain.Entities.CurriculumFramework", b =>
+                {
+                    b.Navigation("SubjectInCurriculums");
+                });
+
+            modelBuilder.Entity("Elepla.Domain.Entities.Grade", b =>
+                {
+                    b.Navigation("SubjectInCurriculums");
+                });
+
             modelBuilder.Entity("Elepla.Domain.Entities.Image", b =>
                 {
                     b.Navigation("ArticleImages");
@@ -704,6 +1366,27 @@ namespace Elepla.Repository.Migrations
                     b.Navigation("UserAvatars");
 
                     b.Navigation("UserBackgrounds");
+                });
+
+            modelBuilder.Entity("Elepla.Domain.Entities.Lesson", b =>
+                {
+                    b.Navigation("Planbooks");
+
+                    b.Navigation("QuestionBanks");
+                });
+
+            modelBuilder.Entity("Elepla.Domain.Entities.Planbook", b =>
+                {
+                    b.Navigation("Activities");
+
+                    b.Navigation("Feedbacks");
+
+                    b.Navigation("TeachingSchedules");
+                });
+
+            modelBuilder.Entity("Elepla.Domain.Entities.PlanbookCollection", b =>
+                {
+                    b.Navigation("Planbooks");
                 });
 
             modelBuilder.Entity("Elepla.Domain.Entities.Role", b =>
@@ -718,9 +1401,25 @@ namespace Elepla.Repository.Migrations
                     b.Navigation("UserPackages");
                 });
 
+            modelBuilder.Entity("Elepla.Domain.Entities.Subject", b =>
+                {
+                    b.Navigation("SubjectInCurriculums");
+                });
+
+            modelBuilder.Entity("Elepla.Domain.Entities.SubjectInCurriculum", b =>
+                {
+                    b.Navigation("Chapters");
+                });
+
             modelBuilder.Entity("Elepla.Domain.Entities.User", b =>
                 {
+                    b.Navigation("Feedbacks");
+
                     b.Navigation("Payments");
+
+                    b.Navigation("PlanbookCollections");
+
+                    b.Navigation("TeachingSchedules");
 
                     b.Navigation("UserPackages");
                 });
