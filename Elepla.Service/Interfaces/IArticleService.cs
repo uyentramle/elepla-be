@@ -11,6 +11,7 @@ namespace Elepla.Service.Interfaces
     public interface IArticleService
     {
 		Task<ResponseModel> GetAllArticleAsync(int pageIndex, int pageSize);
+		Task<ResponseModel> GetAllArticlesByCategoryIdAsync(string categoryId, int pageIndex, int pageSize);
 		Task<ResponseModel> GetArticleByIdAsync(string id);
 		Task<ResponseModel> CreateArticleAsync(CreateArticleDTO model);
 		Task<ResponseModel> UpdateArticleAsync(UpdateArticleDTO model);

@@ -45,6 +45,27 @@ namespace Elepla.Service.Services
 		}
 		#endregion
 
+		#region Get All Articles by Category Id
+		public async Task<ResponseModel> GetAllArticlesByCategoryIdAsync(string categoryId, int pageIndex, int pageSize)
+		{
+			var articles = await _unitOfWork.ArticleRepository.GetAsync(
+				filter: r => r.ArticleCategories.Any(c => c.CategoryId == categoryId),
+				pageIndex: pageIndex,
+				pageSize: pageSize
+			);
+
+			var articleDtos = _mapper.Map<Pagination<ViewListArticleDTO>>(articles);
+
+			return new SuccessResponseModel<object>
+			{
+				Success = true,
+				Message = "Articles retrieved successfully.",
+				Data = articleDtos
+			};
+		}
+
+		#endregion
+
 		#region Get Article By Id
 		public async Task<ResponseModel> GetArticleByIdAsync(string id)
 		{
@@ -104,15 +125,19 @@ namespace Elepla.Service.Services
 				await _unitOfWork.ArticleRepository.AddAsync(article);
 				await _unitOfWork.SaveChangeAsync();
 
-				var articleCategories = new List<ArticleCategory>();
-				foreach (var categoryId in model.Categories)
+				if (model.Categories != null)
 				{
-					var articleCategory = new ArticleCategory
+					var articleCategories = new List<ArticleCategory>();
+					foreach (var categoryId in model.Categories)
 					{
-						ArticleId = article.ArticleId,
-						CategoryId = categoryId.ToString()
-					};
-					articleCategories.Add(articleCategory);
+						var articleCategory = new ArticleCategory
+						{
+							ArticleId = article.ArticleId,
+							CategoryId = categoryId.ToString()
+						};
+						articleCategories.Add(articleCategory);
+						await _unitOfWork.SaveChangeAsync();
+					}
 				}
 
 				if (model.Thumb != null)
@@ -207,15 +232,19 @@ namespace Elepla.Service.Services
 				_unitOfWork.ArticleRepository.Update(mapper);
 				await _unitOfWork.SaveChangeAsync();
 
-				var articleCategories = new List<ArticleCategory>();
-				foreach (var categoryId in model.Categories)
+				if (model.Categories != null)
 				{
-					var articleCategory = new ArticleCategory
+					var articleCategories = new List<ArticleCategory>();
+					foreach (var categoryId in model.Categories)
 					{
-						ArticleId = article.ArticleId,
-						CategoryId = categoryId.ToString()
-					};
-					articleCategories.Add(articleCategory);
+						var articleCategory = new ArticleCategory
+						{
+							ArticleId = article.ArticleId,
+							CategoryId = categoryId.ToString()
+						};
+						articleCategories.Add(articleCategory);
+						await _unitOfWork.SaveChangeAsync();
+					}
 				}
 
 				if (model.Thumb != null)
