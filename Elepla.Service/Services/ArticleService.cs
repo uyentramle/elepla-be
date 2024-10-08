@@ -26,6 +26,7 @@ namespace Elepla.Service.Services
 			_urlService = urlService;
 		}
 
+		#region Get All Article Not Trashed
 		public async Task<ResponseModel> GetAllArticleAsync(int pageIndex, int pageSize)
 		{
 			var articles = await _unitOfWork.ArticleRepository.GetAsync(
@@ -42,7 +43,9 @@ namespace Elepla.Service.Services
 				Data = articleDtos
 			};
 		}
+		#endregion
 
+		#region Get Article By Id
 		public async Task<ResponseModel> GetArticleByIdAsync(string id)
 		{
 			var article = await _unitOfWork.ArticleRepository.GetByIdAsync(id);
@@ -65,7 +68,9 @@ namespace Elepla.Service.Services
 				Data = result
 			};
 		}
-		
+		#endregion
+
+		#region Create Article
 		public async Task<ResponseModel> CreateArticleAsync(CreateArticleDTO model)
 		{
 			try
@@ -83,6 +88,17 @@ namespace Elepla.Service.Services
 				if (model.Content != null)
 				{
 					article.Excerpt = model.Content.Substring(0, 100);
+				}
+
+				if (model.Status == null)
+				{
+					article.Status = "Draft";
+				}
+				else if (model.Status == "Trashed")
+				{
+					article.Status = "Trashed";
+					_unitOfWork.ArticleRepository.SoftRemove(article);
+					await _unitOfWork.SaveChangeAsync();
 				}
 
 				await _unitOfWork.ArticleRepository.AddAsync(article);
@@ -134,7 +150,9 @@ namespace Elepla.Service.Services
 				};
 			}
 		}
+		#endregion
 
+		#region Update Article
 		public async Task<ResponseModel> UpdateArticleAsync(UpdateArticleDTO model)
 		{
 			try
@@ -150,8 +168,20 @@ namespace Elepla.Service.Services
 					};
 				}
 
-				article = _mapper.Map(model, article);
-				article.Url = _urlService.RemoveDiacritics(model.Title).Replace(" ", "-").ToLower();
+				var mapper = _mapper.Map(model, article);
+				if (model.Slug != null)
+				{
+					article.Url = _urlService.RemoveDiacritics(model.Slug).Replace(" ", "-").ToLower();
+				}
+				else
+				{
+					article.Url = _urlService.RemoveDiacritics(model.Title).Replace(" ", "-").ToLower();
+				}
+
+				if (model.Content != null)
+				{
+					article.Excerpt = model.Content.Substring(0, 100);
+				}
 
 				switch (model.Status)
 				{
@@ -174,6 +204,40 @@ namespace Elepla.Service.Services
 						break;
 				}
 
+				_unitOfWork.ArticleRepository.Update(mapper);
+				await _unitOfWork.SaveChangeAsync();
+
+				var articleCategories = new List<ArticleCategory>();
+				foreach (var categoryId in model.Categories)
+				{
+					var articleCategory = new ArticleCategory
+					{
+						ArticleId = article.ArticleId,
+						CategoryId = categoryId.ToString()
+					};
+					articleCategories.Add(articleCategory);
+				}
+
+				if (model.Thumb != null)
+				{
+					var thumb = new Image
+					{
+						ImageId = Guid.NewGuid().ToString(),
+						ImageUrl = model.Thumb,
+						Type = "Article Thumb"
+					};
+					await _unitOfWork.ImageRepository.AddAsync(thumb);
+					await _unitOfWork.SaveChangeAsync();
+
+					var articleImageThumb = new ArticleImage
+					{
+						ArticleId = article.ArticleId,
+						ImageId = thumb.ImageId
+					};
+					article.ArticleImages.Add(articleImageThumb);
+					await _unitOfWork.SaveChangeAsync();
+				}
+
 				return new ResponseModel
 				{
 					Success = true,
@@ -189,7 +253,9 @@ namespace Elepla.Service.Services
 				};
 			}
 		}
+		#endregion
 
+		#region Delete Article
 		public async Task<ResponseModel> DeleteArticleAsync(string id)
 		{
 			try
@@ -233,5 +299,6 @@ namespace Elepla.Service.Services
 				};
 			}
 		}
+		#endregion
 	}
 }
