@@ -13,10 +13,10 @@ using System.Threading.Tasks;
 
 namespace Elepla.Service.Services
 {
-    public class ArticleService : IArticleService
-    {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
+	public class ArticleService : IArticleService
+	{
+		private readonly IUnitOfWork _unitOfWork;
+		private readonly IMapper _mapper;
 		private readonly IUrlService _urlService;
 
 		public ArticleService(IUnitOfWork unitOfWork, IMapper mapper, IUrlService urlService)
@@ -65,31 +65,58 @@ namespace Elepla.Service.Services
 				Data = result
 			};
 		}
-
+		
 		public async Task<ResponseModel> CreateArticleAsync(CreateArticleDTO model)
 		{
 			try
 			{
 				var article = _mapper.Map<Article>(model);
-				article.Url = _urlService.RemoveDiacritics(model.Title).Replace(" ", "-").ToLower();
-
-				switch (model.Status)
+				if (model.Slug != null)
 				{
-					case "Published":
-						article.Status = "Published";
-						break;
-					case "Draft":
-						article.Status = "Draft";
-						break;
-					case "InActive":
-						article.Status = "InActive";
-						break;
-					case "Trashed":
-						article.Status = "Trashed";
-						break;
-					default:
-						article.Status = "Draft";
-						break;
+					article.Url = _urlService.RemoveDiacritics(model.Slug).Replace(" ", "-").ToLower();
+				}
+				else
+				{
+					article.Url = _urlService.RemoveDiacritics(model.Title).Replace(" ", "-").ToLower();
+				}
+
+				if (model.Content != null)
+				{
+					article.Excerpt = model.Content.Substring(0, 100);
+				}
+
+				await _unitOfWork.ArticleRepository.AddAsync(article);
+				await _unitOfWork.SaveChangeAsync();
+
+				var articleCategories = new List<ArticleCategory>();
+				foreach (var categoryId in model.Categories)
+				{
+					var articleCategory = new ArticleCategory
+					{
+						ArticleId = article.ArticleId,
+						CategoryId = categoryId.ToString()
+					};
+					articleCategories.Add(articleCategory);
+				}
+
+				if (model.Thumb != null)
+				{
+					var thumb = new Image
+					{
+						ImageId = Guid.NewGuid().ToString(),
+						ImageUrl = model.Thumb,
+						Type = "Article Thumb"
+					};
+					await _unitOfWork.ImageRepository.AddAsync(thumb);
+					await _unitOfWork.SaveChangeAsync();
+
+					var articleImageThumb = new ArticleImage
+					{
+						ArticleId = article.ArticleId,
+						ImageId = thumb.ImageId
+					};
+					article.ArticleImages.Add(articleImageThumb);
+					await _unitOfWork.SaveChangeAsync();
 				}
 
 				return new ResponseModel
