@@ -33,7 +33,7 @@ namespace Elepla.API.Controllers
             {
                 return Ok(response);
             }
-            return NotFound(response);
+            return BadRequest(response);
         }
 
         [HttpPost]
