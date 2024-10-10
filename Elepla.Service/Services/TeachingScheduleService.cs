@@ -21,13 +21,12 @@ namespace Elepla.Service.Services
             _mapper = mapper;
         }
 
-        // Get all teaching schedules with pagination and optional filtering by class name
         public async Task<ResponseModel> GetAllTeachingSchedulesAsync(string? keyword, int pageIndex, int pageSize)
         {
             var schedules = await _unitOfWork.TeachingScheduleRepository.GetAsync(
                                 filter: s => !s.IsDeleted && (string.IsNullOrEmpty(keyword) || s.ClassName.Contains(keyword)),
                                 orderBy: s => s.OrderBy(s => s.Date),
-                                includeProperties: "Teacher,Planbook", // Including related entities
+                                includeProperties: "Teacher,Planbook", 
                                 pageIndex: pageIndex,
                                 pageSize: pageSize
             );
@@ -42,12 +41,11 @@ namespace Elepla.Service.Services
             };
         }
 
-        // Get a teaching schedule by its ID
         public async Task<ResponseModel> GetTeachingScheduleByIdAsync(string scheduleId)
         {
             var schedule = await _unitOfWork.TeachingScheduleRepository.GetByIdAsync(
                 scheduleId,
-                includeProperties: "Teacher,Planbook" // Including related entities
+                includeProperties: "Teacher,Planbook" 
             );
 
             if (schedule == null)
@@ -69,14 +67,12 @@ namespace Elepla.Service.Services
             };
         }
 
-        // Add a new teaching schedule
         public async Task<ResponseModel> AddTeachingScheduleAsync(CreateTeachingScheduleDTO model)
         {
             try
             {
-                // Map the incoming DTO to TeachingSchedule entity and auto-generate the ScheduleId
                 var schedule = _mapper.Map<TeachingSchedule>(model);
-                schedule.ScheduleId = Guid.NewGuid().ToString(); // Auto-generate ScheduleId
+                schedule.ScheduleId = Guid.NewGuid().ToString(); 
 
                 await _unitOfWork.TeachingScheduleRepository.AddAsync(schedule);
                 await _unitOfWork.SaveChangeAsync();
@@ -98,7 +94,6 @@ namespace Elepla.Service.Services
             }
         }
 
-        // Update an existing teaching schedule
         public async Task<ResponseModel> UpdateTeachingScheduleAsync(UpdateTeachingScheduleDTO model)
         {
             try
@@ -144,7 +139,6 @@ namespace Elepla.Service.Services
             }
         }
 
-        // Soft delete a teaching schedule
         public async Task<ResponseModel> DeleteTeachingScheduleAsync(string scheduleId)
         {
             try
