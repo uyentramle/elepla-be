@@ -17,7 +17,6 @@ namespace Elepla.Repository.FluentAPIs
             builder.HasKey(x => x.RoleId);
             builder.Property(x => x.RoleId).ValueGeneratedOnAdd();
             builder.Property(x => x.Name).HasMaxLength(50);
-            builder.Property(x => x.Description);
             builder.HasMany(x => x.Users)
                 .WithOne(x => x.Role)
                 .HasForeignKey(x => x.RoleId);

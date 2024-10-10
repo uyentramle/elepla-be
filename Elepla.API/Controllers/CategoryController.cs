@@ -14,28 +14,28 @@ namespace Elepla.API.Controllers
 		}
 
 		[HttpGet]
-		public async Task<IActionResult> GetAllCategory(int pageIndex = 0, int pageSize = 10)
+		public async Task<IActionResult> GetAllCategoryAsync(int pageIndex = 0, int pageSize = 10)
 		{
-			var response = await _categoryService.GetAllCategory(pageIndex, pageSize);
+			var response = await _categoryService.GetAllCategoryAsync(pageIndex, pageSize);
 			return Ok(response);
 		}
 
-		[HttpGet("{id}")]
-		public async Task<IActionResult> GetCategoryById(string id)
+		[HttpGet]
+		public async Task<IActionResult> GetCategoryByIdAsync(string id)
 		{
-			var response = await _categoryService.GetCategoryById(id);
+			var response = await _categoryService.GetCategoryByIdAsync(id);
 			return Ok(response);
 		}
 
 		[HttpPost]
-		public async Task<IActionResult> CreateCategory(CreateCategoryDTO model)
+		public async Task<IActionResult> CreateCategoryAsync(CreateCategoryDTO model)
 		{
 			if (!ModelState.IsValid)
 			{
 				return BadRequest(ModelState);
 			}
 
-			var response = await _categoryService.CreateCategory(model);
+			var response = await _categoryService.CreateCategoryAsync(model);
 			if (response.Success)
 			{
 				return Ok(response);
@@ -47,9 +47,9 @@ namespace Elepla.API.Controllers
 		}
 
 		[HttpPut]
-		public async Task<IActionResult> UpdateCategory(UpdateCategoryDTO model)
+		public async Task<IActionResult> UpdateCategoryAsync(UpdateCategoryDTO model)
 		{
-			var response = await _categoryService.UpdateCategory(model);
+			var response = await _categoryService.UpdateCategoryAsync(model);
 			if (response.Success)
 			{
 				return Ok(response);
@@ -61,9 +61,9 @@ namespace Elepla.API.Controllers
 		}
 
 		[HttpDelete]
-		public async Task<IActionResult> DeleteCategory(string id)
+		public async Task<IActionResult> DeleteCategoryAsync(string id)
 		{
-			var response = await _categoryService.DeleteCategory(id);
+			var response = await _categoryService.DeleteCategoryAsync(id);
 			if (response.Success)
 			{
 				return Ok(response);

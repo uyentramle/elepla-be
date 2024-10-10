@@ -25,7 +25,7 @@ namespace Elepla.Domain.Entities
         public bool PhoneNumberConfirmed { get; set; }
         public string? GoogleEmail { get; set; }
         public string? FacebookEmail { get; set; }
-        public string? AddressText { get; set; }
+        public string? AddressLine { get; set; }
         public string? City { get; set; }    
         public string? District { get; set; }
         public string? Ward { get; set; }
@@ -47,5 +47,8 @@ namespace Elepla.Domain.Entities
         public virtual Image Background { get; set; }
 		public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
         public virtual ICollection<UserPackage> UserPackages { get; set; } = new List<UserPackage>();
-	}
+        public virtual ICollection<PlanbookCollection> PlanbookCollections { get; set; } = new List<PlanbookCollection>();
+        public virtual ICollection<TeachingSchedule> TeachingSchedules { get; set; } = new List<TeachingSchedule>();
+        public virtual ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
+    }
 }

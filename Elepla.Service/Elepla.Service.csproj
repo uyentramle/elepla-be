@@ -23,4 +23,8 @@
     <PackageReference Include="Twilio" Version="7.3.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Models\ViewModels\UserPackageModels\" />
+  </ItemGroup>
+
 </Project>

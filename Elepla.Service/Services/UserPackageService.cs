@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Elepla.Domain.Entities;
 using Elepla.Repository.Interfaces;
 using Elepla.Service.Interfaces;
 using System;
@@ -19,5 +20,7 @@ namespace Elepla.Service.Services
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
+
+ 
     }
 }
