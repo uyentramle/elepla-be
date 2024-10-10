@@ -82,7 +82,7 @@ namespace Elepla.API.Controllers
         #endregion
 
         #region Delete Service Package
-        [HttpDelete("{packageId}")]
+        [HttpDelete]
         //[Authorize]
         public async Task<IActionResult> DeleteServicePackageAsync(string packageId)
         {
