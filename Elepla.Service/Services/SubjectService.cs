@@ -74,7 +74,7 @@ namespace Elepla.Service.Services
 
                 if (existingSubject)
                 {
-                    return new ErrorResponseModel<object>
+                    return new ResponseModel
                     {
                         Success = false,
                         Message = "Subject name already exists."
