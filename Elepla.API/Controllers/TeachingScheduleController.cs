@@ -28,7 +28,7 @@ namespace Elepla.API.Controllers
         #endregion
 
         #region Get Teaching Schedule by ID
-        [HttpGet("{scheduleId}")]
+        [HttpGet]
         //[Authorize]
         public async Task<IActionResult> GetTeachingScheduleByIdAsync(string scheduleId)
         {
@@ -80,7 +80,7 @@ namespace Elepla.API.Controllers
         #endregion
 
         #region Delete Teaching Schedule
-        [HttpDelete("{scheduleId}")]
+        [HttpDelete]
         //[Authorize]
         public async Task<IActionResult> DeleteTeachingScheduleAsync(string scheduleId)
         {
