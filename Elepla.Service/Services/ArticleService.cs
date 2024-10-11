@@ -56,6 +56,13 @@ namespace Elepla.Service.Services
 
 			var articleDtos = _mapper.Map<Pagination<ViewListArticleDTO>>(articles);
 
+			foreach (var item in articleDtos.Items)
+			{
+				Image? image = await _unitOfWork.ImageRepository.GetByIdAsync(item.ArticleId);
+				if (image != null)
+					item.Thumb = image.ImageUrl;
+			}
+
 			return new SuccessResponseModel<object>
 			{
 				Success = true,
@@ -127,7 +134,6 @@ namespace Elepla.Service.Services
 
 				if (model.Categories != null)
 				{
-					var articleCategories = new List<ArticleCategory>();
 					foreach (var categoryId in model.Categories)
 					{
 						var articleCategory = new ArticleCategory
@@ -135,7 +141,7 @@ namespace Elepla.Service.Services
 							ArticleId = article.ArticleId,
 							CategoryId = categoryId.ToString()
 						};
-						articleCategories.Add(articleCategory);
+						article.ArticleCategories.Add(articleCategory);
 						await _unitOfWork.SaveChangeAsync();
 					}
 				}
