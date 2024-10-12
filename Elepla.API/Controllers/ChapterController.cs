@@ -1,6 +1,6 @@
 ﻿using Elepla.Service.Interfaces;
 using Elepla.Service.Models.ViewModels.ChapterViewModels;
-
+using Elepla.Service.Models.ViewModels.SubjectViewModels;
 using Elepla.Service.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
