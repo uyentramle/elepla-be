@@ -4,12 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+ 
 namespace Elepla.Repository.Interfaces
 {
-    public interface ISubjectRepository : IGenericRepository<Subject>
+    public interface IChapterRepository : IGenericRepository<Chapter>
     {
-        Task<bool> SubjectExistsAsync(string subjectName);
+        Task<bool> ChapterExistsAsync(string chapterName);
     }
 }
+
+
 

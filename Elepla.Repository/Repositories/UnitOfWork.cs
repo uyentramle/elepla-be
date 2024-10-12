@@ -15,6 +15,7 @@ namespace Elepla.Repository.Repositories
         private readonly IRoleRepository _roleRepository;
         private readonly IImageRepository _imageRepository;
         private readonly ICategoryRepository _categoryRepository;
+        private readonly IChapterRepository _chapterRepository; 
         private readonly IArticleRepository _articleRepository;
         private readonly IArticleCategoryRepository _articleCategoryRepository;
         private readonly IArticleImageRepository _articleImageRepository;
@@ -37,7 +38,10 @@ namespace Elepla.Repository.Repositories
             IAccountRepository accountRepository,
             IRoleRepository roleRepository,
             IImageRepository imageRepository,
-            ICategoryRepository categoryRepository,
+            ICategoryRepository categoryRepository, 
+            IChapterRepository chapterRepository,
+           
+
             IArticleRepository articleRepository,
             IArticleCategoryRepository articleCategoryRepository,
             IArticleImageRepository articleImageRepository,
@@ -61,6 +65,7 @@ namespace Elepla.Repository.Repositories
             _roleRepository = roleRepository;
             _imageRepository = imageRepository;
             _categoryRepository = categoryRepository;
+            _chapterRepository = chapterRepository; 
             _articleRepository = articleRepository;
             _articleCategoryRepository = articleCategoryRepository;
             _articleImageRepository = articleImageRepository;
@@ -87,7 +92,7 @@ namespace Elepla.Repository.Repositories
         public IImageRepository ImageRepository => _imageRepository;
 
         public ICategoryRepository CategoryRepository => _categoryRepository;
-
+        public IChapterRepository ChapterRepository => _chapterRepository; 
         public IArticleRepository ArticleRepository => _articleRepository;
 
         public IArticleCategoryRepository ArticleCategoryRepository => _articleCategoryRepository;
