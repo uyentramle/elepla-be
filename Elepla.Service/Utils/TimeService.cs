@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Elepla.Service.Services
+namespace Elepla.Service.Utils
 {
-    public class CurrentTime : ICurrentTime
+    public class TimeService : ITimeService
     {
         public DateTime GetCurrentTime() => DateTime.UtcNow.ToLocalTime();
     }
