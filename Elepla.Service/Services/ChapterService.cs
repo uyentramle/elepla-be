@@ -98,7 +98,7 @@ namespace Elepla.Service.Services
                 return new ErrorResponseModel<object>
                 {
                     Success = false,
-                    Message = "An error occurred while creating the subject.",
+                    Message = "An error occurred while creating the chapter.",
                     Errors = new List<string> { ex.Message }
                 };
             }
@@ -134,7 +134,7 @@ namespace Elepla.Service.Services
                 return new ErrorResponseModel<object>
                 {
                     Success = false,
-                    Message = "An error occurred while updating the subject.",
+                    Message = "An error occurred while updating the chapter.",
                     Errors = new List<string> { ex.Message }
                 };
             }
@@ -177,7 +177,7 @@ namespace Elepla.Service.Services
                 return new ErrorResponseModel<object>
                 {
                     Success = false,
-                    Message = "An error occurred while deleting the subject.",
+                    Message = "An error occurred while deleting the chapter.",
                     Errors = new List<string> { ex.Message }
                 };
             }
