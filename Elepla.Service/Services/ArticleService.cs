@@ -36,6 +36,18 @@ namespace Elepla.Service.Services
 				);
 			var articleDtos = _mapper.Map<Pagination<ViewListArticleDTO>>(articles);
 
+			foreach (var item in articleDtos.Items)
+			{
+				var arImage = await _unitOfWork.ArticleImageRepository.GetByArticleIdAsync(item.ArticleId);
+
+				if (arImage != null)
+				{
+					Image? image = await _unitOfWork.ImageRepository.GetByIdAsync(arImage.ImageId);
+					if (image != null)
+						item.Thumb = image.ImageUrl;
+				}
+			}
+
 			return new SuccessResponseModel<object>
 			{
 				Success = true,
@@ -58,9 +70,14 @@ namespace Elepla.Service.Services
 
 			foreach (var item in articleDtos.Items)
 			{
-				Image? image = await _unitOfWork.ImageRepository.GetByIdAsync(item.ArticleId);
-				if (image != null)
-					item.Thumb = image.ImageUrl;
+				var arImage = await _unitOfWork.ArticleImageRepository.GetByArticleIdAsync(item.ArticleId);
+
+				if (arImage != null)
+				{
+					Image? image = await _unitOfWork.ImageRepository.GetByIdAsync(arImage.ImageId);
+					if (image != null)
+						item.Thumb = image.ImageUrl;
+				}
 			}
 
 			return new SuccessResponseModel<object>
@@ -88,6 +105,23 @@ namespace Elepla.Service.Services
 			}
 
 			var result = _mapper.Map<ViewDetailArticleDTO>(article);
+
+			var categories = await _unitOfWork.ArticleCategoryRepository.GetByArticleIdAsync(result.ArticleId);
+			if (categories != null)
+			{
+				result.Categories = categories.Select(c => c.Category.Name).ToList();
+			}
+
+			var arImage = await _unitOfWork.ArticleImageRepository.GetByArticleIdAsync(result.ArticleId);
+
+			if (arImage != null)
+			{
+				Image? image = await _unitOfWork.ImageRepository.GetByIdAsync(arImage.ImageId);
+				if (image != null)
+				{
+					result.Thumb = image.ImageUrl;
+				}
+			}
 
 			return new SuccessResponseModel<object>
 			{
@@ -118,49 +152,48 @@ namespace Elepla.Service.Services
 					article.Excerpt = model.Content.Substring(0, 100);
 				}
 
-				if (model.Status == null)
-				{
-					article.Status = "Draft";
-				}
-				else if (model.Status == "Trashed")
-				{
-					article.Status = "Trashed";
-					_unitOfWork.ArticleRepository.SoftRemove(article);
-					await _unitOfWork.SaveChangeAsync();
-				}
+				article.Status = model.Status ?? "Draft";
 
 				await _unitOfWork.ArticleRepository.AddAsync(article);
-				await _unitOfWork.SaveChangeAsync();
 
-				if (model.Categories != null)
+				if (model.Categories != null && model.Categories.Any())
 				{
 					foreach (var categoryId in model.Categories)
 					{
 						var articleCategory = new ArticleCategory
 						{
 							ArticleId = article.ArticleId,
-							CategoryId = categoryId.ToString()
+							CategoryId = categoryId
 						};
 						article.ArticleCategories.Add(articleCategory);
-						await _unitOfWork.SaveChangeAsync();
 					}
 				}
+				await _unitOfWork.SaveChangeAsync();
 
 				if (model.Thumb != null)
 				{
-					var thumb = new Image
+					var existingImage = await _unitOfWork.ImageRepository.FindByImageUrlAsync(model.Thumb);
+					string imgId;
+					if (existingImage != null)
 					{
-						ImageId = Guid.NewGuid().ToString(),
-						ImageUrl = model.Thumb,
-						Type = "Article Thumb"
-					};
-					await _unitOfWork.ImageRepository.AddAsync(thumb);
-					await _unitOfWork.SaveChangeAsync();
-
+						imgId = existingImage.ImageId;
+					}
+					else
+					{
+						var thumb = new Image
+						{
+							ImageId = Guid.NewGuid().ToString(),
+							ImageUrl = model.Thumb,
+							Type = "Article Thumb"
+						};
+						await _unitOfWork.ImageRepository.AddAsync(thumb);
+						await _unitOfWork.SaveChangeAsync();
+						imgId = thumb.ImageId;
+					}
 					var articleImageThumb = new ArticleImage
 					{
 						ArticleId = article.ArticleId,
-						ImageId = thumb.ImageId
+						ImageId = imgId
 					};
 					article.ArticleImages.Add(articleImageThumb);
 					await _unitOfWork.SaveChangeAsync();
@@ -255,19 +288,28 @@ namespace Elepla.Service.Services
 
 				if (model.Thumb != null)
 				{
-					var thumb = new Image
+					var existingImage = await _unitOfWork.ImageRepository.FindByImageUrlAsync(model.Thumb);
+					string imgId;
+					if (existingImage != null)
 					{
-						ImageId = Guid.NewGuid().ToString(),
-						ImageUrl = model.Thumb,
-						Type = "Article Thumb"
-					};
-					await _unitOfWork.ImageRepository.AddAsync(thumb);
-					await _unitOfWork.SaveChangeAsync();
-
+						imgId = existingImage.ImageId;
+					}
+					else
+					{
+						var thumb = new Image
+						{
+							ImageId = Guid.NewGuid().ToString(),
+							ImageUrl = model.Thumb,
+							Type = "Article Thumb"
+						};
+						await _unitOfWork.ImageRepository.AddAsync(thumb);
+						await _unitOfWork.SaveChangeAsync();
+						imgId = thumb.ImageId;
+					}
 					var articleImageThumb = new ArticleImage
 					{
 						ArticleId = article.ArticleId,
-						ImageId = thumb.ImageId
+						ImageId = imgId
 					};
 					article.ArticleImages.Add(articleImageThumb);
 					await _unitOfWork.SaveChangeAsync();
