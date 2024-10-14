@@ -11,7 +11,10 @@ namespace Elepla.Service.Models.ViewModels.ArticleViewModels
 	{
 		[Required(ErrorMessage = "Title is required.")]
 		public string Title { get; set; }
+		public string? Slug { get; set; }
 		public string? Content { get; set; }
 		public string Status { get; set; }
+		public string? Thumb { get; set; }
+		public List<string>? Categories { get; set; }
 	}
 }
