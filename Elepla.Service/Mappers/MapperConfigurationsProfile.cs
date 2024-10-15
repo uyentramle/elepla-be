@@ -14,6 +14,7 @@ using Elepla.Service.Models.ViewModels.PlanbookViewModels;
 using Elepla.Service.Models.ViewModels.QuestionBankViewModels;
 using Elepla.Service.Models.ViewModels.RoleViewModels;
 using Elepla.Service.Models.ViewModels.ServicePackageViewModels;
+using Elepla.Service.Models.ViewModels.SubjectInCurriculumViewModels;
 using Elepla.Service.Models.ViewModels.SubjectViewModels;
 using Elepla.Service.Models.ViewModels.TeachingScheduleModels;
 using System;
@@ -543,7 +544,37 @@ namespace Elepla.Service.Mappers
 				.ForMember(dest => dest.Index, opt => opt.MapFrom(src => src.Index))
 				//.ForMember(dest => dest.PlanbookId, opt => opt.MapFrom(src => src.PlanbookId))
 				.ReverseMap();
-			#endregion
-		}
-	}
+            #endregion
+
+            #region SubjectInCurriculum
+			CreateMap<SubjectInCurriculum, ViewListSubjectInCurriculumDTO>()
+                .ForMember(dest => dest.SubjectInCurriculumId, opt => opt.MapFrom(src => src.SubjectInCurriculumId))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => string.Join(" ", src.Subject.Name, src.Grade.Name, src.Curriculum.Name)))
+                .ForMember(dest => dest.Subject, opt => opt.MapFrom(src => src.Subject.Name))
+                .ForMember(dest => dest.Grade, opt => opt.MapFrom(src => src.Grade.Name))
+                .ForMember(dest => dest.Curriculum, opt => opt.MapFrom(src => src.Curriculum.Name))
+				.ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+				.ForMember(dest => dest.Chapters, opt => opt.MapFrom(src => src.Chapters.Select(c => c.Name).ToList()))
+                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
+                .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom(src => src.CreatedBy))
+                .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.UpdatedAt))
+                .ForMember(dest => dest.UpdatedBy, opt => opt.MapFrom(src => src.UpdatedBy))
+                .ForMember(dest => dest.DeletedAt, opt => opt.MapFrom(src => src.DeletedAt))
+                .ForMember(dest => dest.DeletedBy, opt => opt.MapFrom(src => src.DeletedBy))
+                .ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => src.IsDeleted)).ReverseMap();
+
+            CreateMap<CreateSubjectInCurriculumDTO, SubjectInCurriculum>()
+                .ForMember(dest => dest.SubjectInCurriculumId, opt => opt.MapFrom(src => Guid.NewGuid().ToString()))
+                .ForMember(dest => dest.SubjectId, opt => opt.MapFrom(src => src.SubjectId))
+                .ForMember(dest => dest.GradeId, opt => opt.MapFrom(src => src.GradeId))
+                .ForMember(dest => dest.CurriculumId, opt => opt.MapFrom(src => src.CurriculumId)).ReverseMap();
+
+            CreateMap<UpdateSubjectInCurriculumDTO, SubjectInCurriculum>()
+                .ForMember(dest => dest.SubjectInCurriculumId, opt => opt.MapFrom(src => src.SubjectInCurriculumId))
+                .ForMember(dest => dest.SubjectId, opt => opt.MapFrom(src => src.SubjectId))
+                .ForMember(dest => dest.GradeId, opt => opt.MapFrom(src => src.GradeId))
+                .ForMember(dest => dest.CurriculumId, opt => opt.MapFrom(src => src.CurriculumId)).ReverseMap();
+            #endregion
+        }
+    }
 }
