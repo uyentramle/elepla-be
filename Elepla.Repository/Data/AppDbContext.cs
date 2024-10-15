@@ -34,7 +34,7 @@ namespace Elepla.Repository.Data
         public DbSet<QuestionBank> QuestionBanks { get; set; }
         public DbSet<PlanbookCollection> PlanbookCollections { get; set; }
         public DbSet<Planbook> Planbooks { get; set; }
-        public DbSet<Activity> Activitys { get; set; }
+        public DbSet<Activity> Activities { get; set; }
         public DbSet<TeachingSchedule> TeachingSchedules { get; set; }
         public DbSet<Feedback> Feedbacks { get; set; }
 
