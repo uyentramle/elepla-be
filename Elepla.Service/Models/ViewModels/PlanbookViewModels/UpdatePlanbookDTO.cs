@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Elepla.Service.Models.ViewModels.ActivityViewModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,5 +24,7 @@ namespace Elepla.Service.Models.ViewModels.PlanbookViewModels
 
 		public string CollectionId { get; set; }
 		//public string LessonId { get; set; } 
+
+		public List<ViewListActivityDTO>? Activities { get; set; }
 	}
 }

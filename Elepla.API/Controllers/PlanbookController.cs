@@ -1,4 +1,5 @@
 ﻿using Elepla.Service.Interfaces;
+using Elepla.Service.Models.ViewModels.PlanbookViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -38,6 +39,27 @@ namespace Elepla.API.Controllers
 		public async Task<IActionResult> GetPlanbookByLessonIdAsync(string lessonId, int pageIndex = 0, int pageSize = 10)
 		{
 			var response = await _planbookService.GetPlanbookByLessonIdAsync(lessonId, pageIndex, pageSize);
+			return Ok(response);
+		}
+
+		[HttpPost]
+		public async Task<IActionResult> CreatePlanbookAsync(CreatePlanbookDTO model)
+		{
+			var response = await _planbookService.CreatePlanbookAsync(model);
+			return Ok(response);
+		}
+
+		[HttpPut]
+		public async Task<IActionResult> UpdatePlanbookAsync(UpdatePlanbookDTO model)
+		{
+			var response = await _planbookService.UpdatePlanbookAsync(model);
+			return Ok(response);
+		}
+
+		[HttpDelete]
+		public async Task<IActionResult> SoftRemovePlanbookAsync(string planbookId)
+		{
+			var response = await _planbookService.SoftRemovePlanbookAsync(planbookId);
 			return Ok(response);
 		}
 	}

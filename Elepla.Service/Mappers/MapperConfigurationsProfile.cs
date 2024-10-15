@@ -533,6 +533,16 @@ namespace Elepla.Service.Mappers
 				.ForMember(dest => dest.PlanbookId, opt => opt.MapFrom(src => src.PlanbookId))
 				.ReverseMap();
 
+			CreateMap<CreateActivityForPlanbookDTO, Activity>()
+				.ForMember(dest => dest.ActivityId, opt => opt.MapFrom(src => Guid.NewGuid().ToString()))
+				.ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
+				.ForMember(dest => dest.Objective, opt => opt.MapFrom(src => src.Objective))
+				.ForMember(dest => dest.Content, opt => opt.MapFrom(src => src.Content))
+				.ForMember(dest => dest.Product, opt => opt.MapFrom(src => src.Product))
+				.ForMember(dest => dest.Implementation, opt => opt.MapFrom(src => src.Implementation))
+				.ForMember(dest => dest.Index, opt => opt.MapFrom(src => src.Index))
+				.ReverseMap();
+
 			CreateMap<UpdateActivityDTO, Activity>()
 				.ForMember(dest => dest.ActivityId, opt => opt.MapFrom(src => src.ActivityId))
 				.ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))

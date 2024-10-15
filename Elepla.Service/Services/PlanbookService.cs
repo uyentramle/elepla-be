@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Elepla.Domain.Entities;
 using Elepla.Repository.Common;
 using Elepla.Repository.Interfaces;
 using Elepla.Service.Interfaces;
@@ -13,19 +14,19 @@ using System.Threading.Tasks;
 
 namespace Elepla.Service.Services
 {
-    public class PlanbookService : IPlanbookService
-    {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
+	public class PlanbookService : IPlanbookService
+	{
+		private readonly IUnitOfWork _unitOfWork;
+		private readonly IMapper _mapper;
 
-        public PlanbookService(IUnitOfWork unitOfWork, IMapper mapper)
-        {
-            _unitOfWork = unitOfWork;
-            _mapper = mapper;
-        }
+		public PlanbookService(IUnitOfWork unitOfWork, IMapper mapper)
+		{
+			_unitOfWork = unitOfWork;
+			_mapper = mapper;
+		}
 
 		#region Get All Planbooks
-        public async Task<ResponseModel> GetAllPlanbooksAsync(int pageIndex, int pageSize)
+		public async Task<ResponseModel> GetAllPlanbooksAsync(int pageIndex, int pageSize)
 		{
 			var planbooks = await _unitOfWork.PlanbookRepository.GetAsync(
 							filter: r => r.IsDeleted == false,
@@ -173,7 +174,116 @@ namespace Elepla.Service.Services
 		#endregion
 
 		#region Create Planbook
+		public async Task<ResponseModel> CreatePlanbookAsync(CreatePlanbookDTO model)
+		{
+			try
+			{
+				var planbook = _mapper.Map<Planbook>(model);
+				await _unitOfWork.PlanbookRepository.AddAsync(planbook);
+				await _unitOfWork.SaveChangeAsync();
 
+				if (model.Activities != null && model.Activities.Any())
+				{
+					var activities = _mapper.Map<List<Activity>>(model.Activities);
+					foreach (var activity in activities)
+					{
+						activity.PlanbookId = planbook.PlanbookId;
+						await _unitOfWork.ActivityRepository.CreateActivityAsync(activity);
+					}
+					await _unitOfWork.SaveChangeAsync();
+				}
+
+				return new ResponseModel
+				{
+					Success = true,
+					Message = "Planbook created successfully."
+				};
+			}
+			catch (Exception ex)
+			{
+				return new ErrorResponseModel<string>
+				{
+					Success = false,
+					Message = "An error occurred while creating the planbook.",
+					Errors = new List<string> { ex.Message }
+				};
+			}
+		}
+		#endregion
+
+		#region Update Planbook
+		public async Task<ResponseModel> UpdatePlanbookAsync(UpdatePlanbookDTO model)
+		{
+			try
+			{
+				var planbook = await _unitOfWork.PlanbookRepository.GetByIdAsync(model.PlanbookId);
+				if (planbook == null)
+				{
+					return new ResponseModel
+					{
+						Success = false,
+						Message = "Planbook not found."
+					};
+				}
+
+				var mapper = _mapper.Map(model, planbook);
+				_unitOfWork.PlanbookRepository.Update(planbook);
+				await _unitOfWork.SaveChangeAsync();
+
+				// chua co activities
+
+				return new ResponseModel
+				{
+					Success = true,
+					Message = "Planbook updated successfully."
+				};
+			}
+			catch (Exception ex)
+			{
+				return new ErrorResponseModel<string>
+				{
+					Success = false,
+					Message = "An error occurred while updating the planbook.",
+					Errors = new List<string> { ex.Message }
+				};
+			}
+		}
+		#endregion
+
+		#region Soft Remove Planbook
+		public async Task<ResponseModel> SoftRemovePlanbookAsync(string planbookId)
+		{
+			try
+			{
+				var planbook = await _unitOfWork.PlanbookRepository.GetByIdAsync(planbookId);
+				if (planbook == null)
+				{
+					return new ResponseModel
+					{
+						Success = false,
+						Message = "Planbook not found."
+					};
+				}
+
+				_unitOfWork.PlanbookRepository.SoftRemove(planbook);
+				await _unitOfWork.SaveChangeAsync();
+
+				return new ResponseModel
+				{
+					Success = true,
+					Message = "Planbook deleted successfully."
+				};
+			}
+			catch (Exception ex)
+			{
+				return new ErrorResponseModel<string>
+				{
+					Success = false,
+					Message = "An error occurred while deleting the planbook.",
+					Errors = new List<string> { ex.Message }
+				};
+			}
+		}
 		#endregion
 	}
 }

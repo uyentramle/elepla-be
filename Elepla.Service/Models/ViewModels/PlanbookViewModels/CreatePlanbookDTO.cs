@@ -23,6 +23,16 @@ namespace Elepla.Service.Models.ViewModels.PlanbookViewModels
 		public string CollectionId { get; set; }
 		public string LessonId { get; set; }
 
+		public List<CreateActivityForPlanbookDTO>? Activities { get; set; }
+	}
 
+	public class CreateActivityForPlanbookDTO
+	{
+		public string Title { get; set; }
+		public string? Objective { get; set; }
+		public string? Content { get; set; }
+		public string? Product { get; set; }
+		public string? Implementation { get; set; }
+		public int Index { get; set; }
 	}
 }
