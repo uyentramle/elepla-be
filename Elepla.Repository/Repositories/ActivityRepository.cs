@@ -21,7 +21,7 @@ namespace Elepla.Repository.Repositories
 
 		public async Task<List<Activity>> GetByPlanbookIdAsync(string planbookId)
 		{
-			return await _dbContext.Activities.Where(a => a.PlanbookId == planbookId).ToListAsync();
+			return await _dbContext.Activities.Where(a => a.PlanbookId == planbookId).OrderBy(a => a.Index).ToListAsync();
 		}
 
 		public async Task<Activity?> GetByIdAsync(string activityId)

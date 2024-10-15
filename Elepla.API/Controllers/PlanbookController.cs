@@ -13,5 +13,18 @@ namespace Elepla.API.Controllers
 			_planbookService = planbookService;
 		}
 
+		[HttpGet]
+		public async Task<IActionResult> GetAllPlanbooksAsync(int pageIndex = 0, int pageSize = 10)
+		{
+			var response = await _planbookService.GetAllPlanbooksAsync(pageIndex, pageSize);
+			return Ok(response);
+		}
+
+		[HttpGet]
+		public async Task<IActionResult> GetPlanbookByIdAsync(string planbookId)
+		{
+			var response = await _planbookService.GetPlanbookByIdAsync(planbookId);
+			return Ok(response);
+		}
 	}
 }
