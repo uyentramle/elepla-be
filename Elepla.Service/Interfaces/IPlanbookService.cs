@@ -11,5 +11,7 @@ namespace Elepla.Service.Interfaces
     {
 		Task<ResponseModel> GetAllPlanbooksAsync(int pageIndex, int pageSize);
 		Task<ResponseModel> GetPlanbookByIdAsync(string planbookId);
+		Task<ResponseModel> GetPlanbookByCollectionIdAsync(string collectionId, int pageIndex, int pageSize);
+		Task<ResponseModel> GetPlanbookByLessonIdAsync(string lessonId, int pageIndex, int pageSize);
 	}
 }

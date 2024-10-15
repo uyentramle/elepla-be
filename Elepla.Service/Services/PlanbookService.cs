@@ -89,5 +89,91 @@ namespace Elepla.Service.Services
 			};
 		}
 		#endregion
+
+		#region Get Planbook By Collection Id
+		public async Task<ResponseModel> GetPlanbookByCollectionIdAsync(string collectionId, int pageIndex, int pageSize)
+		{
+			var planbooks = await _unitOfWork.PlanbookRepository.GetAsync(
+							filter: r => r.CollectionId == collectionId && r.IsDeleted == false,
+							pageIndex: pageIndex,
+							pageSize: pageSize
+							);
+			var mappers = _mapper.Map<Pagination<ViewListPlanbookDTO>>(planbooks);
+			foreach (var item in mappers.Items)
+			{
+				var lesson = await _unitOfWork.LessonRepository.GetByIdAsync(item.LessonId);
+				if (lesson != null)
+				{
+					item.LessonName = lesson.Name;
+				}
+			}
+
+			return new SuccessResponseModel<object>
+			{
+				Success = true,
+				Message = "Planbooks retrieved successfully.",
+				Data = mappers
+			};
+		}
+		#endregion
+
+		#region Get Planbook By Lesson Id
+		public async Task<ResponseModel> GetPlanbookByLessonIdAsync(string lessonId, int pageIndex, int pageSize)
+		{
+			var planbooks = await _unitOfWork.PlanbookRepository.GetAsync(
+							filter: r => r.LessonId == lessonId && r.IsDeleted == false,
+							pageIndex: pageIndex,
+							pageSize: pageSize
+							);
+			var mappers = _mapper.Map<Pagination<ViewListPlanbookDTO>>(planbooks);
+			foreach (var item in mappers.Items)
+			{
+				var lesson = await _unitOfWork.LessonRepository.GetByIdAsync(item.LessonId);
+				if (lesson != null)
+				{
+					item.LessonName = lesson.Name;
+				}
+			}
+
+			return new SuccessResponseModel<object>
+			{
+				Success = true,
+				Message = "Planbooks retrieved successfully.",
+				Data = mappers
+			};
+		}
+		#endregion
+
+		// ham nay chua lam xong
+		#region Get Planbook By User Id 
+		public async Task<ResponseModel> GetPlanbookByUserIdAsync(string userId, int pageIndex, int pageSize)
+		{
+			var planbooks = await _unitOfWork.PlanbookRepository.GetAsync(
+							//filter: r => r.UserId == userId && r.IsDeleted == false, 
+							pageIndex: pageIndex,
+							pageSize: pageSize
+							);
+			var mappers = _mapper.Map<Pagination<ViewListPlanbookDTO>>(planbooks);
+			foreach (var item in mappers.Items)
+			{
+				var lesson = await _unitOfWork.LessonRepository.GetByIdAsync(item.LessonId);
+				if (lesson != null)
+				{
+					item.LessonName = lesson.Name;
+				}
+			}
+
+			return new SuccessResponseModel<object>
+			{
+				Success = true,
+				Message = "Planbooks retrieved successfully.",
+				Data = mappers
+			};
+		}
+		#endregion
+
+		#region Create Planbook
+
+		#endregion
 	}
 }
