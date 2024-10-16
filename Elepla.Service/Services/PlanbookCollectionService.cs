@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Elepla.Domain.Entities;
 using Elepla.Repository.Common;
 using Elepla.Repository.Interfaces;
 using Elepla.Service.Interfaces;
@@ -104,6 +105,139 @@ namespace Elepla.Service.Services
 				Success = true,
 				Data = mapper
 			};
+		}
+		#endregion
+
+		#region Create Planbook Collection
+		public async Task<ResponseModel> CreatePlanbookCollectionAsync(CreatePlanbookCollectionDTO model)
+		{
+			try
+			{
+				var collection = _mapper.Map<PlanbookCollection>(model);
+				await _unitOfWork.PlanbookCollectionRepository.AddAsync(collection);
+				await _unitOfWork.SaveChangeAsync();
+
+				return new ResponseModel
+				{
+					Message = "Planbook Collection created successfully",
+					Success = true
+				};
+			}
+			catch (Exception ex)
+			{
+				return new ResponseModel
+				{
+					Message = ex.Message,
+					Success = false
+				};
+			}
+		}
+		#endregion
+
+		#region Update Planbook Collection
+		public async Task<ResponseModel> UpdatePlanbookCollectionAsync(UpdatePlanbookCollectionDTO model)
+		{
+			try
+			{
+				var collection = await _unitOfWork.PlanbookCollectionRepository.GetByIdAsync(model.CollectionId);
+				if (collection == null)
+				{
+					return new ResponseModel
+					{
+						Message = "Planbook Collection not found",
+						Success = false
+					};
+				}
+
+				if (collection.TeacherId != model.TeacherId)
+				{
+					return new ResponseModel
+					{
+						Message = "You are not authorized to update this collection",
+						Success = false
+					};
+				}
+
+				if (collection.IsDeleted)
+				{
+					return new ResponseModel
+					{
+						Message = "Can't modify Planbook Collection is deleted",
+						Success = false
+					};
+				}
+
+				_mapper.Map(model, collection);
+				_unitOfWork.PlanbookCollectionRepository.Update(collection);
+				await _unitOfWork.SaveChangeAsync();
+
+				return new ResponseModel
+				{
+					Message = "Planbook Collection updated successfully",
+					Success = true
+				};
+			}
+			catch (Exception ex)
+			{
+				return new ResponseModel
+				{
+					Message = ex.Message,
+					Success = false
+				};
+			}
+		}
+		#endregion
+
+		#region Delete Planbook Collection
+		public async Task<ResponseModel> DeletePlanbookCollectionAsync(string collectionId, string teacherId)
+		{
+			try
+			{
+				var collection = await _unitOfWork.PlanbookCollectionRepository.GetByIdAsync(collectionId);
+				if (collection == null)
+				{
+					return new ResponseModel
+					{
+						Message = "Planbook Collection not found",
+						Success = false
+					};
+				}
+
+				if (collection.TeacherId != teacherId)
+				{
+					return new ResponseModel
+					{
+						Message = "You are not authorized to delete this collection",
+						Success = false
+					};
+				}
+
+				if (collection.IsDeleted)
+				{
+					return new ResponseModel
+					{
+						Message = "Planbook Collection is already deleted",
+						Success = false
+					};
+				}
+
+				_unitOfWork.PlanbookCollectionRepository.SoftRemove(collection);
+				await _unitOfWork.SaveChangeAsync();
+
+				return new ResponseModel
+				{
+					Message = "Planbook Collection deleted successfully",
+					Success = true
+				};
+			}
+			catch (Exception ex)
+			{
+				return new ResponseModel
+				{
+					Message = ex.Message,
+					Success = false
+				};
+			}
 		}
 		#endregion
 	}

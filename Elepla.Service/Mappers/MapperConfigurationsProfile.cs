@@ -575,6 +575,20 @@ namespace Elepla.Service.Mappers
 				.ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => src.IsDeleted))
 				.ReverseMap();
 
+			CreateMap<CreatePlanbookCollectionDTO, PlanbookCollection>()
+				.ForMember(dest => dest.CollectionId, opt => opt.MapFrom(src => Guid.NewGuid().ToString()))
+				.ForMember(dest => dest.CollectionName, opt => opt.MapFrom(src => src.CollectionName))
+				//.ForMember(dest => dest.CollectionType, opt => opt.MapFrom(src => src.CollectionType))
+				.ForMember(dest => dest.TeacherId, opt => opt.MapFrom(src => src.TeacherId))
+				.ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => false))
+				.ReverseMap();
+
+			CreateMap<UpdatePlanbookCollectionDTO, PlanbookCollection>()
+				.ForMember(dest => dest.CollectionId, opt => opt.MapFrom(src => src.CollectionId))
+				.ForMember(dest => dest.CollectionName, opt => opt.MapFrom(src => src.CollectionName))
+				//.ForMember(dest => dest.CollectionType, opt => opt.MapFrom(src => src.CollectionType))
+				.ForMember(dest => dest.TeacherId, opt => opt.MapFrom(src => src.TeacherId))
+				.ReverseMap();
 			#endregion
 		}
 	}
