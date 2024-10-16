@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Elepla.Service.Models.ResponseModels;
 
 namespace Elepla.Service.Interfaces
 {
@@ -16,5 +17,6 @@ namespace Elepla.Service.Interfaces
         Task<ResponseModel> CreateSubjectInCurriculumAsync(CreateSubjectInCurriculumDTO model);
         Task<ResponseModel> UpdateSubjectInCurriculumAsync(UpdateSubjectInCurriculumDTO model);
         Task<ResponseModel> DeleteSubjectInCurriculumAsync(string subjectInCurriculumId);
+        Task<ResponseModel> GetDataByIdAsync(string id);
     }
 }

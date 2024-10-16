@@ -15,6 +15,9 @@ namespace Elepla.Service.Models.ViewModels.SubjectInCurriculumViewModels
         public string Curriculum { get; set; }
         public string Description { get; set; }
         public List<string> Chapters { get; set; } 
+        public string SubjectId { get; set; }
+        public string CurriculumId { get; set; }
+        public string GradeId { get; set; }
         public DateTime CreatedAt { get; set; }
         public string CreatedBy { get; set; }
         public DateTime UpdatedAt { get; set; }

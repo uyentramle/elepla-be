@@ -15,7 +15,6 @@ namespace Elepla.Repository.Repositories
         public SubjectRepository(AppDbContext dbContext, ITimeService timeService, IClaimsService claimsService) : base(dbContext, timeService, claimsService)
         {
         }
-
         public async Task<bool> SubjectExistsAsync(string subjectName)
         {
             return await _dbContext.Subjects.AnyAsync(s => s.Name == subjectName);

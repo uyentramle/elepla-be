@@ -11,7 +11,8 @@ namespace Elepla.Repository.Interfaces
         IAccountRepository AccountRepository { get; }
         IRoleRepository RoleRepository { get; }
         IImageRepository ImageRepository { get; }
-        ICategoryRepository CategoryRepository { get; }
+        ICategoryRepository CategoryRepository { get; } 
+        IChapterRepository ChapterRepository { get; }  
         IArticleRepository ArticleRepository { get; }
         IArticleCategoryRepository ArticleCategoryRepository { get; }
         IArticleImageRepository ArticleImageRepository { get; }
