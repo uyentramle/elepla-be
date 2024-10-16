@@ -14,6 +14,7 @@ using Elepla.Service.Models.ViewModels.RoleViewModels;
 using Elepla.Service.Models.ViewModels.ServicePackageViewModels;
 using Elepla.Service.Models.ViewModels.SubjectViewModels;
 using Elepla.Service.Models.ViewModels.TeachingScheduleModels;
+using Elepla.Service.Models.ViewModels.UserPackageModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -418,6 +419,20 @@ namespace Elepla.Service.Mappers
                 .ForMember(dest => dest.TeacherId, opt => opt.MapFrom(src => src.TeacherId))
                 .ForMember(dest => dest.PlanbookId, opt => opt.MapFrom(src => src.PlanbookId))
                 .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => DateTime.UtcNow))
+                .ReverseMap();
+            #endregion
+
+            #region UserPackage
+            CreateMap<UserPackage, ViewUserPackageDTO>()
+                .ForMember(dest => dest.PackageName, opt => opt.MapFrom(src => src.Package.PackageName))
+                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Package.Price))
+                .ForMember(dest => dest.Discount, opt => opt.MapFrom(src => src.Package.Discount))
+                .ForMember(dest => dest.IsExpired, opt => opt.MapFrom(src => DateTime.UtcNow > src.EndDate))
+                .ReverseMap();
+
+            CreateMap<UserPackage, ViewListUserPackageDTO>()
+                .ForMember(dest => dest.PackageName, opt => opt.MapFrom(src => src.Package.PackageName))
+                .ForMember(dest => dest.IsExpired, opt => opt.MapFrom(src => DateTime.UtcNow > src.EndDate))
                 .ReverseMap();
             #endregion
         }
