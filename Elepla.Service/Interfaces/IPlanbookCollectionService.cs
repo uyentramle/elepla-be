@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Elepla.Service.Models.ResponseModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,5 +9,8 @@ namespace Elepla.Service.Interfaces
 {
     public interface IPlanbookCollectionService
     {
-    }
+		Task<ResponseModel> GetPlanbookCollectionsByTeacherIdAsync(string teacherId, int pageIndex, int pageSize);
+		Task<ResponseModel> GetCollectionByIdAsync(string collectionId);
+
+	}
 }
