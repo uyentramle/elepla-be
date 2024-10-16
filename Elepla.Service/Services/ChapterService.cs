@@ -6,12 +6,6 @@ using Elepla.Service.Interfaces;
 using Elepla.Service.Models.ResponseModels;
 using Elepla.Service.Models.ViewModels.ChapterViewModels;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace Elepla.Service.Services
 {
     public class ChapterService : IChapterService
@@ -34,7 +28,7 @@ namespace Elepla.Service.Services
                                     pageIndex: pageIndex,
                                     pageSize: pageSize);
 
-            var chapterDtos = _mapper.Map<Pagination<ViewListChapterDTO >>(chapter);
+            var chapterDtos = _mapper.Map<Pagination<ViewListChapterDTO>>(chapter);
 
             return new SuccessResponseModel<object>
             {
@@ -57,13 +51,13 @@ namespace Elepla.Service.Services
                 };
             }
 
-            var chapterDtos = _mapper.Map<Pagination<ViewListChapterDTO>>(chapter);
+            var chapterDtos = _mapper.Map<ViewListChapterDTO>(chapter);
 
             return new SuccessResponseModel<object>
             {
                 Success = true,
-                Message = "Chapter  retrieved successfully.",
-                Data =chapterDtos 
+                Message = "Chapter retrieved successfully.",
+                Data = chapterDtos
             };
         }
 
@@ -79,6 +73,16 @@ namespace Elepla.Service.Services
                     {
                         Success = false,
                         Message = "Chapter name already exists."
+                    };
+                }
+
+                var subjectCurri = await _unitOfWork.SubjectInCurriculumRepository.GetByIdAsync(model.SubjectInCurriculumId);
+                if (subjectCurri == null)
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "Subject in curriculum not found"
                     };
                 }
 
@@ -109,12 +113,22 @@ namespace Elepla.Service.Services
             try
             {
                 var chapter = await _unitOfWork.ChapterRepository.GetByIdAsync(model.ChapterId);
-                if (chapter== null)
+                if (chapter == null)
                 {
                     return new ResponseModel
                     {
                         Success = false,
                         Message = "Chapter not found."
+                    };
+                }
+
+                var subjectCurri = await _unitOfWork.SubjectInCurriculumRepository.GetByIdAsync(model.SubjectInCurriculumId);
+                if (subjectCurri == null)
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "Subject in curriculum not found"
                     };
                 }
 

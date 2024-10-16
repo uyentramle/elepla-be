@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Elepla.Service.Models.ResponseModels;
 
 namespace Elepla.Service.Interfaces
 {
     public interface ISubjectInCurriculumService
     {
+        Task<ResponseModel> GetDataByIdAsync(string id);
     }
 }
