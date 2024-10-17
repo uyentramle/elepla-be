@@ -1,4 +1,5 @@
 ﻿using Elepla.Service.Interfaces;
+using Elepla.Service.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,7 +9,7 @@ namespace Elepla.API.Controllers
 	{
 		private readonly IPlanbookService _planbookService;
 
-		public PlanbookController(IPlanbookService planbookService)
+        public PlanbookController(IPlanbookService planbookService)
 		{
 			_planbookService = planbookService;
 		}
@@ -37,7 +38,6 @@ namespace Elepla.API.Controllers
                 return BadRequest(response);
             }
 
-            // Assume that the response's Message contains the PDF content encoded in base64
             var pdfBase64String = response.Message;
             if (string.IsNullOrEmpty(pdfBase64String))
             {
@@ -50,12 +50,8 @@ namespace Elepla.API.Controllers
 
             try
             {
-                // Convert the base64 string to a byte array
                 var pdfBytes = Convert.FromBase64String(pdfBase64String);
-
                 var fileName = $"{planbookId}_Planbook.pdf";
-
-                // Return the file as a downloadable PDF
                 return File(pdfBytes, "application/pdf", fileName);
             }
             catch (FormatException)
@@ -68,6 +64,45 @@ namespace Elepla.API.Controllers
             }
         }
         #endregion
+
+
+        #region Export Planbook to Word
+        [HttpGet]
+        public async Task<IActionResult> ExportPlanbookToWord(string planbookId)
+        {
+            var response = await _planbookService.ExportPlanbookToWordAsync(planbookId);
+            if (!response.Success)
+            {
+                return BadRequest(response);
+            }
+
+            var wordBase64String = response.Message;
+            if (string.IsNullOrEmpty(wordBase64String))
+            {
+                return NotFound(new
+                {
+                    Success = false,
+                    Message = "Word document content not found."
+                });
+            }
+
+            try
+            {
+                var wordBytes = Convert.FromBase64String(wordBase64String);
+                var fileName = $"{planbookId}_Planbook.docx";
+                return File(wordBytes, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", fileName);
+            }
+            catch (FormatException)
+            {
+                return BadRequest(new
+                {
+                    Success = false,
+                    Message = "The Word document content is not a valid Base64 string."
+                });
+            }
+        }
+        #endregion
+
 
     }
 }

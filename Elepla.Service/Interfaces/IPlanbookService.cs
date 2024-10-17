@@ -11,6 +11,7 @@ namespace Elepla.Service.Interfaces
     {
 		Task<ResponseModel> GetAllPlanbooksAsync(int pageIndex, int pageSize);
 		Task<ResponseModel> GetPlanbookByIdAsync(string planbookId);
+        Task<ResponseModel> ExportPlanbookToWordAsync(string planbookId);
         Task<ResponseModel> ExportPlanbookToPdfAsync(string planbookId);
     }
 }

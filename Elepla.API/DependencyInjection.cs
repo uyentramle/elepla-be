@@ -187,6 +187,7 @@ namespace Elepla.API
             services.AddScoped<IFeedbackRepository, FeedbackRepository>();
             services.AddScoped<IFeedbackService, FeedbackService>();
 
+
             services.AddDbContext<AppDbContext>(option => option.UseSqlServer(databaseConnection));
 
             services.AddAutoMapper(typeof(MapperConfigurationsProfile).Assembly);
