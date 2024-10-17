@@ -7,8 +7,7 @@ using System.Threading.Tasks;
 
 namespace Elepla.Repository.Interfaces
 {
-    public interface ILessonRepository : IGenericRepository<Lesson>
+    public interface IChapterRepository : IGenericRepository<Chapter>
     {
-        Task<Lesson?> GetLessonByNameAndChapterAsync(string lessonName, string chapterId);
     }
 }

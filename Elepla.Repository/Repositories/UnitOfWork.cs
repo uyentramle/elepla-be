@@ -26,6 +26,7 @@ namespace Elepla.Repository.Repositories
         private readonly ICurriculumFrameworkRepository _curriculumFrameworkRepository;
         private readonly IGradeRepository _gradeRepository;
         private readonly ISubjectInCurriculumRepository _subjectInCurriculumRepository;
+        private readonly IChapterRepository _chapterRepository;
         private readonly ILessonRepository _lessonRepository;
         private readonly IPlanbookCollectionRepository _planbookCollectionRepository;
         private readonly IPlanbookRepository _planbookRepository;
@@ -49,6 +50,7 @@ namespace Elepla.Repository.Repositories
             ICurriculumFrameworkRepository curriculumFrameworkRepository,
             IGradeRepository gradeRepository,
             ISubjectInCurriculumRepository subjectInCurriculumRepository,
+            IChapterRepository chapterRepository,
             ILessonRepository lessonRepository,
             IPlanbookCollectionRepository planbookCollectionRepository,
             IPlanbookRepository planbookRepository,
@@ -72,6 +74,7 @@ namespace Elepla.Repository.Repositories
             _curriculumFrameworkRepository = curriculumFrameworkRepository;
             _gradeRepository = gradeRepository;
             _subjectInCurriculumRepository = subjectInCurriculumRepository;
+            _chapterRepository = chapterRepository;
             _lessonRepository = lessonRepository;
             _planbookCollectionRepository = planbookCollectionRepository;
             _planbookRepository = planbookRepository;
@@ -109,6 +112,8 @@ namespace Elepla.Repository.Repositories
         public IGradeRepository GradeRepository => _gradeRepository;
 
         public ISubjectInCurriculumRepository SubjectInCurriculumRepository => _subjectInCurriculumRepository;
+
+        public IChapterRepository ChapterRepository => _chapterRepository;
 
         public ILessonRepository LessonRepository => _lessonRepository;
 
