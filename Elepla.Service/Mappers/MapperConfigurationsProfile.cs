@@ -9,6 +9,7 @@ using Elepla.Service.Models.ViewModels.AuthViewModels;
 using Elepla.Service.Models.ViewModels.CategoryViewModels;
 using Elepla.Service.Models.ViewModels.ChapterViewModels;
 using Elepla.Service.Models.ViewModels.CurriculumViewModels;
+using Elepla.Service.Models.ViewModels.FeedbackViewModels;
 using Elepla.Service.Models.ViewModels.GradeViewModels;
 using Elepla.Service.Models.ViewModels.LessonViewModels;
 using Elepla.Service.Models.ViewModels.PaymentViewModels;
@@ -635,6 +636,27 @@ namespace Elepla.Service.Mappers
                 .ForMember(dest => dest.Objectives, opt => opt.MapFrom(src => src.Objectives))
                 .ForMember(dest => dest.Content, opt => opt.MapFrom(src => src.Content))
                 .ForMember(dest => dest.ChapterId, opt => opt.MapFrom(src => src.ChapterId)).ReverseMap();
+            #endregion
+
+            #region Feedback
+            // Mapping Feedback to ViewFeedbackDTO
+            CreateMap<Feedback, ViewFeedbackDTO>()
+                .ForMember(dest => dest.FeedbackId, opt => opt.MapFrom(src => src.FeedbackId))
+                .ForMember(dest => dest.Content, opt => opt.MapFrom(src => src.Content))
+                .ForMember(dest => dest.Rate, opt => opt.MapFrom(src => src.Rate))
+                .ForMember(dest => dest.TeacherName, opt => opt.MapFrom(src => src.Teacher.FirstName + " " + src.Teacher.LastName))
+                .ForMember(dest => dest.PlanbookTitle, opt => opt.MapFrom(src => src.Planbook.Title))
+                .ReverseMap();
+
+            // Mapping CreateFeedbackDTO to Feedback
+            CreateMap<CreateFeedbackDTO, Feedback>()
+                .ForMember(dest => dest.FeedbackId, opt => opt.MapFrom(src => Guid.NewGuid().ToString()))
+                .ForMember(dest => dest.Content, opt => opt.MapFrom(src => src.Content))
+                .ForMember(dest => dest.Rate, opt => opt.MapFrom(src => src.Rate))
+                .ForMember(dest => dest.TeacherId, opt => opt.MapFrom(src => src.TeacherId))
+                .ForMember(dest => dest.PlanbookId, opt => opt.MapFrom(src => src.PlanbookId))
+                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => DateTime.UtcNow))
+                .ReverseMap();
             #endregion
         }
     }
