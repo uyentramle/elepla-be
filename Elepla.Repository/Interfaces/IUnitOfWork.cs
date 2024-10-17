@@ -23,6 +23,7 @@ namespace Elepla.Repository.Interfaces
         ICurriculumFrameworkRepository CurriculumFrameworkRepository { get; }
         IGradeRepository GradeRepository { get; }
         ISubjectInCurriculumRepository SubjectInCurriculumRepository { get; }
+        IChapterRepository ChapterRepository { get; }
         ILessonRepository LessonRepository { get; }
         IPlanbookCollectionRepository PlanbookCollectionRepository { get; }
         IPlanbookRepository PlanbookRepository { get; }

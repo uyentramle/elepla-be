@@ -161,6 +161,7 @@ namespace Elepla.API
             services.AddScoped<ISubjectInCurriculumService, SubjectInCurriculumService>();
 
             // Chapter
+            services.AddScoped<IChapterRepository, ChapterRepository>();
 
             // Lesson
             services.AddScoped<ILessonRepository, LessonRepository>();
