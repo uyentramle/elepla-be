@@ -9,5 +9,6 @@ namespace Elepla.Repository.Interfaces
 {
     public interface IChapterRepository : IGenericRepository<Chapter>
     {
+        Task<Chapter?> GetChapterByNameAndSubjectInCurriculumAsync(string chapterName, string subjectInCurriculumId);
     }
 }

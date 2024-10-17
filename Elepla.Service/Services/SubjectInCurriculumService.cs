@@ -79,7 +79,7 @@ namespace Elepla.Service.Services
             var subjectInCurriculum = await _unitOfWork.SubjectInCurriculumRepository.GetByIdAsync(
                                                     id: subjectInCurriculumId,
                                                     filter: s => !s.IsDeleted,
-                                                    includeProperties: "Subject,Grade,Curriculum");
+                                                    includeProperties: "Subject,Grade,Curriculum,Chapters");
 
             if (subjectInCurriculum == null)
             {
