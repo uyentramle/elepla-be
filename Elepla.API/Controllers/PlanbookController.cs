@@ -26,5 +26,14 @@ namespace Elepla.API.Controllers
 			var response = await _planbookService.GetPlanbookByIdAsync(planbookId);
 			return Ok(response);
 		}
-	}
+
+        [HttpGet]
+        public async Task<IActionResult> GenerateLessonObjectives(string lessonId)
+        {
+            var result = await _planbookService.GenerateLessonObjectivesAsync(lessonId);
+            return Ok(result);
+        }
+
+
+    }
 }
