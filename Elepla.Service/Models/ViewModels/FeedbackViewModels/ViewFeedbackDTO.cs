@@ -10,8 +10,10 @@ namespace Elepla.Service.Models.ViewModels.FeedbackViewModels
     {
         public string FeedbackId { get; set; }
         public string Content { get; set; }
-        public int? Rate { get; set; }
+        public int Rate { get; set; }
         public string TeacherName { get; set; }
         public string PlanbookTitle { get; set; }
+        public DateTime CreatedAt { get; set; }
+
     }
 }

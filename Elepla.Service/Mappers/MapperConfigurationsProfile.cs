@@ -618,6 +618,7 @@ namespace Elepla.Service.Mappers
                 .ForMember(dest => dest.Rate, opt => opt.MapFrom(src => src.Rate))
                 .ForMember(dest => dest.TeacherName, opt => opt.MapFrom(src => src.Teacher.FirstName + " " + src.Teacher.LastName))
                 .ForMember(dest => dest.PlanbookTitle, opt => opt.MapFrom(src => src.Planbook.Title))
+                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt)) 
                 .ReverseMap();
 
             // Mapping CreateFeedbackDTO to Feedback
@@ -629,7 +630,16 @@ namespace Elepla.Service.Mappers
                 .ForMember(dest => dest.PlanbookId, opt => opt.MapFrom(src => src.PlanbookId))
                 .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => DateTime.UtcNow))
                 .ReverseMap();
+
+            // Mapping UpdateFeedbackDTO to Feedback
+            CreateMap<UpdateFeedbackDTO, Feedback>()
+                .ForMember(dest => dest.FeedbackId, opt => opt.MapFrom(src => src.FeedbackId))
+                .ForMember(dest => dest.Content, opt => opt.MapFrom(src => src.Content))
+                .ForMember(dest => dest.Rate, opt => opt.MapFrom(src => src.Rate))
+                .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => DateTime.UtcNow))
+                .ReverseMap();
             #endregion
+
         }
     }
 }
