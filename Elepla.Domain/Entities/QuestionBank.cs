@@ -17,7 +17,7 @@ namespace Elepla.Domain.Entities
 		public string Plum { get; set; }
 
         // Foreign Key
-        public string? ChapterId { get; set; }
+        public string ChapterId { get; set; }
         public string? LessonId { get; set; }
 
         // Navigation properties

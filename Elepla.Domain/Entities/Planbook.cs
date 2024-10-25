@@ -13,15 +13,15 @@ namespace Elepla.Domain.Entities
 
         // Attributes
         public string Title { get; set; }
-        public string SchoolName { get; set; }
-        public string TeacherName { get; set; }
+        public string? SchoolName { get; set; }
+        public string? TeacherName { get; set; }
         public string Subject { get; set; }
-        public string ClassName { get; set; }
-        public int DurationInPeriods { get; set; }
-        public string KnowledgeObjective { get; set; }
-        public string SkillsObjective { get; set; }
-        public string QualitiesObjective { get; set; }
-        public string TeachingTools { get; set; }
+        public string? ClassName { get; set; }
+        public int? DurationInPeriods { get; set; }
+        public string? KnowledgeObjective { get; set; }
+        public string? SkillsObjective { get; set; }
+        public string? QualitiesObjective { get; set; }
+        public string? TeachingTools { get; set; }
         public string? Notes { get; set; }
         public bool IsDefault { get; set; }
 

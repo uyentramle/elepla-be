@@ -20,6 +20,9 @@ namespace Elepla.Repository.FluentAPIs
 			//builder.HasMany(x => x.Payments)
 			//	.WithOne(x => x.Package)
 			//	.HasForeignKey(x => x.PackageId);
+			builder.HasMany(x => x.UserPackages)
+				.WithOne(x => x.Package)
+				.HasForeignKey(x => x.PackageId);
 		}
 	}
 }

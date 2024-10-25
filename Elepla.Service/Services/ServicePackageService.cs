@@ -88,7 +88,7 @@ namespace Elepla.Service.Services
                         servicePackage.Description = model.Description;
                         servicePackage.Price = model.Price;
                         servicePackage.Discount = model.Discount;
-                        servicePackage.Duration = model.Duration;
+                        //servicePackage.Duration = model.Duration;
                         servicePackage.MaxLessonPlans = model.MaxLessonPlans;
                         servicePackage.IsDeleted = false;
 

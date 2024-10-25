@@ -259,7 +259,7 @@ namespace Elepla.Service.Mappers
 				.ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
 				.ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Price))
 				.ForMember(dest => dest.Discount, opt => opt.MapFrom(src => src.Discount))
-				.ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration))
+				//.ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration))
 				.ForMember(dest => dest.MaxLessonPlans, opt => opt.MapFrom(src => src.MaxLessonPlans))
 				.ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
 				.ForMember(dest => dest.CreatedBy, opt => opt.MapFrom(src => src.CreatedBy))
@@ -277,7 +277,7 @@ namespace Elepla.Service.Mappers
 				.ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
 				.ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Price))
 				.ForMember(dest => dest.Discount, opt => opt.MapFrom(src => src.Discount))
-				.ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration))
+				//.ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration))
 				.ForMember(dest => dest.MaxLessonPlans, opt => opt.MapFrom(src => src.MaxLessonPlans))
 				.ReverseMap();
 
@@ -288,7 +288,7 @@ namespace Elepla.Service.Mappers
 				.ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
 				.ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Price))
 				.ForMember(dest => dest.Discount, opt => opt.MapFrom(src => src.Discount))
-				.ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration))
+				//.ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration))
 				.ForMember(dest => dest.MaxLessonPlans, opt => opt.MapFrom(src => src.MaxLessonPlans))
 				.ReverseMap();
 			#endregion
@@ -300,7 +300,7 @@ namespace Elepla.Service.Mappers
 				.ForMember(dest => dest.TotalAmount, opt => opt.MapFrom(src => src.TotalAmount))
 				.ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
 				.ForMember(dest => dest.TeacherId, opt => opt.MapFrom(src => src.TeacherId))
-				.ForMember(dest => dest.PackageName, opt => opt.MapFrom(src => src.Package.PackageName)) // Package name from associated ServicePackage
+				//.ForMember(dest => dest.PackageName, opt => opt.MapFrom(src => src.Package.PackageName)) // Package name from associated ServicePackage
 				.ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
 				.ReverseMap();
 
@@ -310,8 +310,8 @@ namespace Elepla.Service.Mappers
 				.ForMember(dest => dest.TotalAmount, opt => opt.MapFrom(src => src.TotalAmount))
 				.ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
 				.ForMember(dest => dest.TeacherId, opt => opt.MapFrom(src => src.TeacherId))
-				.ForMember(dest => dest.PackageName, opt => opt.MapFrom(src => src.Package.PackageName))  // Package name from associated ServicePackage
-				.ForMember(dest => dest.PackageDescription, opt => opt.MapFrom(src => src.Package.Description))  // Package description from associated ServicePackage
+				//.ForMember(dest => dest.PackageName, opt => opt.MapFrom(src => src.Package.PackageName))  // Package name from associated ServicePackage
+				//.ForMember(dest => dest.PackageDescription, opt => opt.MapFrom(src => src.Package.Description))  // Package description from associated ServicePackage
 				.ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
 				.ReverseMap();
 			#endregion

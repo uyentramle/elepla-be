@@ -10,10 +10,12 @@ namespace Elepla.Domain.Entities
 	{
 		public string ShareId { get; set; }
 		public string ShareType { get; set; }
-		public string ShareBy { get; set; } // User Id
-		public string ShareTo { get; set; }
+		public string? ShareTo { get; set; } // User Id
+		public string? ShareToEmail { get; set; }
 		public string AccessLevel { get; set; }
+
 		public string PlanBookId { get; set; }
+		public string ShareBy { get; set; } // User Id
 
 		public virtual Planbook PlanBook { get; set; }
 		public virtual User User { get; set; }

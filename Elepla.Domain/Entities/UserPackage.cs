@@ -9,7 +9,7 @@ namespace Elepla.Domain.Entities
 	public class UserPackage : BaseEntity
 	{
         // Primary Key
-        public int Id { get; set; }
+        public string UserPackageId { get; set; }
 		public string UserId { get; set; }
 		public string PackageId { get; set; }
 
