@@ -24,11 +24,11 @@ namespace Elepla.Repository.Repositories
         public async Task<Lesson?> GetByIdAsync(string lessonId)
         {
             return await _dbContext.Lessons
-                .Include(l => l.Chapter)                                  // Include Chapter
-                .ThenInclude(c => c.SubjectInCurriculum)                  // Include SubjectInCurriculum
-                .ThenInclude(s => s.Subject)                              // Include Subject
-                .ThenInclude(g => g.SubjectInCurriculums)                 // Include Subject's Grade
-                .Include(l => l.Chapter.SubjectInCurriculum.Grade)        // Include Grade
+                .Include(l => l.Chapter)                                 
+                .ThenInclude(c => c.SubjectInCurriculum)                  
+                .ThenInclude(s => s.Subject)                              
+                .ThenInclude(g => g.SubjectInCurriculums)                 
+                .Include(l => l.Chapter.SubjectInCurriculum.Grade)        
                 .FirstOrDefaultAsync(l => l.LessonId == lessonId);
         }
     }

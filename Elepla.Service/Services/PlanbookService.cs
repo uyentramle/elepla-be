@@ -97,6 +97,7 @@ namespace Elepla.Service.Services
         #region Generate Lesson Objectives
         public async Task<ResponseModel> GenerateLessonObjectivesAsync(string lessonId)
         {
+            // Fetch the lesson with all related entities including CurriculumFramework
             var lesson = await _unitOfWork.LessonRepository.GetByIdAsync(lessonId);
 
             if (lesson == null)
@@ -118,11 +119,14 @@ namespace Elepla.Service.Services
                 };
             }
 
-            // Construct prompts
-            var knowledgePrompt = $"Hãy tạo một mục tiêu kiến thức cho bài học có tiêu đề '{lesson.Name}' thuộc môn {lesson.Chapter.SubjectInCurriculum.Subject.Name} cho lớp {lesson.Chapter.SubjectInCurriculum.Grade.Name} bằng tiếng Việt.";
-            var skillsPrompt = $"Hãy tạo một mục tiêu kỹ năng cho bài học có tiêu đề '{lesson.Name}' thuộc môn {lesson.Chapter.SubjectInCurriculum.Subject.Name} cho lớp {lesson.Chapter.SubjectInCurriculum.Grade.Name} bằng tiếng Việt.";
-            var qualitiesPrompt = $"Hãy tạo một mục tiêu phẩm chất cho bài học có tiêu đề '{lesson.Name}' thuộc môn {lesson.Chapter.SubjectInCurriculum.Subject.Name} cho lớp {lesson.Chapter.SubjectInCurriculum.Grade.Name} bằng tiếng Việt.";
-            var teachingToolsPrompt = $"Hãy tạo danh sách các công cụ giảng dạy cho bài học có tiêu đề '{lesson.Name}' thuộc môn {lesson.Chapter.SubjectInCurriculum.Subject.Name} cho lớp {lesson.Chapter.SubjectInCurriculum.Grade.Name} bằng tiếng Việt.";
+            // Fetch the CurriculumFramework name
+            var curriculumFrameworkName = lesson.Chapter.SubjectInCurriculum.Curriculum?.Name ?? "không rõ cuốn sách";
+
+            // Construct prompts including CurriculumFramework name
+            var knowledgePrompt = $"Hãy tạo một mục tiêu kiến thức cho bài học có tiêu đề '{lesson.Name}' thuộc môn {lesson.Chapter.SubjectInCurriculum.Subject.Name} cho lớp {lesson.Chapter.SubjectInCurriculum.Grade.Name} trong chương trình {curriculumFrameworkName} bằng tiếng Việt.";
+            var skillsPrompt = $"Hãy tạo một mục tiêu kỹ năng cho bài học có tiêu đề '{lesson.Name}' thuộc môn {lesson.Chapter.SubjectInCurriculum.Subject.Name} cho lớp {lesson.Chapter.SubjectInCurriculum.Grade.Name} trong chương trình {curriculumFrameworkName} bằng tiếng Việt.";
+            var qualitiesPrompt = $"Hãy tạo một mục tiêu phẩm chất cho bài học có tiêu đề '{lesson.Name}' thuộc môn {lesson.Chapter.SubjectInCurriculum.Subject.Name} cho lớp {lesson.Chapter.SubjectInCurriculum.Grade.Name} trong chương trình {curriculumFrameworkName} bằng tiếng Việt.";
+            var teachingToolsPrompt = $"Hãy tạo danh sách các công cụ giảng dạy cho bài học có tiêu đề '{lesson.Name}' thuộc môn {lesson.Chapter.SubjectInCurriculum.Subject.Name} cho lớp {lesson.Chapter.SubjectInCurriculum.Grade.Name} trong chương trình {curriculumFrameworkName} bằng tiếng Việt.";
 
             // Call OpenAI for each objective
             var knowledgeObjective = await _openAiService.GeneratePlanbookField(knowledgePrompt);
@@ -147,6 +151,7 @@ namespace Elepla.Service.Services
             };
         }
         #endregion
+
 
     }
 }
