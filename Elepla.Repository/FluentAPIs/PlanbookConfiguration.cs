@@ -33,6 +33,9 @@ namespace Elepla.Repository.FluentAPIs
             builder.HasMany(x => x.Feedbacks)
                 .WithOne(x => x.Planbook)
                 .HasForeignKey(x => x.PlanbookId);
-        }
+            builder.HasMany(x => x.PlanbookShares)
+                .WithOne(x => x.PlanBook)
+				.HasForeignKey(x => x.PlanBookId);
+		}
     }
 }

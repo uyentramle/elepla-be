@@ -20,7 +20,7 @@ namespace Elepla.Domain.Entities
 		public int MaxLessonPlans { get; set; }
 
         // Navigation properties
-        public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
+        //public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
         public virtual ICollection<UserPackage> UserPackages { get; set; } = new List<UserPackage>();
     }
 }

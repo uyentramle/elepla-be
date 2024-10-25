@@ -23,9 +23,10 @@ namespace Elepla.Domain.Entities
         public string QualitiesObjective { get; set; }
         public string TeachingTools { get; set; }
         public string? Notes { get; set; }
+        public bool IsDefault { get; set; }
 
-        // Foreign Key
-        public string CollectionId { get; set; }
+		// Foreign Key
+		public string? CollectionId { get; set; }
         public string LessonId { get; set; }
 
         // Navigation properties
@@ -34,5 +35,6 @@ namespace Elepla.Domain.Entities
         public virtual ICollection<Activity> Activities { get; set; } = new List<Activity>();
         public virtual ICollection<TeachingSchedule> TeachingSchedules { get; set; } = new List<TeachingSchedule>();
         public virtual ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
-    }
+        public virtual ICollection<PlanBookShare> PlanbookShares { get; set; } = new List<PlanBookShare>();
+	}
 }

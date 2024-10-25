@@ -23,5 +23,6 @@ namespace Elepla.Domain.Entities
         // Navigation properties
         public virtual Chapter Chapter { get; set; }
         public virtual Lesson Lesson { get; set; }
-    }
+		public virtual ICollection<Answer> Answers { get; set; } = new List<Answer>();
+	}
 }
