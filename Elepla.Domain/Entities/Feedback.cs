@@ -14,9 +14,11 @@ namespace Elepla.Domain.Entities
         // Attributes
         public string? Content { get; set; }
         public int? Rate { get; set; }
+        public string Type { get; set; }
+        public bool IsFlagged { get; set; }
 
-        // Foreign Key
-        public string TeacherId { get; set; }
+		// Foreign Key
+		public string TeacherId { get; set; }
         public string PlanbookId { get; set; }
 
         // Navigation properties

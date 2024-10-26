@@ -17,12 +17,12 @@ namespace Elepla.Repository.FluentAPIs
 			builder.HasKey(x => x.PackageId);
 			builder.Property(x => x.PackageName).HasMaxLength(100);
 			builder.Property(x => x.Description);
-			//builder.HasMany(x => x.Payments)
-			//	.WithOne(x => x.Package)
-			//	.HasForeignKey(x => x.PackageId);
-			builder.HasMany(x => x.UserPackages)
+			builder.HasMany(x => x.Payments)
 				.WithOne(x => x.Package)
 				.HasForeignKey(x => x.PackageId);
+			//builder.HasMany(x => x.UserPackages)
+			//	.WithOne(x => x.Package)
+			//	.HasForeignKey(x => x.PackageId);
 		}
 	}
 }

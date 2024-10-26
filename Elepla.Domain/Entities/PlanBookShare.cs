@@ -12,7 +12,7 @@ namespace Elepla.Domain.Entities
 		public string ShareType { get; set; }
 		public string? ShareTo { get; set; } // User Id
 		public string? ShareToEmail { get; set; }
-		public string AccessLevel { get; set; }
+		public bool IsEdited { get; set; }
 
 		public string PlanBookId { get; set; }
 		public string ShareBy { get; set; } // User Id

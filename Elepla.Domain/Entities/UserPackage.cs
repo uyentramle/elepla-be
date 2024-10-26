@@ -9,7 +9,7 @@ namespace Elepla.Domain.Entities
 	public class UserPackage : BaseEntity
 	{
         // Primary Key
-        public string UserPackageId { get; set; }
+        public int Id { get; set; }
 		public string UserId { get; set; }
 		public string PackageId { get; set; }
 
@@ -21,6 +21,6 @@ namespace Elepla.Domain.Entities
         // Navigation properties
         public virtual User User { get; set; }
 		public virtual ServicePackage Package { get; set; }
-		public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
+		//public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
 	}
 }

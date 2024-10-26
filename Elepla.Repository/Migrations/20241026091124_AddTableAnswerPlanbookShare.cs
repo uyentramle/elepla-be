@@ -6,15 +6,11 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Elepla.Repository.Migrations
 {
     /// <inheritdoc />
-    public partial class AddTablesUpdateDatabase : Migration
+    public partial class AddTableAnswerPlanbookShare : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_Payment_ServicePackage_PackageId",
-                table: "Payment");
-
             migrationBuilder.DropForeignKey(
                 name: "FK_Planbook_PlanbookCollection_CollectionId",
                 table: "Planbook");
@@ -23,34 +19,24 @@ namespace Elepla.Repository.Migrations
                 name: "FK_QuestionBank_Chapter_ChapterId",
                 table: "QuestionBank");
 
-            migrationBuilder.DropPrimaryKey(
-                name: "PK_UserPackage",
+            migrationBuilder.DropForeignKey(
+                name: "FK_UserPackage_ServicePackage_PackageId",
                 table: "UserPackage");
 
-            migrationBuilder.DropColumn(
-                name: "Id",
+            migrationBuilder.DropForeignKey(
+                name: "FK_UserPackage_User_UserId",
                 table: "UserPackage");
 
             migrationBuilder.DropColumn(
                 name: "Duration",
                 table: "ServicePackage");
 
-            migrationBuilder.RenameColumn(
-                name: "PackageId",
-                table: "Payment",
-                newName: "UserPackageId");
-
-            migrationBuilder.RenameIndex(
-                name: "IX_Payment_PackageId",
-                table: "Payment",
-                newName: "IX_Payment_UserPackageId");
-
-            migrationBuilder.AddColumn<string>(
-                name: "UserPackageId",
-                table: "UserPackage",
-                type: "nvarchar(450)",
+            migrationBuilder.AddColumn<bool>(
+                name: "IsApproved",
+                table: "Subject",
+                type: "bit",
                 nullable: false,
-                defaultValue: "");
+                defaultValue: false);
 
             migrationBuilder.AddColumn<DateTime>(
                 name: "EndDate",
@@ -165,10 +151,19 @@ namespace Elepla.Repository.Migrations
                 nullable: false,
                 defaultValue: false);
 
-            migrationBuilder.AddPrimaryKey(
-                name: "PK_UserPackage",
-                table: "UserPackage",
-                column: "UserPackageId");
+            migrationBuilder.AddColumn<bool>(
+                name: "IsFlagged",
+                table: "Feedback",
+                type: "bit",
+                nullable: false,
+                defaultValue: false);
+
+            migrationBuilder.AddColumn<string>(
+                name: "Type",
+                table: "Feedback",
+                type: "nvarchar(max)",
+                nullable: false,
+                defaultValue: "");
 
             migrationBuilder.CreateTable(
                 name: "Answer",
@@ -205,7 +200,7 @@ namespace Elepla.Repository.Migrations
                     ShareType = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ShareTo = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ShareToEmail = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    AccessLevel = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsEdited = table.Column<bool>(type: "bit", nullable: false),
                     PlanBookId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     ShareBy = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -249,14 +244,6 @@ namespace Elepla.Repository.Migrations
                 column: "ShareBy");
 
             migrationBuilder.AddForeignKey(
-                name: "FK_Payment_UserPackage_UserPackageId",
-                table: "Payment",
-                column: "UserPackageId",
-                principalTable: "UserPackage",
-                principalColumn: "UserPackageId",
-                onDelete: ReferentialAction.Cascade);
-
-            migrationBuilder.AddForeignKey(
                 name: "FK_Planbook_PlanbookCollection_CollectionId",
                 table: "Planbook",
                 column: "CollectionId",
@@ -270,15 +257,27 @@ namespace Elepla.Repository.Migrations
                 principalTable: "Chapter",
                 principalColumn: "ChapterId",
                 onDelete: ReferentialAction.Cascade);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_UserPackage_ServicePackage_PackageId",
+                table: "UserPackage",
+                column: "PackageId",
+                principalTable: "ServicePackage",
+                principalColumn: "PackageId",
+                onDelete: ReferentialAction.Restrict);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_UserPackage_User_UserId",
+                table: "UserPackage",
+                column: "UserId",
+                principalTable: "User",
+                principalColumn: "UserId",
+                onDelete: ReferentialAction.Restrict);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_Payment_UserPackage_UserPackageId",
-                table: "Payment");
-
             migrationBuilder.DropForeignKey(
                 name: "FK_Planbook_PlanbookCollection_CollectionId",
                 table: "Planbook");
@@ -287,19 +286,23 @@ namespace Elepla.Repository.Migrations
                 name: "FK_QuestionBank_Chapter_ChapterId",
                 table: "QuestionBank");
 
+            migrationBuilder.DropForeignKey(
+                name: "FK_UserPackage_ServicePackage_PackageId",
+                table: "UserPackage");
+
+            migrationBuilder.DropForeignKey(
+                name: "FK_UserPackage_User_UserId",
+                table: "UserPackage");
+
             migrationBuilder.DropTable(
                 name: "Answer");
 
             migrationBuilder.DropTable(
                 name: "PlanBookShare");
 
-            migrationBuilder.DropPrimaryKey(
-                name: "PK_UserPackage",
-                table: "UserPackage");
-
             migrationBuilder.DropColumn(
-                name: "UserPackageId",
-                table: "UserPackage");
+                name: "IsApproved",
+                table: "Subject");
 
             migrationBuilder.DropColumn(
                 name: "EndDate",
@@ -317,23 +320,13 @@ namespace Elepla.Repository.Migrations
                 name: "IsDefault",
                 table: "Planbook");
 
-            migrationBuilder.RenameColumn(
-                name: "UserPackageId",
-                table: "Payment",
-                newName: "PackageId");
+            migrationBuilder.DropColumn(
+                name: "IsFlagged",
+                table: "Feedback");
 
-            migrationBuilder.RenameIndex(
-                name: "IX_Payment_UserPackageId",
-                table: "Payment",
-                newName: "IX_Payment_PackageId");
-
-            migrationBuilder.AddColumn<int>(
-                name: "Id",
-                table: "UserPackage",
-                type: "int",
-                nullable: false,
-                defaultValue: 0)
-                .Annotation("SqlServer:Identity", "1, 1");
+            migrationBuilder.DropColumn(
+                name: "Type",
+                table: "Feedback");
 
             migrationBuilder.AddColumn<int>(
                 name: "Duration",
@@ -443,19 +436,6 @@ namespace Elepla.Repository.Migrations
                 oldType: "nvarchar(max)",
                 oldNullable: true);
 
-            migrationBuilder.AddPrimaryKey(
-                name: "PK_UserPackage",
-                table: "UserPackage",
-                column: "Id");
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_Payment_ServicePackage_PackageId",
-                table: "Payment",
-                column: "PackageId",
-                principalTable: "ServicePackage",
-                principalColumn: "PackageId",
-                onDelete: ReferentialAction.Cascade);
-
             migrationBuilder.AddForeignKey(
                 name: "FK_Planbook_PlanbookCollection_CollectionId",
                 table: "Planbook",
@@ -470,6 +450,22 @@ namespace Elepla.Repository.Migrations
                 column: "ChapterId",
                 principalTable: "Chapter",
                 principalColumn: "ChapterId");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_UserPackage_ServicePackage_PackageId",
+                table: "UserPackage",
+                column: "PackageId",
+                principalTable: "ServicePackage",
+                principalColumn: "PackageId",
+                onDelete: ReferentialAction.Cascade);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_UserPackage_User_UserId",
+                table: "UserPackage",
+                column: "UserId",
+                principalTable: "User",
+                principalColumn: "UserId",
+                onDelete: ReferentialAction.Cascade);
         }
     }
 }

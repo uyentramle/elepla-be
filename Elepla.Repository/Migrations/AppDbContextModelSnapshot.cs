@@ -332,6 +332,9 @@ namespace Elepla.Repository.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsFlagged")
+                        .HasColumnType("bit");
+
                     b.Property<string>("PlanbookId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
@@ -342,6 +345,10 @@ namespace Elepla.Repository.Migrations
                     b.Property<string>("TeacherId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -504,6 +511,10 @@ namespace Elepla.Repository.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<string>("PackageId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -521,15 +532,11 @@ namespace Elepla.Repository.Migrations
                     b.Property<string>("UpdatedBy")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("UserPackageId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("PaymentId");
 
-                    b.HasIndex("TeacherId");
+                    b.HasIndex("PackageId");
 
-                    b.HasIndex("UserPackageId");
+                    b.HasIndex("TeacherId");
 
                     b.ToTable("Payment", (string)null);
                 });
@@ -538,10 +545,6 @@ namespace Elepla.Repository.Migrations
                 {
                     b.Property<string>("ShareId")
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("AccessLevel")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -556,6 +559,9 @@ namespace Elepla.Repository.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsEdited")
                         .HasColumnType("bit");
 
                     b.Property<string>("PlanBookId")
@@ -886,6 +892,9 @@ namespace Elepla.Repository.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsApproved")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
@@ -1135,8 +1144,11 @@ namespace Elepla.Repository.Migrations
 
             modelBuilder.Entity("Elepla.Domain.Entities.UserPackage", b =>
                 {
-                    b.Property<string>("UserPackageId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -1176,7 +1188,7 @@ namespace Elepla.Repository.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.HasKey("UserPackageId");
+                    b.HasKey("Id");
 
                     b.HasIndex("PackageId");
 
@@ -1288,21 +1300,21 @@ namespace Elepla.Repository.Migrations
 
             modelBuilder.Entity("Elepla.Domain.Entities.Payment", b =>
                 {
+                    b.HasOne("Elepla.Domain.Entities.ServicePackage", "Package")
+                        .WithMany("Payments")
+                        .HasForeignKey("PackageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Elepla.Domain.Entities.User", "Teacher")
                         .WithMany("Payments")
                         .HasForeignKey("TeacherId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Elepla.Domain.Entities.UserPackage", "UserPackage")
-                        .WithMany("Payments")
-                        .HasForeignKey("UserPackageId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("Package");
 
                     b.Navigation("Teacher");
-
-                    b.Navigation("UserPackage");
                 });
 
             modelBuilder.Entity("Elepla.Domain.Entities.PlanBookShare", b =>
@@ -1445,13 +1457,13 @@ namespace Elepla.Repository.Migrations
                     b.HasOne("Elepla.Domain.Entities.ServicePackage", "Package")
                         .WithMany("UserPackages")
                         .HasForeignKey("PackageId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Elepla.Domain.Entities.User", "User")
                         .WithMany("UserPackages")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Package");
@@ -1532,6 +1544,8 @@ namespace Elepla.Repository.Migrations
 
             modelBuilder.Entity("Elepla.Domain.Entities.ServicePackage", b =>
                 {
+                    b.Navigation("Payments");
+
                     b.Navigation("UserPackages");
                 });
 
@@ -1558,11 +1572,6 @@ namespace Elepla.Repository.Migrations
                     b.Navigation("TeachingSchedules");
 
                     b.Navigation("UserPackages");
-                });
-
-            modelBuilder.Entity("Elepla.Domain.Entities.UserPackage", b =>
-                {
-                    b.Navigation("Payments");
                 });
 #pragma warning restore 612, 618
         }
