@@ -15,9 +15,9 @@ namespace Elepla.Repository.FluentAPIs
 		{
 			builder.ToTable("Payment");
 			builder.HasKey(x => x.PaymentId);
-			builder.HasOne(x => x.Package)
+			builder.HasOne(x => x.UserPackage)
 				.WithMany(x => x.Payments)
-				.HasForeignKey(x => x.PackageId);
+				.HasForeignKey(x => x.UserPackageId);
 			builder.HasOne(x => x.Teacher)
 				.WithMany(x => x.Payments)
 				.HasForeignKey(x => x.TeacherId);

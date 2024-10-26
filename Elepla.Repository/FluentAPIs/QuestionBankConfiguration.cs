@@ -21,6 +21,9 @@ namespace Elepla.Repository.FluentAPIs
 			builder.HasOne(x => x.Lesson)
 				.WithMany(x => x.QuestionBanks)
 				.HasForeignKey(x => x.LessonId);
-        }
+			builder.HasMany(x => x.Answers)
+				.WithOne(x => x.Question)
+				.HasForeignKey(x => x.QuestionId);
+		}
 	}
 }

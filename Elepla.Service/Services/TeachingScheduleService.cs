@@ -143,7 +143,10 @@ namespace Elepla.Service.Services
         {
             try
             {
+                // Fetch the teaching schedule by ID
                 var schedule = await _unitOfWork.TeachingScheduleRepository.GetByIdAsync(scheduleId);
+
+                // Check if the schedule exists
                 if (schedule == null)
                 {
                     return new ResponseModel
@@ -153,22 +156,13 @@ namespace Elepla.Service.Services
                     };
                 }
 
-                if (schedule.IsDeleted == true)
-                {
-                    return new ResponseModel
-                    {
-                        Success = false,
-                        Message = "Teaching schedule is already deleted."
-                    };
-                }
-
-                _unitOfWork.TeachingScheduleRepository.SoftRemove(schedule);
+                _unitOfWork.TeachingScheduleRepository.Delete(schedule); 
                 await _unitOfWork.SaveChangeAsync();
 
                 return new ResponseModel
                 {
                     Success = true,
-                    Message = "Teaching schedule deleted successfully.",
+                    Message = "Teaching schedule deleted permanently."
                 };
             }
             catch (Exception ex)
@@ -181,5 +175,6 @@ namespace Elepla.Service.Services
                 };
             }
         }
+
     }
 }
