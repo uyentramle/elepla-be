@@ -40,19 +40,21 @@ namespace Elepla.Repository.Repositories
         // Lấy người dùng theo email, tên đăng nhập hoặc số điện thoại
         public async Task<User?> GetUserByEmailOrUsernameOrPhoneNumberAsync(string emailOrUsernameOrPhoneNumber, bool includeUsername = true)
         {
-            return await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == emailOrUsernameOrPhoneNumber || includeUsername && u.Username == emailOrUsernameOrPhoneNumber || u.PhoneNumber == emailOrUsernameOrPhoneNumber);
+            return await _dbContext.Users
+                .Include(u => u.Role)
+                .FirstOrDefaultAsync(u => u.Email == emailOrUsernameOrPhoneNumber || 
+                                          includeUsername && u.Username == emailOrUsernameOrPhoneNumber || 
+                                          u.PhoneNumber == emailOrUsernameOrPhoneNumber);
         }
 
         // Lấy người dùng theo email, số điện thoại, tên đăng nhập, email google hoặc email facebook
         public async Task<User?> FindByAnyCriteriaAsync(string email, string phoneNumber, string userName, string googleEmail, string facebookEmail)
         {
-            return await _dbContext.Users.FirstOrDefaultAsync(a =>
-                (!string.IsNullOrEmpty(email) && a.Email == email) ||
-                (!string.IsNullOrEmpty(phoneNumber) && a.PhoneNumber == phoneNumber) ||
-                (!string.IsNullOrEmpty(userName) && a.Username == userName) ||
-                (!string.IsNullOrEmpty(googleEmail) && a.GoogleEmail == googleEmail) ||
-                (!string.IsNullOrEmpty(facebookEmail) && a.FacebookEmail == facebookEmail)
-            );
+            return await _dbContext.Users.FirstOrDefaultAsync(a => (!string.IsNullOrEmpty(email) && a.Email == email) ||
+                                                                   (!string.IsNullOrEmpty(phoneNumber) && a.PhoneNumber == phoneNumber) ||
+                                                                   (!string.IsNullOrEmpty(userName) && a.Username == userName) ||
+                                                                   (!string.IsNullOrEmpty(googleEmail) && a.GoogleEmail == googleEmail) ||
+                                                                   (!string.IsNullOrEmpty(facebookEmail) && a.FacebookEmail == facebookEmail));
         }
     }
 }

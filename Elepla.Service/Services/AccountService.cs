@@ -26,8 +26,9 @@ namespace Elepla.Service.Services
             IPasswordService passwordHasher,
             IEmailSender emailSender,
             ISmsSender smsSender,
-            IMemoryCache cache)
-            : base(unitOfWork, mapper, timeService, passwordHasher, emailSender, smsSender, cache)
+            IMemoryCache cache,
+            ITokenService tokenService)
+            : base(unitOfWork, mapper, timeService, passwordHasher, emailSender, smsSender, cache, tokenService)
         {
         }
 
@@ -261,12 +262,6 @@ namespace Elepla.Service.Services
         #endregion
 
         #region Update User Phone Number Or Link Phone Number
-        // Generate verification code
-        private string GenerateVerificationCode()
-        {
-            return new Random().Next(100000, 999999).ToString();
-        }
-
         // Send verification code to the new phone number when existingUser wants to change phone number
         public async Task<ResponseModel> SendVerificationCodeAsync(NewPhoneNumberDTO model)
         {
@@ -294,7 +289,7 @@ namespace Elepla.Service.Services
                 }
 
                 // Tạo mã xác thực và gửi mã xác thực đến số điện thoại mới
-                var code = GenerateVerificationCode();
+                var code = _tokenService.GenerateVerificationCode();
                 await _smsSender.SendSmsAsync(model.NewPhoneNumber, $"Mã xác thực của bạn là: {code}, mã sẽ hết hiệu lực sau 10 phút.");
 
                 _cache.Set(model.NewPhoneNumber, code, TimeSpan.FromMinutes(10)); // Lưu mã xác thực vào cache với thời gian hết hạn 10 phút
@@ -406,7 +401,7 @@ namespace Elepla.Service.Services
                 }
 
                 // Tạo mã xác thực và gửi mã xác thực đến email mới
-                var code = GenerateVerificationCode();
+                var code = _tokenService.GenerateVerificationCode();
                 await _emailSender.SendEmailAsync(model.NewEmail, "Verification Code", $"Mã xác thực của bạn là: {code}, mã sẽ hết hiệu lực sau 10 phút.");
 
                 _cache.Set(model.NewEmail, code, TimeSpan.FromMinutes(10)); // Lưu mã xác thực vào cache với thời gian hết hạn 10 phút
