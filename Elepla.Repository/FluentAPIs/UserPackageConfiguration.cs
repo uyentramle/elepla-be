@@ -14,16 +14,19 @@ namespace Elepla.Repository.FluentAPIs
 		public void Configure(EntityTypeBuilder<UserPackage> builder)
 		{
 			builder.ToTable("UserPackage");
-			builder.HasKey(x => x.UserPackageId);
+			builder.HasKey(x => x.Id);
 			builder.HasOne(x => x.User)
 				.WithMany(x => x.UserPackages)
-				.HasForeignKey(x => x.UserId);
+				.HasForeignKey(x => x.UserId)
+				.OnDelete(DeleteBehavior.Restrict);
 			builder.HasOne(x => x.Package)
                 .WithMany(x => x.UserPackages)
-                .HasForeignKey(x => x.PackageId);
-			builder.HasMany(x => x.Payments)
-				.WithOne(x => x.UserPackage)
-				.HasForeignKey(x => x.UserPackageId);
+                .HasForeignKey(x => x.PackageId)
+				.OnDelete(DeleteBehavior.Restrict);
+			//builder.HasMany(x => x.Payments)
+			//	.WithOne(x => x.UserPackage)
+			//	.HasForeignKey(x => x.UserPackageId)
+			//	.OnDelete(DeleteBehavior.Restrict);
 		}
 	}
 }

@@ -15,10 +15,12 @@ namespace Elepla.Domain.Entities
         public decimal TotalAmount { get; set; }
 		public string Status { get; set; }
 		public string TeacherId { get; set; }
-		public string UserPackageId { get; set; }
+		//public string UserPackageId { get; set; }
+		public string PackageId { get; set; }
 
-        // Navigation properties
-        public virtual User Teacher { get; set; }
-		public virtual UserPackage UserPackage { get; set; }
+		// Navigation properties
+		public virtual User Teacher { get; set; }
+		//public virtual UserPackage UserPackage { get; set; }
+		public virtual ServicePackage Package { get; set; }
 	}
 }

@@ -8,7 +8,12 @@ using System.Threading.Tasks;
 
 namespace Elepla.Repository.Interfaces
 {
-	public interface IAnswerRepository : IGenericRepository<Answer>
+	public interface IAnswerRepository
 	{
+		Task<List<Answer>> GetByQuestionIdAsync(string questionId);
+		Task<Answer> GetByQuestionIdAndTextAsync(string questionId, string answerText);
+		Task<Answer> CreateAnswerAsync(Answer answer);
+		Task<Answer> UpdateAnswerAsync(Answer answer);
+		Task<bool> DeleteAnswerAsync(Answer answer);
 	}
 }
