@@ -9,5 +9,6 @@ namespace Elepla.Repository.Interfaces
 {
 	public interface IQuestionBankRepository : IGenericRepository<QuestionBank>
 	{
+		Task<QuestionBank> GetByQuestionIdAsync(string id);
 	}
 }
