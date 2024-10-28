@@ -19,8 +19,9 @@ namespace Elepla.Service.Models.ViewModels.PlanbookViewModels
 		public string QualitiesObjective { get; set; }
 		public string TeachingTools { get; set; }
 		public string? Notes { get; set; }
+        public bool IsDefault { get; set; }
 
-		public string CollectionId { get; set; }
+        public string? CollectionId { get; set; }
 		public string LessonId { get; set; }
 
 		public List<CreateActivityForPlanbookDTO>? Activities { get; set; }
@@ -33,6 +34,6 @@ namespace Elepla.Service.Models.ViewModels.PlanbookViewModels
 		public string? Content { get; set; }
 		public string? Product { get; set; }
 		public string? Implementation { get; set; }
-		public int Index { get; set; }
-	}
+        //public int Index { get; set; } // Không cần truyền Index vì sẽ tự động tạo Index cho activity
+    }
 }

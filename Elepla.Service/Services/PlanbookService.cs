@@ -122,7 +122,7 @@ namespace Elepla.Service.Services
 		public async Task<ResponseModel> GetPlanbookByLessonIdAsync(string lessonId, int pageIndex, int pageSize)
 		{
 			var planbooks = await _unitOfWork.PlanbookRepository.GetAsync(
-							filter: r => r.LessonId == lessonId && r.IsDeleted == false,
+							filter: r => !r.IsDeleted && r.LessonId == lessonId,
 							pageIndex: pageIndex,
 							pageSize: pageSize
 							);
@@ -171,48 +171,117 @@ namespace Elepla.Service.Services
 				Data = mappers
 			};
 		}
-		#endregion
+        #endregion
 
-		#region Create Planbook
-		public async Task<ResponseModel> CreatePlanbookAsync(CreatePlanbookDTO model)
-		{
-			try
-			{
-				var planbook = _mapper.Map<Planbook>(model);
-				await _unitOfWork.PlanbookRepository.AddAsync(planbook);
-				await _unitOfWork.SaveChangeAsync();
+        #region Create Planbook
+        //public async Task<ResponseModel> CreatePlanbookAsync(CreatePlanbookDTO model)
+        //{
+        //	try
+        //	{
+        //		var planbook = _mapper.Map<Planbook>(model);
+        //		await _unitOfWork.PlanbookRepository.AddAsync(planbook);
+        //		await _unitOfWork.SaveChangeAsync();
 
-				if (model.Activities != null && model.Activities.Any())
+        //		if (model.Activities != null && model.Activities.Any())
+        //		{
+        //			var activities = _mapper.Map<List<Activity>>(model.Activities);
+        //			foreach (var activity in activities)
+        //			{
+        //				activity.PlanbookId = planbook.PlanbookId;
+        //				await _unitOfWork.ActivityRepository.CreateActivityAsync(activity);
+        //			}
+        //			await _unitOfWork.SaveChangeAsync();
+        //		}
+
+        //		return new ResponseModel
+        //		{
+        //			Success = true,
+        //			Message = "Planbook created successfully."
+        //		};
+        //	}
+        //	catch (Exception ex)
+        //	{
+        //		return new ErrorResponseModel<string>
+        //		{
+        //			Success = false,
+        //			Message = "An error occurred while creating the planbook.",
+        //			Errors = new List<string> { ex.Message }
+        //		};
+        //	}
+        //}
+
+        public async Task<ResponseModel> CreatePlanbookAsync(CreatePlanbookDTO model)
+        {
+            try
+            {
+                // Kiểm tra lesson có tồn tại không
+                var existingLesson = await _unitOfWork.LessonRepository.GetByIdAsync(model.LessonId);
+
+                if (existingLesson is null)
 				{
-					var activities = _mapper.Map<List<Activity>>(model.Activities);
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "Lesson not found."
+                    };
+                }
+
+                // Kiểm tra collection có tồn tại không
+                if (!string.IsNullOrEmpty(model.CollectionId))
+				{
+                    var existingCollection = await _unitOfWork.PlanbookCollectionRepository.GetByIdAsync(model.CollectionId);
+
+                    if (existingCollection is null)
+                    {
+                        return new ResponseModel
+                        {
+                            Success = false,
+                            Message = "Collection not found."
+                        };
+                    }
+                }
+
+                // Tạo planbook
+                var planbook = _mapper.Map<Planbook>(model);
+
+                await _unitOfWork.PlanbookRepository.AddAsync(planbook);
+                await _unitOfWork.SaveChangeAsync();
+
+                if (model.Activities != null && model.Activities.Any())
+                {
+                    var activities = _mapper.Map<List<Activity>>(model.Activities);
+					int index = 1; // tự động tạo index cho activity, không cần truyền index trong DTO
+                    
 					foreach (var activity in activities)
-					{
-						activity.PlanbookId = planbook.PlanbookId;
-						await _unitOfWork.ActivityRepository.CreateActivityAsync(activity);
-					}
-					await _unitOfWork.SaveChangeAsync();
-				}
+                    {
+                        activity.PlanbookId = planbook.PlanbookId;
+                        activity.Index = index++;
+                    }
 
-				return new ResponseModel
-				{
-					Success = true,
-					Message = "Planbook created successfully."
-				};
-			}
-			catch (Exception ex)
-			{
-				return new ErrorResponseModel<string>
-				{
-					Success = false,
-					Message = "An error occurred while creating the planbook.",
-					Errors = new List<string> { ex.Message }
-				};
-			}
-		}
-		#endregion
+                    await _unitOfWork.ActivityRepository.CreateRangeActivityAsync(activities);
+                    await _unitOfWork.SaveChangeAsync();
+                }
 
-		#region Update Planbook
-		public async Task<ResponseModel> UpdatePlanbookAsync(UpdatePlanbookDTO model)
+                return new ResponseModel
+                {
+                    Success = true,
+                    Message = "Planbook created successfully."
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ErrorResponseModel<string>
+                {
+                    Success = false,
+                    Message = "An error occurred while creating the planbook.",
+                    Errors = new List<string> { ex.Message }
+                };
+            }
+        }
+        #endregion
+
+        #region Update Planbook
+        public async Task<ResponseModel> UpdatePlanbookAsync(UpdatePlanbookDTO model)
 		{
 			try
 			{

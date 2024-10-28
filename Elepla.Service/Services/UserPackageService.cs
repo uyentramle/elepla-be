@@ -2,6 +2,8 @@
 using Elepla.Domain.Entities;
 using Elepla.Repository.Interfaces;
 using Elepla.Service.Interfaces;
+using Elepla.Service.Models.ResponseModels;
+using Elepla.Service.Models.ViewModels.UserPackageModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,6 +23,49 @@ namespace Elepla.Service.Services
             _mapper = mapper;
         }
 
- 
+        // Get all user packages for a specific user
+        public async Task<ResponseModel> GetUserPackagesAsync(string userId)
+        {
+            var userPackages = await _unitOfWork.UserPackageRepository.GetAllAsync(
+                filter: up => up.UserId == userId && !up.IsDeleted,
+                includeProperties: "Package"
+            );
+
+            var userPackageDtos = _mapper.Map<List<ViewListUserPackageDTO>>(userPackages);
+
+            return new SuccessResponseModel<object>
+            {
+                Success = true,
+                Message = "User packages retrieved successfully.",
+                Data = userPackageDtos
+            };
+        }
+
+        // Get details of a specific user package
+        public async Task<ResponseModel> GetUserPackageDetailsAsync(int userPackageId)
+        {
+            var userPackage = await _unitOfWork.UserPackageRepository.GetByIdAsync(
+                userPackageId,
+                includeProperties: "Package"
+            );
+
+            if (userPackage == null || userPackage.IsDeleted)
+            {
+                return new ResponseModel
+                {
+                    Success = false,
+                    Message = "User package not found."
+                };
+            }
+
+            var userPackageDto = _mapper.Map<ViewUserPackageDTO>(userPackage);
+
+            return new SuccessResponseModel<object>
+            {
+                Success = true,
+                Message = "User package details retrieved successfully.",
+                Data = userPackageDto
+            };
+        }
     }
 }

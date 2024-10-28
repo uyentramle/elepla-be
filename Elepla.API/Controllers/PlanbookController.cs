@@ -45,9 +45,18 @@ namespace Elepla.API.Controllers
 		[HttpPost]
 		public async Task<IActionResult> CreatePlanbookAsync(CreatePlanbookDTO model)
 		{
-			var response = await _planbookService.CreatePlanbookAsync(model);
-			return Ok(response);
-		}
+			if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var response = await _planbookService.CreatePlanbookAsync(model);
+            if (response != null)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
+        }
 
 		[HttpPut]
 		public async Task<IActionResult> UpdatePlanbookAsync(UpdatePlanbookDTO model)

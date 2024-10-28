@@ -1,6 +1,10 @@
 ﻿using AutoMapper;
+using Elepla.Domain.Entities;
+using Elepla.Repository.Common;
 using Elepla.Repository.Interfaces;
 using Elepla.Service.Interfaces;
+using Elepla.Service.Models.ResponseModels;
+using Elepla.Service.Models.ViewModels.FeedbackViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,6 +22,54 @@ namespace Elepla.Service.Services
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+        }
+
+        // Get feedback for a specific Planbook
+        public async Task<ResponseModel> GetFeedbackByPlanbookIdAsync(string planbookId, int pageIndex, int pageSize)
+        {
+            var feedbacks = await _unitOfWork.FeedbackRepository.GetAsync(
+                filter: f => f.PlanbookId == planbookId && !f.IsDeleted,
+                includeProperties: "Teacher,Planbook",
+                pageIndex: pageIndex,
+                pageSize: pageSize
+            );
+
+            var feedbackDtos = _mapper.Map<Pagination<ViewFeedbackDTO>>(feedbacks);
+
+            return new SuccessResponseModel<object>
+            {
+                Success = true,
+                Message = "Feedback retrieved successfully.",
+                Data = feedbackDtos
+            };
+        }
+
+        // Submit new feedback for a Planbook
+        public async Task<ResponseModel> SubmitFeedbackAsync(CreateFeedbackDTO model)
+        {
+            try
+            {
+                var feedback = _mapper.Map<Feedback>(model);
+                feedback.FeedbackId = Guid.NewGuid().ToString();
+
+                await _unitOfWork.FeedbackRepository.AddAsync(feedback);
+                await _unitOfWork.SaveChangeAsync();
+
+                return new ResponseModel
+                {
+                    Success = true,
+                    Message = "Feedback submitted successfully."
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ErrorResponseModel<object>
+                {
+                    Success = false,
+                    Message = "An error occurred while submitting feedback.",
+                    Errors = new List<string> { ex.Message }
+                };
+            }
         }
     }
 }

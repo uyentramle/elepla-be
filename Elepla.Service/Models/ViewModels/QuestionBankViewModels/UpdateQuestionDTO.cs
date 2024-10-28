@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Elepla.Service.Models.ViewModels.AnswerViewModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,5 +13,9 @@ namespace Elepla.Service.Models.ViewModels.QuestionBankViewModels
 		public string Question { get; set; }
 		public string Type { get; set; }
 		public string Plum { get; set; }
+		public string? ChapterId { get; set; }
+		public string? LessonId { get; set; }
+
+		public List<UpdateAnswerDTO> Answers { get; set; }
 	}
 }

@@ -12,7 +12,8 @@ namespace Elepla.Repository.Interfaces
 		Task<List<Activity>> GetByPlanbookIdAsync(string planbookId);
 		Task<Activity?> GetByIdAsync(string activityId);
 		Task<Activity> CreateActivityAsync(Activity activity);
-		Task<Activity> UpdateActivityAsync(Activity activity);
+		Task CreateRangeActivityAsync(IEnumerable<Activity> activities);
+        Task<Activity> UpdateActivityAsync(Activity activity);
 		Task<bool> DeleteActivityAsync(Activity activity);
 	}
 }

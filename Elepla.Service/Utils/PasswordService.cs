@@ -26,27 +26,27 @@ namespace Elepla.Service.Utils
             {
                 if (password.Length < MinimumLength)
                 {
-                    errors.Add($"Password must be at least {MinimumLength} characters long.");
+                    errors.Add($"Password must be at least {MinimumLength} characters.");
                 }
 
                 if (!password.Any(char.IsUpper))
                 {
-                    errors.Add("Password must contain at least one uppercase letter.");
+                    errors.Add("Password must have at least one uppercase (\'A\'-\'Z\').");
                 }
 
                 if (!password.Any(char.IsLower))
                 {
-                    errors.Add("Password must contain at least one lowercase letter.");
+                    errors.Add("Password must have at least one lowercase (\'a\'-\'z\').");
                 }
 
                 if (!password.Any(char.IsDigit))
                 {
-                    errors.Add("Password must contain at least one digit.");
+                    errors.Add("Password must have at least one digit (\'0\'-\'9\').");
                 }
 
                 if (!Regex.IsMatch(password, @"[!@#$%^&*(),.?""{}|<>]"))
                 {
-                    errors.Add("Password must contain at least one special character.");
+                    errors.Add("Password must have at least one non alphanumeric character.");
                 }
             }
 

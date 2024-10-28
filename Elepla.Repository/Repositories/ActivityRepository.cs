@@ -36,7 +36,12 @@ namespace Elepla.Repository.Repositories
 			return activity;
 		}
 
-		public async Task<Activity> UpdateActivityAsync(Activity activity)
+        public async Task CreateRangeActivityAsync(IEnumerable<Activity> activities)
+        {
+            await _dbContext.Activities.AddRangeAsync(activities);
+        }
+
+        public async Task<Activity> UpdateActivityAsync(Activity activity)
 		{
 			_dbContext.Activities.Update(activity);
 			await _dbContext.SaveChangesAsync();
