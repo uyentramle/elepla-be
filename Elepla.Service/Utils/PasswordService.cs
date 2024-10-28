@@ -31,22 +31,22 @@ namespace Elepla.Service.Utils
 
                 if (!password.Any(char.IsUpper))
                 {
-                    errors.Add("Passwords must have at least one uppercase (\'A\'-\'Z\').");
+                    errors.Add("Password must have at least one uppercase (\'A\'-\'Z\').");
                 }
 
                 if (!password.Any(char.IsLower))
                 {
-                    errors.Add("Passwords must have at least one lowercase (\'a\'-\'z\').");
+                    errors.Add("Password must have at least one lowercase (\'a\'-\'z\').");
                 }
 
                 if (!password.Any(char.IsDigit))
                 {
-                    errors.Add("Passwords must have at least one digit (\'0\'-\'9\').");
+                    errors.Add("Password must have at least one digit (\'0\'-\'9\').");
                 }
 
                 if (!Regex.IsMatch(password, @"[!@#$%^&*(),.?""{}|<>]"))
                 {
-                    errors.Add("Passwords must have at least one non alphanumeric character.");
+                    errors.Add("Password must have at least one non alphanumeric character.");
                 }
             }
 
