@@ -526,6 +526,33 @@ namespace Elepla.Service.Mappers
 				.ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => src.IsDeleted))
 				.ReverseMap();
 
+			CreateMap<Planbook, ViewDetailsPlanbookDTO>()
+				.ForMember(dest => dest.PlanbookId, opt => opt.MapFrom(src => src.PlanbookId))
+				.ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
+				.ForMember(dest => dest.SchoolName, opt => opt.MapFrom(src => src.SchoolName))
+				.ForMember(dest => dest.TeacherName, opt => opt.MapFrom(src => src.TeacherName))
+				.ForMember(dest => dest.Subject, opt => opt.MapFrom(src => src.Subject))
+				.ForMember(dest => dest.ClassName, opt => opt.MapFrom(src => src.ClassName))
+				.ForMember(dest => dest.DurationInPeriods, opt => opt.MapFrom(src => src.DurationInPeriods + " tiết"))
+				.ForMember(dest => dest.KnowledgeObjective, opt => opt.MapFrom(src => src.KnowledgeObjective))
+				.ForMember(dest => dest.SkillsObjective, opt => opt.MapFrom(src => src.SkillsObjective))
+				.ForMember(dest => dest.QualitiesObjective, opt => opt.MapFrom(src => src.QualitiesObjective))
+				.ForMember(dest => dest.TeachingTools, opt => opt.MapFrom(src => src.TeachingTools))
+				.ForMember(dest => dest.Notes, opt => opt.MapFrom(src => src.Notes))
+				.ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault))
+				.ForMember(dest => dest.CollectionId, opt => opt.MapFrom(src => src.CollectionId))
+				.ForMember(dest => dest.CollectionName, opt => opt.MapFrom(src => src.PlanbookCollection.CollectionName))
+				.ForMember(dest => dest.LessonId, opt => opt.MapFrom(src => src.LessonId))
+				.ForMember(dest => dest.LessonName, opt => opt.MapFrom(src => src.Lesson.Name))
+				.ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
+				.ForMember(dest => dest.CreatedBy, opt => opt.MapFrom(src => src.CreatedBy))
+				.ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.UpdatedAt))
+				.ForMember(dest => dest.UpdatedBy, opt => opt.MapFrom(src => src.UpdatedBy))
+				.ForMember(dest => dest.DeletedAt, opt => opt.MapFrom(src => src.DeletedAt))
+				.ForMember(dest => dest.DeletedBy, opt => opt.MapFrom(src => src.DeletedBy))
+				.ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => src.IsDeleted))
+				.ReverseMap();
+
 			CreateMap<CreatePlanbookDTO, Planbook>()
 				.ForMember(dest => dest.PlanbookId, opt => opt.MapFrom(src => Guid.NewGuid().ToString()))
 				.ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
@@ -542,7 +569,8 @@ namespace Elepla.Service.Mappers
                 .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault))
                 .ForMember(dest => dest.CollectionId, opt => opt.MapFrom(src => src.CollectionId))
 				.ForMember(dest => dest.LessonId, opt => opt.MapFrom(src => src.LessonId))
-				.ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => false))
+				.ForMember(dest => dest.Activities, opt => opt.Ignore())
+                .ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => false))
 				.ReverseMap();
 
 			CreateMap<UpdatePlanbookDTO, Planbook>()
@@ -560,6 +588,7 @@ namespace Elepla.Service.Mappers
 				.ForMember(dest => dest.Notes, opt => opt.MapFrom(src => src.Notes))
 				//.ForMember(dest => dest.CollectionId, opt => opt.MapFrom(src => src.CollectionId))
 				//.ForMember(dest => dest.LessonId, opt => opt.MapFrom(src => src.LessonId))
+				.ForMember(dest => dest.Activities, opt => opt.Ignore())
 				.ReverseMap();
 			#endregion
 

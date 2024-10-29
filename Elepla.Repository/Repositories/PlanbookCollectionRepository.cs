@@ -18,7 +18,7 @@ namespace Elepla.Repository.Repositories
 
 		public async Task<bool> CheckPlanbookCollectionIsSavedExistByTeacherId(string teacherId)
 		{
-			return await _dbContext.PlanbookCollections.AnyAsync(c => c.TeacherId == teacherId && c.IsSaved == "true");
+			return await _dbContext.PlanbookCollections.AnyAsync(c => c.TeacherId == teacherId && c.IsSaved);
 		}
 	}
 }

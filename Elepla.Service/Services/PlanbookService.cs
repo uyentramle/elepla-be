@@ -456,6 +456,41 @@ namespace Elepla.Service.Services
 				};
 			}
 		}
-		#endregion
-	}
+        #endregion
+
+        #region Create Planbook From Template
+        public async Task<ResponseModel> GetPlanbookFromTemplateAsync(string lessonId)
+        {
+            // Lấy danh sách các planbook mặc định cho bài học
+            var defaultPlanbooks = await _unitOfWork.PlanbookRepository.GetAllAsync(
+                                                filter: p => p.IsDefault && p.LessonId.Equals(lessonId),
+                                                includeProperties: "PlanbookCollection,Lesson,Activities");
+
+            if (defaultPlanbooks is null || !defaultPlanbooks.Any())
+            {
+                return new ResponseModel
+                {
+                    Success = false,
+                    Message = "No default planbooks found for the specified lesson."
+                };
+            }
+
+            // Chọn một planbook ngẫu nhiên từ danh sách
+            var random = new Random();
+            var templatePlanbook = defaultPlanbooks.ElementAt(random.Next(defaultPlanbooks.Count()));
+
+            // Map thông tin planbook và các hoạt động từ planbook mẫu
+            var planbookDto = _mapper.Map<ViewDetailsPlanbookDTO>(templatePlanbook);
+            var activities = templatePlanbook.Activities.OrderBy(a => a.Index).ToList(); // Sắp xếp theo Index
+            planbookDto.Activities = _mapper.Map<List<ViewListActivityDTO>>(activities);
+
+            return new SuccessResponseModel<object>
+            {
+                Success = true,
+                Message = "Planbook template retrieved successfully.",
+                Data = planbookDto
+            };
+        }
+        #endregion
+    }
 }
