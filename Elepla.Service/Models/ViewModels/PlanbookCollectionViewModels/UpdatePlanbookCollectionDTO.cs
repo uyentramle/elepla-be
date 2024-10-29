@@ -12,7 +12,9 @@ namespace Elepla.Service.Models.ViewModels.PlanbookCollectionViewModels
 
 		public string CollectionName { get; set; }
 		//public string CollectionType { get; set; }
-
+		public bool IsSaved { get; set; }
 		public string TeacherId { get; set; }
+
+		public List<string>? PlanbookIds { get; set; }
 	}
 }

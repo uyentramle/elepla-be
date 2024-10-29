@@ -25,55 +25,162 @@ namespace Elepla.Service.Services
 			_mapper = mapper;
 		}
 
-		#region Get Planbook Collections By Teacher Id
+		#region Get All Planbook Collections By Teacher Id
 		public async Task<ResponseModel> GetPlanbookCollectionsByTeacherIdAsync(string teacherId, int pageIndex, int pageSize)
 		{
-			var collections = await _unitOfWork.PlanbookCollectionRepository.GetAsync(
-								filter: r => r.TeacherId == teacherId && r.IsDeleted == false,
-								pageIndex: pageIndex,
-								pageSize: pageSize
-							 );
-
-			var mapper = _mapper.Map<Pagination<ViewListPlanbookCollectionDTO>>(collections);
-
-			// Get planbook count for each collection
-			//	foreach (var collection in mapper.Items)
-			//	{
-			//		var planbooks = await _unitOfWork.PlanbookRepository.GetAsync(
-			//							filter: r => r.CollectionId == collection.CollectionId
-			//									&& r.IsDeleted == false
-			//									);
-			//		collection.PlanbookCount = planbooks.Items.Count;
-			//	}
-
-			var collectionIds = mapper.Items.Select(c => c.CollectionId).ToList();
-			var planbooks = await _unitOfWork.PlanbookRepository.GetAsync(
-								filter: r => collectionIds.Contains(r.CollectionId) && r.IsDeleted == false
-							 );
-
-			var planbookCountsByCollection = planbooks.Items
-											.GroupBy(p => p.CollectionId)
-											.ToDictionary(g => g.Key, g => g.Count());
-
-			// Assign planbook counts to the respective collections
-			foreach (var collection in mapper.Items)
+			try
 			{
-				if (planbookCountsByCollection.TryGetValue(collection.CollectionId, out var planbookCount))
+				var collections = await _unitOfWork.PlanbookCollectionRepository.GetAsync(
+									filter: r => r.TeacherId == teacherId && r.IsDeleted == false,
+									pageIndex: pageIndex,
+									pageSize: pageSize
+								 );
+
+				var mapper = _mapper.Map<Pagination<ViewListPlanbookCollectionDTO>>(collections);
+
+				// Get planbook count for each collection
+				//	foreach (var collection in mapper.Items)
+				//	{
+				//		var planbooks = await _unitOfWork.PlanbookRepository.GetAsync(
+				//							filter: r => r.CollectionId == collection.CollectionId
+				//									&& r.IsDeleted == false
+				//									);
+				//		collection.PlanbookCount = planbooks.Items.Count;
+				//	}
+
+				var collectionIds = mapper.Items.Select(c => c.CollectionId).ToList();
+				var planbooks = await _unitOfWork.PlanbookRepository.GetAsync(
+									filter: r => collectionIds.Contains(r.CollectionId) && r.IsDeleted == false
+								 );
+
+				var planbookCountsByCollection = planbooks.Items
+												.GroupBy(p => p.CollectionId)
+												.ToDictionary(g => g.Key, g => g.Count());
+
+				// Assign planbook counts to the respective collections
+				foreach (var collection in mapper.Items)
 				{
-					collection.PlanbookCount = planbookCount;
+					if (planbookCountsByCollection.TryGetValue(collection.CollectionId, out var planbookCount))
+					{
+						collection.PlanbookCount = planbookCount;
+					}
+					else
+					{
+						collection.PlanbookCount = 0;
+					}
 				}
-				else
+
+				return new SuccessResponseModel<object>
 				{
-					collection.PlanbookCount = 0;
-				}
+					Message = "Planbook Collections retrieved successfully",
+					Success = true,
+					Data = mapper
+				};
 			}
-
-			return new SuccessResponseModel<object>
+			catch (Exception ex)
 			{
-				Message = "Planbook Collections retrieved successfully",
-				Success = true,
-				Data = mapper
-			};
+				return new ResponseModel
+				{
+					Message = "An error occurred: " + ex.Message,
+					Success = false
+				};
+			}
+		}
+		#endregion
+
+		#region Get Created Planbook Collections By Teacher Id
+		public async Task<ResponseModel> GetCreatedPlanbookCollectionsByTeacherIdAsync(string teacherId, int pageIndex, int pageSize)
+		{
+			try
+			{
+				var collections = await _unitOfWork.PlanbookCollectionRepository.GetAsync(
+									filter: r => r.TeacherId == teacherId && r.IsDeleted == false && r.IsSaved == "False",
+									pageIndex: pageIndex,
+									pageSize: pageSize
+								 );
+
+				var mapper = _mapper.Map<Pagination<ViewListPlanbookCollectionDTO>>(collections);
+
+				var collectionIds = mapper.Items.Select(c => c.CollectionId).ToList();
+				var planbooks = await _unitOfWork.PlanbookRepository.GetAsync(
+								filter: r => collectionIds.Contains(r.CollectionId) && r.IsDeleted == false
+				);
+
+				var planbookCountsByCollection = planbooks.Items
+												.GroupBy(p => p.CollectionId)
+												.ToDictionary(g => g.Key, g => g.Count());
+
+				foreach (var collection in mapper.Items)
+				{
+					collection.PlanbookCount = planbookCountsByCollection
+												.TryGetValue(collection.CollectionId, out var count)
+												? count
+												: 0;
+				}
+
+				return new SuccessResponseModel<object>
+				{
+					Message = "Created Planbook Collections retrieved successfully",
+					Success = true,
+					Data = collections
+				};
+			}
+			catch (Exception ex)
+			{
+				return new ResponseModel
+				{
+					Message = "An error occurred: " + ex.Message,
+					Success = false
+				};
+			}
+		}
+		#endregion
+
+		#region Get Saved Planbook Collections By Teacher Id
+		public async Task<ResponseModel> GetSavedPlanbookCollectionsByTeacherIdAsync(string teacherId, int pageIndex, int pageSize)
+		{
+			try
+			{
+				var collections = await _unitOfWork.PlanbookCollectionRepository.GetAsync(
+									filter: r => r.TeacherId == teacherId && r.IsDeleted == false && r.IsSaved == "True",
+									pageIndex: pageIndex,
+									pageSize: pageSize
+								 );
+
+				var mapper = _mapper.Map<Pagination<ViewListPlanbookCollectionDTO>>(collections);
+
+				var collectionIds = mapper.Items.Select(c => c.CollectionId).ToList();
+				var planbooks = await _unitOfWork.PlanbookRepository.GetAsync(
+								filter: r => collectionIds.Contains(r.CollectionId) && r.IsDeleted == false
+				);
+
+				var planbookCountsByCollection = planbooks.Items
+												.GroupBy(p => p.CollectionId)
+												.ToDictionary(g => g.Key, g => g.Count());
+
+				foreach (var collection in mapper.Items)
+				{
+					collection.PlanbookCount = planbookCountsByCollection
+												.TryGetValue(collection.CollectionId, out var count)
+												? count
+												: 0;
+				}
+
+				return new SuccessResponseModel<object>
+				{
+					Message = "Saved Planbook Collections retrieved successfully",
+					Success = true,
+					Data = collections
+				};
+			}
+			catch (Exception ex)
+			{
+				return new ResponseModel
+				{
+					Message = "An error occurred: " + ex.Message,
+					Success = false
+				};
+			}
 		}
 		#endregion
 
@@ -162,11 +269,46 @@ namespace Elepla.Service.Services
 				{
 					return new ResponseModel
 					{
-						Message = "Can't modify Planbook Collection is deleted",
+						Message = "Can't modify a deleted Planbook Collection",
 						Success = false
 					};
 				}
 
+				if (model.PlanbookIds == null || !model.PlanbookIds.Any())
+				{
+					collection.Planbooks.Clear();
+				}
+				else
+				{
+					// Retrieve existing planbooks based on provided PlanbookIds
+					var existingPlanbooks = await _unitOfWork.PlanbookRepository
+										.GetAllAsync(pb => model.PlanbookIds.Contains(pb.PlanbookId));
+
+					// Get list of current Planbook IDs in the collection to avoid duplication
+					var currentPlanbookIds = collection.Planbooks.Select(pb => pb.PlanbookId).ToHashSet();
+
+					foreach (var planbook in existingPlanbooks)
+					{
+						// Only add if the planbook is created by the user when IsSaved is false
+						if (collection.IsSaved == "false" && planbook.CreatedBy != model.TeacherId)
+						{
+							continue;
+						}
+
+						// Only add new planbooks that are not already in the collection
+						if (!currentPlanbookIds.Contains(planbook.PlanbookId))
+						{
+							collection.Planbooks.Add(planbook);
+						}
+					}
+
+					// Remove any planbooks from the collection that are no longer in the provided PlanbookIds
+					collection.Planbooks = collection.Planbooks
+										.Where(pb => model.PlanbookIds.Contains(pb.PlanbookId))
+										.ToList();
+				}
+
+				// Map any additional properties to the collection
 				_mapper.Map(model, collection);
 				_unitOfWork.PlanbookCollectionRepository.Update(collection);
 				await _unitOfWork.SaveChangeAsync();
@@ -181,7 +323,7 @@ namespace Elepla.Service.Services
 			{
 				return new ResponseModel
 				{
-					Message = ex.Message,
+					Message = "An error occurred: " + ex.Message,
 					Success = false
 				};
 			}
@@ -236,6 +378,77 @@ namespace Elepla.Service.Services
 				{
 					Message = ex.Message,
 					Success = false
+				};
+			}
+		}
+		#endregion
+
+		#region Save another planbook to collection
+		public async Task<ResponseModel> SavePlanbookAsync(SavePlanbookDTO model)
+		{
+			try
+			{
+				var planbook = await _unitOfWork.PlanbookRepository.GetByIdAsync(model.PlanbookId);
+				if (planbook == null)
+				{
+					return new ResponseModel
+					{
+						Success = false,
+						Message = "Planbook not found."
+					};
+				}
+				if (planbook.IsDeleted)
+				{
+					return new ResponseModel
+					{
+						Success = false,
+						Message = "Can't save deleted planbook."
+					};
+				}
+
+				var collection = await _unitOfWork.PlanbookCollectionRepository.GetByIdAsync(model.CollectionId);
+
+				if (collection == null)
+				{
+					var existSavedCollection = await _unitOfWork.PlanbookCollectionRepository
+						.CheckPlanbookCollectionIsSavedExistByTeacherId(model.TeacherId);
+
+					if (!existSavedCollection)
+					{
+						var newCollection = _mapper.Map<PlanbookCollection>(model);
+						newCollection.CollectionId = Guid.NewGuid().ToString();
+						await _unitOfWork.PlanbookCollectionRepository.AddAsync(newCollection);
+						await _unitOfWork.SaveChangeAsync();
+
+						newCollection.Planbooks.Add(planbook);
+						await _unitOfWork.SaveChangeAsync();
+					}
+				}
+				else
+				{
+					if (collection.Planbooks.Any(pb => pb.PlanbookId == model.PlanbookId))
+					{
+						collection.Planbooks.Remove(planbook);
+					}
+					else
+					{
+						collection.Planbooks.Add(planbook);
+					}
+					await _unitOfWork.SaveChangeAsync();
+				}
+
+				return new ResponseModel
+				{
+					Success = true,
+					Message = "Planbook saved/unsaved successfully."
+				};
+			}
+			catch (Exception ex)
+			{
+				return new ResponseModel
+				{
+					Success = false,
+					Message = "An error occurred while saving the planbook: " + ex.Message
 				};
 			}
 		}

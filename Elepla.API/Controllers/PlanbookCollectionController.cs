@@ -22,6 +22,20 @@ namespace Elepla.API.Controllers
 		}
 
 		[HttpGet]
+		public async Task<IActionResult> GetCreatedPlanbookCollectionsByTeacherId(string teacherId, int pageIndex = 0, int pageSize = 10)
+		{
+			var response = await _planbookCollectionService.GetCreatedPlanbookCollectionsByTeacherIdAsync(teacherId, pageIndex, pageSize);
+			return Ok(response);
+		}
+
+		[HttpGet]
+		public async Task<IActionResult> GetSavedPlanbookCollectionsByTeacherId(string teacherId, int pageIndex = 0, int pageSize = 10)
+		{
+			var response = await _planbookCollectionService.GetSavedPlanbookCollectionsByTeacherIdAsync(teacherId, pageIndex, pageSize);
+			return Ok(response);
+		}
+
+		[HttpGet]
 		public async Task<IActionResult> GetCollectionById(string collectionId)
 		{
 			var response = await _planbookCollectionService.GetCollectionByIdAsync(collectionId);
@@ -46,6 +60,13 @@ namespace Elepla.API.Controllers
 		public async Task<IActionResult> DeletePlanbookCollection(string collectionId, string teacherId)
 		{
 			var response = await _planbookCollectionService.DeletePlanbookCollectionAsync(collectionId, teacherId);
+			return Ok(response);
+		}
+
+		[HttpPost]
+		public async Task<IActionResult> SavePlanbook(SavePlanbookDTO model)
+		{
+			var response = await _planbookCollectionService.SavePlanbookAsync(model);
 			return Ok(response);
 		}
 	}

@@ -21,5 +21,6 @@ namespace Elepla.Domain.Entities
         // Navigation properties
         public virtual User User { get; set; }
 		public virtual ServicePackage Package { get; set; }
+		//public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
 	}
 }

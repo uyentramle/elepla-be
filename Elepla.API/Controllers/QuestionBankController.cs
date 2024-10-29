@@ -15,9 +15,9 @@ namespace Elepla.API.Controllers
 		}
 
 		[HttpGet]
-		public async Task<IActionResult> GetAllQuestionBankAsync(int pageIndex = 0, int pageSize = 10)
+		public async Task<IActionResult> GetAllQuestionBankAsync(string? keyword, int pageIndex = 0, int pageSize = 10)
 		{
-			var response = await _questionBankService.GetAllQuestionBankAsync(pageIndex, pageSize);
+			var response = await _questionBankService.GetAllQuestionBankAsync(keyword, pageIndex, pageSize);
 			return Ok(response);
 		}
 

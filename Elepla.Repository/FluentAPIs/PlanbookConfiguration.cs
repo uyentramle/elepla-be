@@ -15,9 +15,9 @@ namespace Elepla.Repository.FluentAPIs
         {
             builder.ToTable("Planbook");
             builder.HasKey(x => x.PlanbookId);
-            builder.Property(x => x.SchoolName).HasMaxLength(50).IsRequired();
-            builder.Property(x => x.TeacherName).HasMaxLength(100).IsRequired();
-            builder.Property(x => x.ClassName).HasMaxLength(20).IsRequired();
+            //builder.Property(x => x.SchoolName).HasMaxLength(50).IsRequired();
+            //builder.Property(x => x.TeacherName).HasMaxLength(100).IsRequired();
+            //builder.Property(x => x.ClassName).HasMaxLength(20).IsRequired();
             builder.HasOne(x => x.PlanbookCollection)
                 .WithMany(x => x.Planbooks)
                 .HasForeignKey(x => x.CollectionId);
@@ -33,6 +33,9 @@ namespace Elepla.Repository.FluentAPIs
             builder.HasMany(x => x.Feedbacks)
                 .WithOne(x => x.Planbook)
                 .HasForeignKey(x => x.PlanbookId);
-        }
+            builder.HasMany(x => x.PlanbookShares)
+                .WithOne(x => x.PlanBook)
+				.HasForeignKey(x => x.PlanBookId);
+		}
     }
 }
