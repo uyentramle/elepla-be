@@ -94,7 +94,7 @@ namespace Elepla.Service.Services
 			try
 			{
 				var collections = await _unitOfWork.PlanbookCollectionRepository.GetAsync(
-									filter: r => r.TeacherId == teacherId && r.IsDeleted == false && r.IsSaved == "False",
+									filter: r => r.TeacherId == teacherId && r.IsDeleted == false && r.IsSaved,
 									pageIndex: pageIndex,
 									pageSize: pageSize
 								 );
@@ -142,7 +142,7 @@ namespace Elepla.Service.Services
 			try
 			{
 				var collections = await _unitOfWork.PlanbookCollectionRepository.GetAsync(
-									filter: r => r.TeacherId == teacherId && r.IsDeleted == false && r.IsSaved == "True",
+									filter: r => r.TeacherId == teacherId && r.IsDeleted == false && r.IsSaved,
 									pageIndex: pageIndex,
 									pageSize: pageSize
 								 );
@@ -290,7 +290,7 @@ namespace Elepla.Service.Services
 					foreach (var planbook in existingPlanbooks)
 					{
 						// Only add if the planbook is created by the user when IsSaved is false
-						if (collection.IsSaved == "false" && planbook.CreatedBy != model.TeacherId)
+						if (!collection.IsSaved && planbook.CreatedBy != model.TeacherId)
 						{
 							continue;
 						}

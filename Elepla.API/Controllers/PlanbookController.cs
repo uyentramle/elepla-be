@@ -91,5 +91,16 @@ namespace Elepla.API.Controllers
 			var response = await _planbookService.SoftRemovePlanbookAsync(planbookId);
 			return Ok(response);
 		}
-	}
+
+        [HttpPost]
+        public async Task<IActionResult> CreatePlanbookFromTemplateAsync(string lessonId)
+        {
+            var response = await _planbookService.GetPlanbookFromTemplateAsync(lessonId);
+            if (response != null)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
+        }
+    }
 }
