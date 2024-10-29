@@ -245,7 +245,7 @@ namespace Elepla.Service.Services
                 var planbook = _mapper.Map<Planbook>(model);
 
                 await _unitOfWork.PlanbookRepository.AddAsync(planbook);
-                await _unitOfWork.SaveChangeAsync();
+                //await _unitOfWork.SaveChangeAsync();
 
                 if (model.Activities != null && model.Activities.Any())
                 {
@@ -259,8 +259,10 @@ namespace Elepla.Service.Services
                     }
 
                     await _unitOfWork.ActivityRepository.CreateRangeActivityAsync(activities);
-                    await _unitOfWork.SaveChangeAsync();
+                    //await _unitOfWork.SaveChangeAsync();
                 }
+
+                await _unitOfWork.SaveChangeAsync();
 
                 return new ResponseModel
                 {
@@ -278,15 +280,16 @@ namespace Elepla.Service.Services
                 };
             }
         }
-        #endregion
+		#endregion
 
-        #region Update Planbook
-        public async Task<ResponseModel> UpdatePlanbookAsync(UpdatePlanbookDTO model)
+		#region Update Planbook
+		public async Task<ResponseModel> UpdatePlanbookAsync(UpdatePlanbookDTO model)
 		{
 			try
 			{
-				var planbook = await _unitOfWork.PlanbookRepository.GetByIdAsync(model.PlanbookId);
-				if (planbook == null)
+                // Kiểm tra planbook có tồn tại không
+                var planbook = await _unitOfWork.PlanbookRepository.GetByIdAsync(model.PlanbookId);
+				if (planbook is null)
 				{
 					return new ResponseModel
 					{
@@ -295,13 +298,77 @@ namespace Elepla.Service.Services
 					};
 				}
 
-				var mapper = _mapper.Map(model, planbook);
-				_unitOfWork.PlanbookRepository.Update(planbook);
-				await _unitOfWork.SaveChangeAsync();
+                // Cập nhật Planbook
+                _mapper.Map(model, planbook);
+                _unitOfWork.PlanbookRepository.Update(planbook);
 
-				// chua co activities
+                if (model.Activities != null && model.Activities.Any())
+                {
+                    var existingActivities = await _unitOfWork.ActivityRepository.GetByPlanbookIdAsync(planbook.PlanbookId);
 
-				return new ResponseModel
+                    // Cập nhật activity trong planbook sẽ có 3 trường hợp:
+                    // 1. Cập nhật thông tin cho các activity đã tồn tại
+                    // 2. Thêm mới các activity
+                    // 3. Có thể xóa activity đã tồn tại
+
+                    // Tạo 1 list chứa các hoạt động cần cập nhật và một list chứa các hoạt động mới cần thêm
+                    var activitiesToUpdate = new List<Activity>();
+                    var newActivities = new List<Activity>();
+
+                    // Tạo một HashSet chứa các Id của các hoạt động cần giữ lại
+                    var activityIdsToKeep = model.Activities.Select(a => a.ActivityId).ToHashSet();
+
+                    // Lọc ra các hoạt động không còn trong danh sách cần giữ
+                    var activitiesToDelete = existingActivities
+                        .Where(a => !activityIdsToKeep.Contains(a.ActivityId))
+                        .ToList();
+
+                    // Xác định index tiếp theo dựa trên hoạt động có Index cao nhất
+                    int nextIndex = existingActivities.Any()
+                        ? existingActivities.Max(a => a.Index) + 1
+                        : 0;
+
+                    foreach (var activityDto in model.Activities)
+                    {
+                        // Kiểm tra nếu hoạt động đã tồn tại
+                        var existingActivity = existingActivities.FirstOrDefault(a => a.ActivityId == activityDto.ActivityId);
+                        if (existingActivity != null)
+                        {
+                            // Map thông tin từ DTO vào hoạt động đã tồn tại và thêm vào list cần cập nhật
+                            _mapper.Map(activityDto, existingActivity);
+                            activitiesToUpdate.Add(existingActivity);
+                        }
+                        else
+                        {
+                            // Tạo hoạt động mới và gán Index tiếp theo
+                            var newActivity = _mapper.Map<Activity>(activityDto);
+                            newActivity.PlanbookId = planbook.PlanbookId;
+                            newActivity.Index = nextIndex++;
+                            newActivities.Add(newActivity);
+                        }
+                    }
+
+                    // Xóa các hoạt động không còn trong danh sách
+                    if (activitiesToDelete.Any())
+                    {
+                        _unitOfWork.ActivityRepository.DeleteRangeActivityAsync(activitiesToDelete);
+                    }
+
+                    // Cập nhật và thêm mới các hoạt động
+                    if (activitiesToUpdate.Any())
+                    {
+                        _unitOfWork.ActivityRepository.UpdateRangeActivityAsync(activitiesToUpdate);
+                    }
+                    if (newActivities.Any())
+                    {
+                        await _unitOfWork.ActivityRepository.CreateRangeActivityAsync(newActivities);
+                    }
+                }
+
+                // Lưu tất cả các thay đổi
+                await _unitOfWork.SaveChangeAsync();
+
+                return new ResponseModel
 				{
 					Success = true,
 					Message = "Planbook updated successfully."
@@ -317,6 +384,9 @@ namespace Elepla.Service.Services
 				};
 			}
 		}
+		#endregion
+
+		#region Remove Planbook
 		#endregion
 
 		#region Soft Remove Planbook

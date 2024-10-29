@@ -61,9 +61,18 @@ namespace Elepla.API.Controllers
 		[HttpPut]
 		public async Task<IActionResult> UpdatePlanbookAsync(UpdatePlanbookDTO model)
 		{
-			var response = await _planbookService.UpdatePlanbookAsync(model);
-			return Ok(response);
-		}
+			if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var response = await _planbookService.UpdatePlanbookAsync(model);
+            if (response != null)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
+        }
 
 		[HttpDelete]
 		public async Task<IActionResult> SoftRemovePlanbookAsync(string planbookId)

@@ -48,6 +48,11 @@ namespace Elepla.Repository.Repositories
 			return activity;
 		}
 
+		public void UpdateRangeActivityAsync(IEnumerable<Activity> activities)
+		{
+            _dbContext.Activities.UpdateRange(activities);
+        }
+
 		public async Task<bool> DeleteActivityAsync(Activity activity)
 		{
 			_dbContext.Activities.Remove(activity);
@@ -55,5 +60,10 @@ namespace Elepla.Repository.Repositories
 
 			return true;
 		}
-	}
+
+        public void DeleteRangeActivityAsync(IEnumerable<Activity> activities)
+        {
+            _dbContext.Activities.RemoveRange(activities);
+        }
+    }
 }
