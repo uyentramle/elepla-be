@@ -384,13 +384,46 @@ namespace Elepla.Service.Services
 				};
 			}
 		}
-		#endregion
+        #endregion
 
-		#region Remove Planbook
-		#endregion
+        #region Delete Planbook
+        public async Task<ResponseModel> DeletePlanbookAsync(string planbookId)
+        {
+            try
+            {
+                var planbook = await _unitOfWork.PlanbookRepository.GetByIdAsync(planbookId);
+                if (planbook == null)
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "Planbook not found."
+                    };
+                }
 
-		#region Soft Remove Planbook
-		public async Task<ResponseModel> SoftRemovePlanbookAsync(string planbookId)
+                _unitOfWork.PlanbookRepository.Delete(planbook);
+                await _unitOfWork.SaveChangeAsync();
+
+                return new ResponseModel
+                {
+                    Success = true,
+                    Message = "Planbook deleted successfully."
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ErrorResponseModel<string>
+                {
+                    Success = false,
+                    Message = "An error occurred while deleting the planbook.",
+                    Errors = new List<string> { ex.Message }
+                };
+            }
+        }
+        #endregion
+
+        #region Soft Remove Planbook
+        public async Task<ResponseModel> SoftRemovePlanbookAsync(string planbookId)
 		{
 			try
 			{

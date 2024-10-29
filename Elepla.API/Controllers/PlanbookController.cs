@@ -75,6 +75,17 @@ namespace Elepla.API.Controllers
         }
 
 		[HttpDelete]
+        public async Task<IActionResult> DeletePlanbookAsync(string planbookId)
+        {
+            var response = await _planbookService.DeletePlanbookAsync(planbookId);
+			if (response != null)
+			{
+                return Ok(response);
+            }
+            return BadRequest(response);
+        }
+
+        [HttpDelete]
 		public async Task<IActionResult> SoftRemovePlanbookAsync(string planbookId)
 		{
 			var response = await _planbookService.SoftRemovePlanbookAsync(planbookId);
