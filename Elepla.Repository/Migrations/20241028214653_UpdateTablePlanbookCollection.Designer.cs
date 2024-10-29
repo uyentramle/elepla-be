@@ -4,6 +4,7 @@ using Elepla.Repository.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Elepla.Repository.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241028214653_UpdateTablePlanbookCollection")]
+    partial class UpdateTablePlanbookCollection
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -603,8 +606,7 @@ namespace Elepla.Repository.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("ClassName")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("CollectionId")
                         .HasColumnType("nvarchar(450)");
@@ -644,8 +646,7 @@ namespace Elepla.Repository.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SchoolName")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SkillsObjective")
                         .HasColumnType("nvarchar(max)");
@@ -655,8 +656,7 @@ namespace Elepla.Repository.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TeacherName")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TeachingTools")
                         .HasColumnType("nvarchar(max)");

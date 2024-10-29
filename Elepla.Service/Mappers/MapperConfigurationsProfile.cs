@@ -14,6 +14,7 @@ using Elepla.Service.Models.ViewModels.FeedbackViewModels;
 using Elepla.Service.Models.ViewModels.GradeViewModels;
 using Elepla.Service.Models.ViewModels.LessonViewModels;
 using Elepla.Service.Models.ViewModels.PaymentViewModels;
+using Elepla.Service.Models.ViewModels.PlanbookCollectionViewModels;
 using Elepla.Service.Models.ViewModels.PlanbookViewModels;
 using Elepla.Service.Models.ViewModels.QuestionBankViewModels;
 using Elepla.Service.Models.ViewModels.RoleViewModels;
@@ -538,7 +539,8 @@ namespace Elepla.Service.Mappers
 				.ForMember(dest => dest.QualitiesObjective, opt => opt.MapFrom(src => src.QualitiesObjective))
 				.ForMember(dest => dest.TeachingTools, opt => opt.MapFrom(src => src.TeachingTools))
 				.ForMember(dest => dest.Notes, opt => opt.MapFrom(src => src.Notes))
-				.ForMember(dest => dest.CollectionId, opt => opt.MapFrom(src => src.CollectionId))
+                .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault))
+                .ForMember(dest => dest.CollectionId, opt => opt.MapFrom(src => src.CollectionId))
 				.ForMember(dest => dest.LessonId, opt => opt.MapFrom(src => src.LessonId))
 				.ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => false))
 				.ReverseMap();
@@ -556,7 +558,7 @@ namespace Elepla.Service.Mappers
 				.ForMember(dest => dest.QualitiesObjective, opt => opt.MapFrom(src => src.QualitiesObjective))
 				.ForMember(dest => dest.TeachingTools, opt => opt.MapFrom(src => src.TeachingTools))
 				.ForMember(dest => dest.Notes, opt => opt.MapFrom(src => src.Notes))
-				.ForMember(dest => dest.CollectionId, opt => opt.MapFrom(src => src.CollectionId))
+				//.ForMember(dest => dest.CollectionId, opt => opt.MapFrom(src => src.CollectionId))
 				//.ForMember(dest => dest.LessonId, opt => opt.MapFrom(src => src.LessonId))
 				.ReverseMap();
 			#endregion
@@ -584,7 +586,27 @@ namespace Elepla.Service.Mappers
 				.ForMember(dest => dest.PlanbookId, opt => opt.MapFrom(src => src.PlanbookId))
 				.ReverseMap();
 
-			CreateMap<UpdateActivityDTO, Activity>()
+			CreateMap<CreateActivityForPlanbookDTO, Activity>()
+				.ForMember(dest => dest.ActivityId, opt => opt.MapFrom(src => Guid.NewGuid().ToString()))
+				.ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
+				.ForMember(dest => dest.Objective, opt => opt.MapFrom(src => src.Objective))
+				.ForMember(dest => dest.Content, opt => opt.MapFrom(src => src.Content))
+				.ForMember(dest => dest.Product, opt => opt.MapFrom(src => src.Product))
+				.ForMember(dest => dest.Implementation, opt => opt.MapFrom(src => src.Implementation))
+				//.ForMember(dest => dest.Index, opt => opt.MapFrom(src => src.Index))
+				.ReverseMap();
+
+			CreateMap<UpdateActivityForPlanbookDTO, Activity>()
+                .ForMember(dest => dest.ActivityId, opt => opt.MapFrom(src => src.ActivityId))
+                .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
+                .ForMember(dest => dest.Objective, opt => opt.MapFrom(src => src.Objective))
+                .ForMember(dest => dest.Content, opt => opt.MapFrom(src => src.Content))
+                .ForMember(dest => dest.Product, opt => opt.MapFrom(src => src.Product))
+                .ForMember(dest => dest.Implementation, opt => opt.MapFrom(src => src.Implementation))
+                //.ForMember(dest => dest.Index, opt => opt.MapFrom(src => src.Index))
+                .ReverseMap();
+
+            CreateMap<UpdateActivityDTO, Activity>()
 				.ForMember(dest => dest.ActivityId, opt => opt.MapFrom(src => src.ActivityId))
 				.ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
 				.ForMember(dest => dest.Objective, opt => opt.MapFrom(src => src.Objective))
