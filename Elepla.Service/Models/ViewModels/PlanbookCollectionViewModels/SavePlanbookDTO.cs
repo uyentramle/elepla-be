@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Elepla.Service.Models.ViewModels.PlanbookViewModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,11 +7,10 @@ using System.Threading.Tasks;
 
 namespace Elepla.Service.Models.ViewModels.PlanbookCollectionViewModels
 {
-	public class CreatePlanbookCollectionDTO
+	public class SavePlanbookDTO
 	{
-		public string CollectionName { get; set; }
-		//public string CollectionType { get; set; }
-		public bool IsSaved { get; set; }
+		public string? CollectionId { get; set; }
 		public string TeacherId { get; set; }
+		public string PlanbookId { get; set; }
 	}
 }
