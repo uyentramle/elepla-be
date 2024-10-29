@@ -13,7 +13,7 @@ namespace Elepla.Domain.Entities
 
         // Attributes
         public string CollectionName { get; set; }
-        public string IsSaved { get; set; }
+        public bool IsSaved { get; set; }
 
 		// Foreign Key
 		public string TeacherId { get; set; }
