@@ -21,6 +21,8 @@ namespace Elepla.Repository.FluentAPIs
 			builder.HasOne(x => x.Teacher)
 				.WithMany(x => x.Payments)
 				.HasForeignKey(x => x.TeacherId);
-		}
+            builder.Property(x => x.TotalAmount)
+               .HasColumnType("decimal(18, 2)");
+        }
 	}
 }

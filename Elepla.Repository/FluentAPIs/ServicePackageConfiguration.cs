@@ -20,9 +20,15 @@ namespace Elepla.Repository.FluentAPIs
 			builder.HasMany(x => x.Payments)
 				.WithOne(x => x.Package)
 				.HasForeignKey(x => x.PackageId);
-			//builder.HasMany(x => x.UserPackages)
-			//	.WithOne(x => x.Package)
-			//	.HasForeignKey(x => x.PackageId);
-		}
+            // Configure decimal precision
+            builder.Property(x => x.Price)
+                .HasColumnType("decimal(18, 2)");
+            builder.Property(x => x.Discount)
+                .HasColumnType("decimal(18, 2)");
+			builder.HasMany(x => x.Payments);
+            //builder.HasMany(x => x.UserPackages)
+            //	.WithOne(x => x.Package)
+            //	.HasForeignKey(x => x.PackageId);
+        }
 	}
 }
