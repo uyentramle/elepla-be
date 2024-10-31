@@ -182,5 +182,144 @@ namespace Elepla.Service.Services
             }
         }
         #endregion
+
+        #region Suggested Subject
+        public async Task<ResponseModel> GetAllSuggestedSubjectAsync(string? keyword, int pageIndex, int pageSize)
+        {
+            var suggestedSubjects = await _unitOfWork.SubjectRepository.GetAsync(
+                                                   filter: s => !s.IsDeleted && !s.IsApproved && (string.IsNullOrEmpty(keyword) || s.Name.Contains(keyword)),
+                                                   orderBy: s => s.OrderBy(s => s.CreatedAt),
+                                                   pageIndex: pageIndex,
+                                                   pageSize: pageSize);
+
+            var suggestedSubjectDtos = _mapper.Map<Pagination<ViewListSuggestedSubjectDTO>>(suggestedSubjects);
+
+            return new SuccessResponseModel<object>
+            {
+                Success = true,
+                Message = "Suggested subjects retrieved successfully.",
+                Data = suggestedSubjectDtos
+            };
+        }
+
+        public async Task<ResponseModel> CreateSuggestedSubjectAsync(CreateSuggestedSubjectDTO model)
+        {
+            try
+            {
+                var existingSubject = await _unitOfWork.SubjectRepository.SubjectExistsAsync(model.Name);
+
+                if (existingSubject)
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "Subject name already exists."
+                    };
+                }
+
+                var suggestedSubject = _mapper.Map<Subject>(model);
+
+                await _unitOfWork.SubjectRepository.AddAsync(suggestedSubject);
+                await _unitOfWork.SaveChangeAsync();
+
+                return new ResponseModel
+                {
+                    Success = true,
+                    Message = "Suggested subject added successfully."
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ErrorResponseModel<object>
+                {
+                    Success = false,
+                    Message = "An error occurred while adding the suggested subject.",
+                    Errors = new List<string> { ex.Message }
+                };
+            }
+        }
+
+        public async Task<ResponseModel> ApproveSuggestedSubjectAsync(string subjectId)
+        {
+            try
+            {
+                var suggestedSubject = await _unitOfWork.SubjectRepository.GetByIdAsync(
+                                                id: subjectId,
+                                                filter: s => !s.IsApproved);
+                if (suggestedSubject is null)
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "Suggested subject not found."
+                    };
+                }
+
+                if (suggestedSubject.IsDeleted)
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "Cannot approve a deleted suggested subject."
+                    };
+                }
+
+                suggestedSubject.IsApproved = true;
+                _unitOfWork.SubjectRepository.Update(suggestedSubject);
+                await _unitOfWork.SaveChangeAsync();
+
+                return new ResponseModel
+                {
+                    Success = true,
+                    Message = "Suggested subject approved successfully."
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ErrorResponseModel<object>
+                {
+                    Success = false,
+                    Message = "An error occurred while approving the suggested subject.",
+                    Errors = new List<string> { ex.Message }
+                };
+            }
+        }
+
+        public async Task<ResponseModel> DeleteSuggestedSubjectAsync(string subjectId)
+        {
+            try
+            {
+                var suggestedSubject = await _unitOfWork.SubjectRepository.GetByIdAsync(
+                                                                   id: subjectId,
+                                                                   filter: s => !s.IsDeleted && !s.IsApproved);
+                if (suggestedSubject is null)
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "Suggested subject not found."
+                    };
+                }
+
+                _unitOfWork.SubjectRepository.Delete(suggestedSubject);
+                await _unitOfWork.SaveChangeAsync();
+
+                return new ResponseModel
+                {
+                    Success = true,
+                    Message = "Suggested subject deleted successfully."
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ErrorResponseModel<object>
+                {
+                    Success = false,
+                    Message = "An error occurred while deleting the suggested subject.",
+                    Errors = new List<string> { ex.Message }
+                };
+            }
+        }
+        #endregion
     }
 }
