@@ -9,6 +9,6 @@ namespace Elepla.Repository.Interfaces
 {
     public interface ISubjectRepository : IGenericRepository<Subject>
     {
-        Task<bool> SubjectExistsAsync(string subjectName);
+        Task<Subject?> SubjectExistsAsync(string subjectName);
     }
 }
