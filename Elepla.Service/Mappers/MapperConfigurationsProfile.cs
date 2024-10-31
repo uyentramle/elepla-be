@@ -380,7 +380,8 @@ namespace Elepla.Service.Mappers
 				.ForMember(dest => dest.SubjectId, opt => opt.MapFrom(src => Guid.NewGuid().ToString()))
 				.ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
 				.ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
-				.ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => false)).ReverseMap();
+                .ForMember(dest => dest.IsApproved, opt => opt.MapFrom(src => true))
+                .ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => false)).ReverseMap();
 
 			CreateMap<UpdateSubjectDTO, Subject>()
 				.ForMember(dest => dest.SubjectId, opt => opt.MapFrom(src => src.SubjectId))
