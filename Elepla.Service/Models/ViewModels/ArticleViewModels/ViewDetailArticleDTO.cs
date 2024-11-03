@@ -13,6 +13,9 @@ namespace Elepla.Service.Models.ViewModels.ArticleViewModels
 		public string Title { get; set; }
 		public string Content { get; set; }
 		public string Status { get; set; }
+		public string Thumb { get; set; }
+
+		public List<string>? Categories { get; set; }
 
 		public DateTime CreatedAt { get; set; }
 		public string CreatedBy { get; set; }

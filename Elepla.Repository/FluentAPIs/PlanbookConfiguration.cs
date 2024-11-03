@@ -15,9 +15,9 @@ namespace Elepla.Repository.FluentAPIs
         {
             builder.ToTable("Planbook");
             builder.HasKey(x => x.PlanbookId);
-            builder.Property(x => x.SchoolName).HasMaxLength(50).IsRequired();
-            builder.Property(x => x.TeacherName).HasMaxLength(100).IsRequired();
-            builder.Property(x => x.ClassName).HasMaxLength(20).IsRequired();
+            builder.Property(x => x.SchoolName).HasMaxLength(50);
+            builder.Property(x => x.TeacherName).HasMaxLength(100);
+            builder.Property(x => x.ClassName).HasMaxLength(20);
             builder.HasOne(x => x.PlanbookCollection)
                 .WithMany(x => x.Planbooks)
                 .HasForeignKey(x => x.CollectionId);
@@ -26,13 +26,20 @@ namespace Elepla.Repository.FluentAPIs
                 .HasForeignKey(x => x.LessonId);
             builder.HasMany(x => x.Activities)
                 .WithOne(x => x.Planbook)
-                .HasForeignKey(x => x.PlanbookId);
+                .HasForeignKey(x => x.PlanbookId)
+                .OnDelete(DeleteBehavior.Cascade); // Sẽ tự động xóa các Activity khi xóa Planbook
             builder.HasMany(x => x.TeachingSchedules)
                 .WithOne(x => x.Planbook)
-                .HasForeignKey(x => x.PlanbookId);
+                .HasForeignKey(x => x.PlanbookId)
+                .OnDelete(DeleteBehavior.Cascade); // Xóa TeachingSchedules khi xóa Planbook
             builder.HasMany(x => x.Feedbacks)
                 .WithOne(x => x.Planbook)
-                .HasForeignKey(x => x.PlanbookId);
+                .HasForeignKey(x => x.PlanbookId)
+                .OnDelete(DeleteBehavior.Cascade); // Xóa Feedbacks khi xóa Planbook
+            builder.HasMany(x => x.PlanbookShares)
+                .WithOne(x => x.PlanBook)
+				.HasForeignKey(x => x.PlanBookId)
+                .OnDelete(DeleteBehavior.Cascade); // Xóa PlanbookShares khi xóa Planbook
         }
     }
 }

@@ -22,6 +22,13 @@ namespace Elepla.API.Controllers
 		}
 
 		[HttpGet]
+		public async Task<IActionResult> GetAllArticlesByCategoryIdAsync(string categoryId, int pageIndex = 0, int pageSize = 10)
+		{
+			var response = await _articleService.GetAllArticlesByCategoryIdAsync(categoryId, pageIndex, pageSize);
+			return Ok(response);
+		}
+
+		[HttpGet]
 		public async Task<IActionResult> GetArticleByIdAsync(string id)
 		{
 			var response = await _articleService.GetArticleByIdAsync(id);
