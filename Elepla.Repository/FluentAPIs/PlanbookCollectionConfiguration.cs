@@ -20,7 +20,8 @@ namespace Elepla.Repository.FluentAPIs
                 .HasForeignKey(x => x.TeacherId);
             builder.HasMany(x => x.Planbooks)
                 .WithOne(x => x.PlanbookCollection)
-                .HasForeignKey(x => x.CollectionId);
+                .HasForeignKey(x => x.CollectionId)
+                .OnDelete(DeleteBehavior.Cascade); // Xóa Planbooks khi xóa PlanbookCollection
         }
     }
 }

@@ -189,6 +189,7 @@ namespace Elepla.Repository.Data
                     {
                         CurriculumId = Guid.NewGuid().ToString(),
                         Name = curriculumName,
+                        IsApproved = true,
                         CreatedAt = DateTime.UtcNow.ToLocalTime(),
                         CreatedBy = "system",
                         IsDeleted = false
