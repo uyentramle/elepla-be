@@ -144,5 +144,50 @@ namespace Elepla.Service.Services
                 };
             }
         }
+
+        // Flag a feedback
+        public async Task<ResponseModel> FlagFeedbackAsync(string feedbackId)
+        {
+            var feedback = await _unitOfWork.FeedbackRepository.GetByIdAsync(feedbackId);
+            if (feedback == null)
+            {
+                return new ResponseModel
+                {
+                    Success = false,
+                    Message = "Feedback not found."
+                };
+            }
+
+            // Toggle the flag status
+            feedback.IsFlagged = !feedback.IsFlagged;
+            _unitOfWork.FeedbackRepository.Update(feedback);
+            await _unitOfWork.SaveChangeAsync();
+
+            return new ResponseModel
+            {
+                Success = true,
+                Message = feedback.IsFlagged ? "Feedback flagged successfully." : "Feedback unflagged successfully."
+            };
+        }
+
+        // Get all flagged feedbacks
+        public async Task<ResponseModel> GetFlaggedFeedbackAsync(int pageIndex, int pageSize)
+        {
+            var flaggedFeedbacks = await _unitOfWork.FeedbackRepository.GetAsync(
+                filter: f => f.IsFlagged && !f.IsDeleted,
+                includeProperties: "Teacher,Planbook",
+                pageIndex: pageIndex,
+                pageSize: pageSize
+            );
+
+            var feedbackDtos = _mapper.Map<Pagination<ViewFeedbackDTO>>(flaggedFeedbacks);
+
+            return new SuccessResponseModel<object>
+            {
+                Success = true,
+                Message = "Flagged feedback retrieved successfully.",
+                Data = feedbackDtos
+            };
+        }
     }
 }

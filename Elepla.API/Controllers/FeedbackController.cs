@@ -68,7 +68,7 @@ namespace Elepla.API.Controllers
         #endregion
 
         #region Delete Feedback (Hard Delete)
-        [HttpDelete("{feedbackId}")]
+        [HttpDelete]
         //[Authorize]
         public async Task<IActionResult> HardDeleteFeedbackAsync(string feedbackId)
         {
@@ -80,5 +80,36 @@ namespace Elepla.API.Controllers
             return BadRequest(response);
         }
         #endregion
+
+
+        #region Flag feedback
+        [HttpPost]
+        //[Authorize(Roles = "AcademyStaff")]
+        public async Task<IActionResult> FlagFeedbackAsync(string feedbackId)
+        {
+            var response = await _feedbackService.FlagFeedbackAsync(feedbackId);
+            if (response.Success)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
+        }
+        #endregion
+
+
+        #region View flagged feedback with pagination
+        [HttpGet]
+        //[Authorize(Roles = "AcademyStaff")]
+        public async Task<IActionResult> GetFlaggedFeedbackAsync(int pageIndex = 0, int pageSize = 10)
+        {
+            var response = await _feedbackService.GetFlaggedFeedbackAsync(pageIndex, pageSize);
+            if (response.Success)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
+        }
+        #endregion
+
     }
 }
