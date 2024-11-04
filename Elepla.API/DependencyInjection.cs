@@ -147,8 +147,11 @@ namespace Elepla.API
             services.AddScoped<IQuestionBankRepository, QuestionBankRepository>();
             services.AddScoped<IQuestionBankService, QuestionBankService>();
 
-            // Subject
-            services.AddScoped<ISubjectRepository, SubjectRepository>();
+			// Answer
+			services.AddScoped<IAnswerRepository, AnswerRepository>();
+
+			// Subject
+			services.AddScoped<ISubjectRepository, SubjectRepository>();
             services.AddScoped<ISubjectService, SubjectService>();
 
             // Curriculum Framework
@@ -182,6 +185,9 @@ namespace Elepla.API
             // Activity
             services.AddScoped<IActivityRepository, ActivityRepository>();
 			services.AddScoped<IActivityService, ActivityService>();
+
+			// Planbook Share
+            services.AddScoped<IPlanBookShareRepository, PlanBookShareRepository>();
 
 			// Teaching Schedule
 			services.AddScoped<ITeachingScheduleRepository, TeachingScheduleRepository>();
