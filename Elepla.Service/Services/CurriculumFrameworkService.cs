@@ -28,7 +28,7 @@ namespace Elepla.Service.Services
         public async Task<ResponseModel> GetAllCurriculumFrameworkAsync(string? keyword, int pageIndex, int pageSize)
         {
             var curriculumFrameworks = await _unitOfWork.CurriculumFrameworkRepository.GetAsync(
-                                                   filter: c => !c.IsDeleted && (string.IsNullOrEmpty(keyword) || c.Name.Contains(keyword)),
+                                                   filter: c => !c.IsDeleted && c.IsApproved && (string.IsNullOrEmpty(keyword) || c.Name.Contains(keyword)),
                                                    orderBy: c => c.OrderBy(c => c.Name),
                                                    pageIndex: pageIndex,
                                                    pageSize: pageSize);
@@ -45,9 +45,11 @@ namespace Elepla.Service.Services
 
         public async Task<ResponseModel> GetCurriculumFrameworkByIdAsync(string curriculumFrameworkId)
         {
-            var curriculumFramework = await _unitOfWork.CurriculumFrameworkRepository.GetByIdAsync(curriculumFrameworkId);
+            var curriculumFramework = await _unitOfWork.CurriculumFrameworkRepository.GetByIdAsync(
+                                                    id: curriculumFrameworkId,
+                                                    filter: c => !c.IsDeleted && c.IsApproved);
 
-            if (curriculumFramework == null)
+            if (curriculumFramework is null)
             {
                 return new ResponseModel
                 {
@@ -72,8 +74,23 @@ namespace Elepla.Service.Services
             {
                 var existingCurriculumFramework = await _unitOfWork.CurriculumFrameworkRepository.CurriculumFrameworkExistsAsync(model.Name);
 
-                if (existingCurriculumFramework)
+                if (existingCurriculumFramework is not null)
                 {
+                    if (existingCurriculumFramework.IsDeleted)
+                    {
+                        existingCurriculumFramework.Description = model.Description;
+                        existingCurriculumFramework.IsDeleted = false;
+
+                        _unitOfWork.CurriculumFrameworkRepository.Update(existingCurriculumFramework);
+                        await _unitOfWork.SaveChangeAsync();
+
+                        return new ResponseModel
+                        {
+                            Success = true,
+                            Message = "Curriculum Framework restored successfully.",
+                        };
+                    }
+
                     return new ResponseModel
                     {
                         Success = false,
@@ -107,9 +124,11 @@ namespace Elepla.Service.Services
         {
             try
             {
-                var curriculumFramework = await _unitOfWork.CurriculumFrameworkRepository.GetByIdAsync(model.CurriculumId);
+                var curriculumFramework = await _unitOfWork.CurriculumFrameworkRepository.GetByIdAsync(
+                                                        id: model.CurriculumId,
+                                                        filter: c => !c.IsDeleted && c.IsApproved);
 
-                if (curriculumFramework == null)
+                if (curriculumFramework is null)
                 {
                     return new ResponseModel
                     {
@@ -142,9 +161,11 @@ namespace Elepla.Service.Services
 
         public async Task<ResponseModel> DeleteCurriculumFrameworkAsync(string curriculumFrameworkId)
         {
-            var curriculumFramework = await _unitOfWork.CurriculumFrameworkRepository.GetByIdAsync(curriculumFrameworkId);
+            var curriculumFramework = await _unitOfWork.CurriculumFrameworkRepository.GetByIdAsync(
+                                                    id: curriculumFrameworkId,
+                                                    filter: c => c.IsApproved);
 
-            if (curriculumFramework == null)
+            if (curriculumFramework is null)
             {
                 return new ResponseModel
                 {
