@@ -15,5 +15,9 @@ namespace Elepla.Service.Interfaces
         Task<ResponseModel> CreateCurriculumFrameworkAsync(CreateCurriculumDTO model);
         Task<ResponseModel> UpdateCurriculumFrameworkAsync(UpdateCurriculumDTO model);
         Task<ResponseModel> DeleteCurriculumFrameworkAsync(string curriculumFrameworkId);
+        Task<ResponseModel> GetAllSuggestedCurriculumAsync(string? keyword, int pageIndex, int pageSize);
+        Task<ResponseModel> CreateSuggestedCurriculumAsync(CreateSuggestedCurriculumDTO model);
+        Task<ResponseModel> ApproveSuggestedCurriculumAsync(string curriculumId);
+        Task<ResponseModel> DeleteSuggestedCurriculumAsync(string curriculumId);
     }
 }
