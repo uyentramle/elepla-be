@@ -101,20 +101,23 @@ namespace Elepla.API.Controllers
         [HttpGet]
         public async Task<IActionResult> ExportExamToWord(string examId)
         {
-            var response = await _examService.ExportExamToWordAsync(examId);
-            if (!response.Success)
+            var response = await _examService.ExportExamToWordAsync(examId) as SuccessResponseModel<byte[]>;
+
+            if (response == null || !response.Success)
             {
-                return BadRequest(response);
+                return StatusCode(500, response?.Message ?? "Failed to generate Word document.");
             }
 
-            var successResponse = response as SuccessResponseModel<string>; // Cast to access Data
-            var filePath = successResponse?.Data ?? string.Empty;
-            var fileBytes = System.IO.File.ReadAllBytes(filePath);
-            var fileName = Path.GetFileName(filePath);
+            var wordData = response.Data;
 
-            return File(fileBytes, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", fileName);
+            // Ensure the response has valid Word data
+            if (wordData == null || wordData.Length == 0)
+            {
+                return StatusCode(500, "Failed to generate Word data.");
+            }
+
+            return File(wordData, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", $"Exam_{examId}.docx");
         }
-
         #endregion
 
         #region Export Exam to PDF
@@ -122,18 +125,22 @@ namespace Elepla.API.Controllers
         [HttpGet]
         public async Task<IActionResult> ExportExamToPdf(string examId)
         {
-            var response = await _examService.ExportExamToPdfAsync(examId);
-            if (!response.Success)
+            var response = await _examService.ExportExamToPdfAsync(examId) as SuccessResponseModel<byte[]>;
+
+            if (response == null || !response.Success)
             {
-                return BadRequest(response);
+                return StatusCode(500, response?.Message ?? "Failed to generate PDF.");
             }
 
-            var successResponse = response as SuccessResponseModel<string>; // Cast to access Data
-            var filePath = successResponse?.Data ?? string.Empty;
-            var fileBytes = System.IO.File.ReadAllBytes(filePath);
-            var fileName = Path.GetFileName(filePath);
+            var pdfData = response.Data;
 
-            return File(fileBytes, "application/pdf", fileName);
+            // Ensure the response has valid PDF data
+            if (pdfData == null || pdfData.Length == 0)
+            {
+                return StatusCode(500, "Failed to generate PDF data.");
+            }
+
+            return File(pdfData, "application/pdf", $"Exam_{examId}.pdf");
         }
 
         #endregion

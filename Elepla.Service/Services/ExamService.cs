@@ -297,90 +297,87 @@ namespace Elepla.Service.Services
                 };
             }
 
-            var wordFilePath = $"Exam_{examId}.docx";
-
-            // Shuffle questions randomly
-            var random = new Random();
-            var questions = exam.QuestionInExams.OrderBy(x => random.Next()).ToList();
-
-            using (WordprocessingDocument wordDoc = WordprocessingDocument.Create(wordFilePath, WordprocessingDocumentType.Document))
+            using (var memoryStream = new MemoryStream())
             {
-                var mainPart = wordDoc.AddMainDocumentPart();
-                mainPart.Document = new DocumentFormat.OpenXml.Wordprocessing.Document();
-                var body = mainPart.Document.AppendChild(new DocumentFormat.OpenXml.Wordprocessing.Body());
-
-                // Add title and time
-                var titleParagraph = new DocumentFormat.OpenXml.Wordprocessing.Paragraph(
-                    new DocumentFormat.OpenXml.Wordprocessing.Run(
-                        new DocumentFormat.OpenXml.Wordprocessing.Text($"Bài thi: {exam.Title}")
-                    )
-                    {
-                        RunProperties = new DocumentFormat.OpenXml.Wordprocessing.RunProperties { Bold = new DocumentFormat.OpenXml.Wordprocessing.Bold() }
-                    }
-                );
-                body.AppendChild(titleParagraph);
-
-                var timeParagraph = new DocumentFormat.OpenXml.Wordprocessing.Paragraph(
-                    new DocumentFormat.OpenXml.Wordprocessing.Run(
-                        new DocumentFormat.OpenXml.Wordprocessing.Text($"Thời gian: {exam.Time} phút")
-                    )
-                );
-                body.AppendChild(timeParagraph);
-                body.AppendChild(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new DocumentFormat.OpenXml.Wordprocessing.Run(new DocumentFormat.OpenXml.Wordprocessing.Text("")))); // Empty line
-
-                // Add questions and answers
-                for (int i = 0; i < questions.Count; i++)
+                using (WordprocessingDocument wordDoc = WordprocessingDocument.Create(memoryStream, WordprocessingDocumentType.Document))
                 {
-                    var question = questions[i].Question;
-                    var questionParagraph = new DocumentFormat.OpenXml.Wordprocessing.Paragraph(
+                    var mainPart = wordDoc.AddMainDocumentPart();
+                    mainPart.Document = new DocumentFormat.OpenXml.Wordprocessing.Document();
+                    var body = mainPart.Document.AppendChild(new DocumentFormat.OpenXml.Wordprocessing.Body());
+
+                    // Add title and time
+                    var titleParagraph = new DocumentFormat.OpenXml.Wordprocessing.Paragraph(
                         new DocumentFormat.OpenXml.Wordprocessing.Run(
-                            new DocumentFormat.OpenXml.Wordprocessing.Text($"{i + 1}. {question.Question}")
+                            new DocumentFormat.OpenXml.Wordprocessing.Text($"Bài thi: {exam.Title}")
                         )
                         {
                             RunProperties = new DocumentFormat.OpenXml.Wordprocessing.RunProperties { Bold = new DocumentFormat.OpenXml.Wordprocessing.Bold() }
                         }
                     );
-                    body.AppendChild(questionParagraph);
+                    body.AppendChild(titleParagraph);
 
-                    // Label answers with letters A, B, C, D
-                    var answerLabels = new[] { "A", "B", "C", "D" };
-                    for (int j = 0; j < question.Answers.Count && j < answerLabels.Length; j++)
+                    var timeParagraph = new DocumentFormat.OpenXml.Wordprocessing.Paragraph(
+                        new DocumentFormat.OpenXml.Wordprocessing.Run(
+                            new DocumentFormat.OpenXml.Wordprocessing.Text($"Thời gian: {exam.Time} phút")
+                        )
+                    );
+                    body.AppendChild(timeParagraph);
+                    body.AppendChild(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new DocumentFormat.OpenXml.Wordprocessing.Run(new DocumentFormat.OpenXml.Wordprocessing.Text("")))); // Empty line
+
+                    // Add questions and answers
+                    foreach (var questionInExam in exam.QuestionInExams)
                     {
-                        var answer = question.Answers.ElementAt(j);
-                        var answerText = $"{answerLabels[j]}. {answer.AnswerText}";
+                        var question = questionInExam.Question;
+                        var questionParagraph = new DocumentFormat.OpenXml.Wordprocessing.Paragraph(
+                            new DocumentFormat.OpenXml.Wordprocessing.Run(
+                                new DocumentFormat.OpenXml.Wordprocessing.Text($"{question.Question}")
+                            )
+                            {
+                                RunProperties = new DocumentFormat.OpenXml.Wordprocessing.RunProperties { Bold = new DocumentFormat.OpenXml.Wordprocessing.Bold() }
+                            }
+                        );
+                        body.AppendChild(questionParagraph);
 
-                        // Create RunProperties for each answer
-                        var answerRunProperties = new DocumentFormat.OpenXml.Wordprocessing.RunProperties();
-                        if (string.Equals(answer.IsCorrect, "true", StringComparison.OrdinalIgnoreCase))
+                        // Label answers with letters A, B, C, D
+                        var answerLabels = new[] { "A", "B", "C", "D" };
+                        for (int j = 0; j < question.Answers.Count && j < answerLabels.Length; j++)
                         {
-                            // Set color to red for correct answers
-                            answerRunProperties.AppendChild(new DocumentFormat.OpenXml.Wordprocessing.Color { Val = "FF0000" }); // Red color
+                            var answer = question.Answers.ElementAt(j);
+                            var answerText = $"{answerLabels[j]}. {answer.AnswerText}";
+
+                            // Create RunProperties for each answer
+                            var answerRunProperties = new DocumentFormat.OpenXml.Wordprocessing.RunProperties();
+                            if (string.Equals(answer.IsCorrect, "true", StringComparison.OrdinalIgnoreCase))
+                            {
+                                // Set color to red for correct answers
+                                answerRunProperties.AppendChild(new DocumentFormat.OpenXml.Wordprocessing.Color { Val = "FF0000" });
+                            }
+
+                            var answerRun = new DocumentFormat.OpenXml.Wordprocessing.Run
+                            {
+                                RunProperties = answerRunProperties
+                            };
+                            answerRun.Append(new DocumentFormat.OpenXml.Wordprocessing.Text(answerText));
+
+                            var answerParagraph = new DocumentFormat.OpenXml.Wordprocessing.Paragraph(answerRun);
+                            body.AppendChild(answerParagraph);
                         }
 
-                        var answerRun = new DocumentFormat.OpenXml.Wordprocessing.Run
-                        {
-                            RunProperties = answerRunProperties
-                        };
-                        answerRun.Append(new DocumentFormat.OpenXml.Wordprocessing.Text(answerText));
-
-                        var answerParagraph = new DocumentFormat.OpenXml.Wordprocessing.Paragraph(answerRun);
-                        body.AppendChild(answerParagraph);
+                        // Add empty line between questions
+                        body.AppendChild(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new DocumentFormat.OpenXml.Wordprocessing.Run(new DocumentFormat.OpenXml.Wordprocessing.Text(""))));
                     }
-
-                    // Add empty line between questions
-                    body.AppendChild(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new DocumentFormat.OpenXml.Wordprocessing.Run(new DocumentFormat.OpenXml.Wordprocessing.Text(""))));
                 }
 
-                wordDoc.Save();
+                // Return the Word document as a byte array
+                return new SuccessResponseModel<byte[]>
+                {
+                    Success = true,
+                    Message = "Exam exported to Word successfully.",
+                    Data = memoryStream.ToArray() // Convert memory stream to byte array
+                };
             }
-
-            return new SuccessResponseModel<string>
-            {
-                Success = true,
-                Message = "Exam exported to Word successfully.",
-                Data = wordFilePath
-            };
         }
+
 
         public async Task<ResponseModel> ExportExamToPdfAsync(string examId)
         {
@@ -394,70 +391,68 @@ namespace Elepla.Service.Services
                 };
             }
 
-            var pdfFilePath = $"Exam_{examId}.pdf";
-
             // Path to your DejaVuSans.ttf font file
             var fontPath = Path.Combine("font", "DejaVuSans.ttf");
 
-            // Shuffle questions randomly
-            var random = new Random();
-            var questions = exam.QuestionInExams.OrderBy(x => random.Next()).ToList();
-
-            using (var pdfWriter = new PdfWriter(pdfFilePath))
+            // Using a memory stream instead of saving the file on disk
+            using (var memoryStream = new MemoryStream())
             {
-                using (var pdfDoc = new PdfDocument(pdfWriter))
+                using (var pdfWriter = new PdfWriter(memoryStream))
                 {
-                    var document = new Document(pdfDoc);
-
-                    // Load DejaVuSans font that supports Vietnamese characters
-                    var vietnameseFont = PdfFontFactory.CreateFont(fontPath, PdfEncodings.IDENTITY_H);
-                    document.SetFont(vietnameseFont);
-
-                    // Add title and time
-                    document.Add(new Paragraph($"Bài thi: {exam.Title}")
-                        .SetFontSize(18)
-                        .SetBold()
-                        .SetTextAlignment(iText.Layout.Properties.TextAlignment.CENTER));
-                    document.Add(new Paragraph($"Thời gian: {exam.Time} phút").SetFontSize(14));
-                    document.Add(new Paragraph("\n"));
-
-                    // Add questions and answers
-                    for (int i = 0; i < questions.Count; i++)
+                    using (var pdfDoc = new PdfDocument(pdfWriter))
                     {
-                        var question = questions[i].Question;
-                        document.Add(new Paragraph($"{i + 1}. {question.Question}")
-                            .SetFontSize(14)
-                            .SetBold());
+                        var document = new Document(pdfDoc);
 
-                        // Label answers with letters A, B, C, D
-                        var answerLabels = new[] { "A", "B", "C", "D" };
-                        for (int j = 0; j < question.Answers.Count && j < answerLabels.Length; j++)
+                        // Load DejaVuSans font that supports Vietnamese characters
+                        var vietnameseFont = PdfFontFactory.CreateFont(fontPath, PdfEncodings.IDENTITY_H);
+                        document.SetFont(vietnameseFont);
+
+                        // Add title and time
+                        document.Add(new Paragraph($"Bài thi: {exam.Title}")
+                            .SetFontSize(18)
+                            .SetBold()
+                            .SetTextAlignment(iText.Layout.Properties.TextAlignment.CENTER));
+                        document.Add(new Paragraph($"Thời gian: {exam.Time} phút").SetFontSize(14));
+                        document.Add(new Paragraph("\n"));
+
+                        // Add questions and answers
+                        foreach (var questionInExam in exam.QuestionInExams)
                         {
-                            var answer = question.Answers.ElementAt(j);
-                            var paragraph = new Paragraph($"{answerLabels[j]}. {answer.AnswerText}").SetFontSize(12);
+                            var question = questionInExam.Question;
+                            document.Add(new Paragraph($"{question.Question}")
+                                .SetFontSize(14)
+                                .SetBold());
 
-                            // Set text color to red if answer is correct
-                            if (string.Equals(answer.IsCorrect, "true", StringComparison.OrdinalIgnoreCase))
+                            // Label answers with letters A, B, C, D
+                            var answerLabels = new[] { "A", "B", "C", "D" };
+                            for (int j = 0; j < question.Answers.Count && j < answerLabels.Length; j++)
                             {
-                                paragraph.SetFontColor(iText.Kernel.Colors.ColorConstants.RED);
+                                var answer = question.Answers.ElementAt(j);
+                                var paragraph = new Paragraph($"{answerLabels[j]}. {answer.AnswerText}").SetFontSize(12);
+
+                                // Set text color to red if answer is correct
+                                if (string.Equals(answer.IsCorrect, "true", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    paragraph.SetFontColor(iText.Kernel.Colors.ColorConstants.RED);
+                                }
+
+                                document.Add(paragraph);
                             }
 
-                            document.Add(paragraph);
+                            document.Add(new Paragraph("\n")); // Empty line between questions
                         }
-
-                        document.Add(new Paragraph("\n")); // Empty line between questions
                     }
                 }
+
+                // Return the PDF as a byte array
+                return new SuccessResponseModel<byte[]>
+                {
+                    Success = true,
+                    Message = "Exam exported to PDF successfully.",
+                    Data = memoryStream.ToArray() // Convert memory stream to byte array
+                };
             }
-
-            return new SuccessResponseModel<string>
-            {
-                Success = true,
-                Message = "Exam exported to PDF successfully.",
-                Data = pdfFilePath
-            };
         }
-
 
     }
 }
