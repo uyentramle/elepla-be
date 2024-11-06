@@ -23,6 +23,7 @@ using Elepla.Service.Models.ViewModels.SubjectInCurriculumViewModels;
 using Elepla.Service.Models.ViewModels.SubjectViewModels;
 using Elepla.Service.Models.ViewModels.TeachingScheduleModels;
 using Elepla.Service.Models.ViewModels.UserPackageModels;
+using Elepla.Service.Models.ViewModels.ExamViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -840,6 +841,48 @@ namespace Elepla.Service.Mappers
                 .ForMember(dest => dest.IsExpired, opt => opt.MapFrom(src => DateTime.UtcNow > src.EndDate))
                 .ReverseMap();
             #endregion
+
+            #region Exam
+
+            CreateMap<Exam, ViewExamDTO>()
+                .ForMember(dest => dest.ExamId, opt => opt.MapFrom(src => src.ExamId))
+                .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
+                .ForMember(dest => dest.Time, opt => opt.MapFrom(src => src.Time))
+                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
+                .ForMember(dest => dest.Questions, opt => opt.MapFrom(src => src.QuestionInExams.Select(q => q.Question)))
+                .ReverseMap();
+
+            CreateMap<QuestionBank, QuestionDetailDTO>()
+                .ForMember(dest => dest.QuestionId, opt => opt.MapFrom(src => src.QuestionId))
+                .ForMember(dest => dest.Question, opt => opt.MapFrom(src => src.Question))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Answers, opt => opt.MapFrom(src => src.Answers))
+                .ReverseMap();
+
+            CreateMap<Answer, AnswerDTO>()
+				.ForMember(dest => dest.AnswerId, opt => opt.MapFrom(src => src.AnswerId))
+				.ForMember(dest => dest.AnswerText, opt => opt.MapFrom(src => src.AnswerText))
+				.ForMember(dest => dest.IsCorrect, opt => opt.MapFrom(src => src.IsCorrect.Equals("true", StringComparison.OrdinalIgnoreCase)))
+				.ReverseMap();
+
+
+
+            CreateMap<CreateExamDTO, Exam>()
+                .ForMember(dest => dest.ExamId, opt => opt.MapFrom(src => Guid.NewGuid().ToString()))
+                .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
+                .ForMember(dest => dest.Time, opt => opt.MapFrom(src => src.Time))
+                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
+                .ForMember(dest => dest.QuestionInExams, opt => opt.Ignore());
+
+            CreateMap<UpdateExamDTO, Exam>()
+                .ForMember(dest => dest.ExamId, opt => opt.MapFrom(src => src.ExamId))
+                .ForMember(dest => dest.Title, opt => opt.Condition(src => src.Title != null))
+                .ForMember(dest => dest.Time, opt => opt.Condition(src => src.Time != null))
+                .ForMember(dest => dest.QuestionInExams, opt => opt.Ignore());
+
+            #endregion
+
+
         }
     }
 }
