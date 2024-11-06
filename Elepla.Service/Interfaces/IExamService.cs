@@ -15,5 +15,7 @@ namespace Elepla.Service.Interfaces
         Task<ResponseModel> CreateExamAsync(CreateExamDTO model);
         Task<ResponseModel> UpdateExamAsync(UpdateExamDTO model);
         Task<ResponseModel> DeleteExamAsync(string examId);
+        Task<ResponseModel> ExportExamToWordAsync(string examId);
+        Task<ResponseModel> ExportExamToPdfAsync(string examId);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Elepla.Service.Interfaces;
+using Elepla.Service.Models.ResponseModels;
 using Elepla.Service.Models.ViewModels.ExamViewModels;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
@@ -93,5 +94,50 @@ namespace Elepla.API.Controllers
             return BadRequest(response);
         }
         #endregion
+
+
+        #region Export Exam to Word
+        //[Authorize]
+        [HttpGet]
+        public async Task<IActionResult> ExportExamToWord(string examId)
+        {
+            var response = await _examService.ExportExamToWordAsync(examId);
+            if (!response.Success)
+            {
+                return BadRequest(response);
+            }
+
+            var successResponse = response as SuccessResponseModel<string>; // Cast to access Data
+            var filePath = successResponse?.Data ?? string.Empty;
+            var fileBytes = System.IO.File.ReadAllBytes(filePath);
+            var fileName = Path.GetFileName(filePath);
+
+            return File(fileBytes, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", fileName);
+        }
+
+        #endregion
+
+        #region Export Exam to PDF
+        //[Authorize]
+        [HttpGet]
+        public async Task<IActionResult> ExportExamToPdf(string examId)
+        {
+            var response = await _examService.ExportExamToPdfAsync(examId);
+            if (!response.Success)
+            {
+                return BadRequest(response);
+            }
+
+            var successResponse = response as SuccessResponseModel<string>; // Cast to access Data
+            var filePath = successResponse?.Data ?? string.Empty;
+            var fileBytes = System.IO.File.ReadAllBytes(filePath);
+            var fileName = Path.GetFileName(filePath);
+
+            return File(fileBytes, "application/pdf", fileName);
+        }
+
+        #endregion
+
+
     }
 }
