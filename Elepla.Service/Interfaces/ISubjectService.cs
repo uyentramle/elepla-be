@@ -15,5 +15,9 @@ namespace Elepla.Service.Interfaces
         Task<ResponseModel> CreateSubjectAsync(CreateSubjectDTO model);
         Task<ResponseModel> UpdateSubjectAsync(UpdateSubjectDTO model);
         Task<ResponseModel> DeleteSubjectAsync(string subjectId);
+        Task<ResponseModel> GetAllSuggestedSubjectAsync(string? keyword, int pageIndex, int pageSize);
+        Task<ResponseModel> CreateSuggestedSubjectAsync(CreateSuggestedSubjectDTO model);
+        Task<ResponseModel> ApproveSuggestedSubjectAsync(string subjectId);
+        Task<ResponseModel> DeleteSuggestedSubjectAsync(string subjectId);
     }
 }

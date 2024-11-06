@@ -24,5 +24,6 @@ namespace Elepla.Domain.Entities
         public virtual Chapter Chapter { get; set; }
         public virtual Lesson Lesson { get; set; }
 		public virtual ICollection<Answer> Answers { get; set; } = new List<Answer>();
-	}
+        public virtual ICollection<QuestionInExam> QuestionInExams { get; set; } = new List<QuestionInExam>();
+    }
 }

@@ -39,6 +39,8 @@ namespace Elepla.Repository.Data
         public DbSet<TeachingSchedule> TeachingSchedules { get; set; }
         public DbSet<Feedback> Feedbacks { get; set; }
         public DbSet<PlanBookShare> PlanbooksShares { get; set; }
+        public DbSet<Exam> Exams { get; set; }
+        public DbSet<QuestionInExam> QuestionInExams { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -68,6 +70,8 @@ namespace Elepla.Repository.Data
             modelBuilder.ApplyConfiguration(new TeachingScheduleConfiguration());
             modelBuilder.ApplyConfiguration(new FeedbackConfiguration());
             modelBuilder.ApplyConfiguration(new PlanBookShareConfiguration());
-		}
+            modelBuilder.ApplyConfiguration(new ExamConfiguration());
+            modelBuilder.ApplyConfiguration(new QuestionInExamConfiguration());
+        }
     }
 }

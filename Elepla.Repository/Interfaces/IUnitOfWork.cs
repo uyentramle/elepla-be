@@ -32,6 +32,8 @@ namespace Elepla.Repository.Interfaces
 		IPlanBookShareRepository PlanBookShareRepository { get; }
 		ITeachingScheduleRepository TeachingScheduleRepository { get; }
         IFeedbackRepository FeedbackRepository { get; }
+        IExamRepository ExamRepository { get; }
+        IQuestionInExamRepository QuestionInExamRepository { get; }
         Task<int> SaveChangeAsync();
     }
 }

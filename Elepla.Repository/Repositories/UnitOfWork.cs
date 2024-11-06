@@ -35,6 +35,8 @@ namespace Elepla.Repository.Repositories
         private readonly IPlanBookShareRepository _planBookShareRepository;
         private readonly ITeachingScheduleRepository _teachingScheduleRepository;
         private readonly IFeedbackRepository _feedbackRepository;
+        private readonly IExamRepository _examRepository;
+        private readonly IQuestionInExamRepository _questionInExamRepository;
 
         public UnitOfWork(AppDbContext dbContext,
             IAccountRepository accountRepository,
@@ -49,7 +51,7 @@ namespace Elepla.Repository.Repositories
             IPaymentRepository paymentRepository,
             IQuestionBankRepository questionBankRepository,
 			IAnswerRepository answerRepository,
-			ISubjectRepository subjectRepository,
+            ISubjectRepository subjectRepository,
             ICurriculumFrameworkRepository curriculumFrameworkRepository,
             IGradeRepository gradeRepository,
             ISubjectInCurriculumRepository subjectInCurriculumRepository,
@@ -58,9 +60,11 @@ namespace Elepla.Repository.Repositories
             IPlanbookCollectionRepository planbookCollectionRepository,
             IPlanbookRepository planbookRepository,
             IActivityRepository activityRepository,
-			IPlanBookShareRepository planBookShareRepository,
-			ITeachingScheduleRepository teachingScheduleRepository,
-            IFeedbackRepository feedbackRepository)
+            IPlanBookShareRepository planBookShareRepository,
+            ITeachingScheduleRepository teachingScheduleRepository,
+            IFeedbackRepository feedbackRepository,
+            IExamRepository examRepository,
+            IQuestionInExamRepository questionInExamRepository)
         {
             _dbContext = dbContext;
             _accountRepository = accountRepository;
@@ -74,8 +78,8 @@ namespace Elepla.Repository.Repositories
             _userPackageRepository = userPackageRepository;
             _paymentRepository = paymentRepository;
             _questionBankRepository = questionBankRepository;
-			_answerRepository = answerRepository;
-			_subjectRepository = subjectRepository;
+            _answerRepository = answerRepository;
+            _subjectRepository = subjectRepository;
             _curriculumFrameworkRepository = curriculumFrameworkRepository;
             _gradeRepository = gradeRepository;
             _subjectInCurriculumRepository = subjectInCurriculumRepository;
@@ -84,9 +88,11 @@ namespace Elepla.Repository.Repositories
             _planbookCollectionRepository = planbookCollectionRepository;
             _planbookRepository = planbookRepository;
             _activityRepository = activityRepository;
-			_planBookShareRepository = planBookShareRepository;
-			_teachingScheduleRepository = teachingScheduleRepository;
+            _planBookShareRepository = planBookShareRepository;
+            _teachingScheduleRepository = teachingScheduleRepository;
             _feedbackRepository = feedbackRepository;
+            _examRepository = examRepository;
+            _questionInExamRepository = questionInExamRepository;
         }
 
         public IAccountRepository AccountRepository => _accountRepository;
@@ -136,6 +142,10 @@ namespace Elepla.Repository.Repositories
 		public ITeachingScheduleRepository TeachingScheduleRepository => _teachingScheduleRepository;
 
         public IFeedbackRepository FeedbackRepository => _feedbackRepository;
+
+        public IExamRepository ExamRepository => _examRepository;
+
+        public IQuestionInExamRepository QuestionInExamRepository => _questionInExamRepository;
 
         public async Task<int> SaveChangeAsync()
         {

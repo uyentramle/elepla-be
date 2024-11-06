@@ -9,6 +9,6 @@ namespace Elepla.Repository.Interfaces
 {
     public interface ICurriculumFrameworkRepository : IGenericRepository<CurriculumFramework>
     {
-        Task<bool> CurriculumFrameworkExistsAsync(string curriculumFrameworkName);
+        Task<CurriculumFramework?> CurriculumFrameworkExistsAsync(string curriculumFrameworkName);
     }
 }

@@ -16,9 +16,9 @@ namespace Elepla.Repository.Repositories
         {
         }
 
-        public async Task<bool> SubjectExistsAsync(string subjectName)
+        public async Task<Subject?> SubjectExistsAsync(string subjectName)
         {
-            return await _dbContext.Subjects.AnyAsync(s => s.Name == subjectName);
+            return await _dbContext.Subjects.FirstOrDefaultAsync(s => s.Name.Equals(subjectName));
         }
     }
 }

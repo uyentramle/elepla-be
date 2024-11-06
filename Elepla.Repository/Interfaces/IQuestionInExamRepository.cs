@@ -7,8 +7,7 @@ using System.Threading.Tasks;
 
 namespace Elepla.Repository.Interfaces
 {
-    public interface ISubjectRepository : IGenericRepository<Subject>
+    public interface IQuestionInExamRepository
     {
-        Task<Subject?> SubjectExistsAsync(string subjectName);
     }
 }
