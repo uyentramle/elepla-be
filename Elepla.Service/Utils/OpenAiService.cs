@@ -32,9 +32,9 @@ namespace Elepla.Service.Utils
                     //model = "text-davinci-003",
                     messages = new[]
                     {
-                new { role = "system", content = "You are an assistant that helps with generating educational content." },
-                new { role = "user", content = prompt }  // The user input prompt
-            },
+                        new { role = "system", content = "You are an assistant that helps with generating educational content." },
+                        new { role = "user", content = prompt }  // The user input prompt
+                    },
                     max_tokens = 500,
                     temperature = 0.7
                 };
