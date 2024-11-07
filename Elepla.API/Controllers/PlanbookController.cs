@@ -102,5 +102,16 @@ namespace Elepla.API.Controllers
             }
             return BadRequest(response);
         }
+
+		[HttpPost]
+        public async Task<IActionResult> CreatePlanbookUsingAIAsync(string lessonId)
+		{
+            var response = await _planbookService.GetPlanbookUsingAIAsync(lessonId);
+            if (response != null)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
+        }
     }
 }
