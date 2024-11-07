@@ -40,10 +40,10 @@ using (var scope = app.Services.CreateScope())
     await seedData.Initialize(unitOfWork);
 }
 
-////Get swagger.json following root directory 
-//app.UseSwagger(options => { options.RouteTemplate = "{documentName}/swagger.json"; });
-////Load swagger.json following root directory 
-//app.UseSwaggerUI(c => { c.SwaggerEndpoint("/v1/swagger.json", "Elepla API V1"); c.RoutePrefix = string.Empty; });
+//Get swagger.json following root directory 
+app.UseSwagger(options => { options.RouteTemplate = "{documentName}/swagger.json"; });
+//Load swagger.json following root directory 
+app.UseSwaggerUI(c => { c.SwaggerEndpoint("/v1/swagger.json", "Elepla API V1"); c.RoutePrefix = string.Empty; });
 
 // Configure the HTTP request pipeline.
 ////if (app.Environment.IsDevelopment())
