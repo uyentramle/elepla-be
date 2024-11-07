@@ -32,11 +32,15 @@ namespace Elepla.Repository.Data
         public DbSet<Chapter> Chapters { get; set; }
         public DbSet<Lesson> Lessons { get; set; }
         public DbSet<QuestionBank> QuestionBanks { get; set; }
-        public DbSet<PlanbookCollection> PlanbookCollections { get; set; }
+        public DbSet<Answer> Answers { get; set; }
+		public DbSet<PlanbookCollection> PlanbookCollections { get; set; }
         public DbSet<Planbook> Planbooks { get; set; }
         public DbSet<Activity> Activities { get; set; }
         public DbSet<TeachingSchedule> TeachingSchedules { get; set; }
         public DbSet<Feedback> Feedbacks { get; set; }
+        public DbSet<PlanBookShare> PlanbooksShares { get; set; }
+        public DbSet<Exam> Exams { get; set; }
+        public DbSet<QuestionInExam> QuestionInExams { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -59,11 +63,15 @@ namespace Elepla.Repository.Data
             modelBuilder.ApplyConfiguration(new ChapterConfiguration());
             modelBuilder.ApplyConfiguration(new LessonConfiguration());
             modelBuilder.ApplyConfiguration(new QuestionBankConfiguration());
-            modelBuilder.ApplyConfiguration(new PlanbookCollectionConfiguration());
+			modelBuilder.ApplyConfiguration(new AnswerConfiguration());
+			modelBuilder.ApplyConfiguration(new PlanbookCollectionConfiguration());
             modelBuilder.ApplyConfiguration(new PlanbookConfiguration());
             modelBuilder.ApplyConfiguration(new ActivityConfiguration());
             modelBuilder.ApplyConfiguration(new TeachingScheduleConfiguration());
             modelBuilder.ApplyConfiguration(new FeedbackConfiguration());
+            modelBuilder.ApplyConfiguration(new PlanBookShareConfiguration());
+            modelBuilder.ApplyConfiguration(new ExamConfiguration());
+            modelBuilder.ApplyConfiguration(new QuestionInExamConfiguration());
         }
     }
 }

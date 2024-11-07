@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace Elepla.Service.Interfaces
 {
-    public interface IOpenAiService
+    public interface IOpenAIService
     {
-        Task<string> GeneratePlanbookField(string prompt);
+        Task<string> GeneratePlanbookFieldAsync(string prompt);    
     }
 }

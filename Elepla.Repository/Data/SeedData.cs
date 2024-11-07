@@ -157,12 +157,13 @@ namespace Elepla.Repository.Data
             foreach (var subjectName in subjects)
             {
                 var subjectExists = await unitOfWork.SubjectRepository.SubjectExistsAsync(subjectName);
-                if (!subjectExists)
+                if (subjectExists is null)
                 {
                     var subject = new Subject
                     {
                         SubjectId = Guid.NewGuid().ToString(),
                         Name = subjectName,
+                        IsApproved = true,
                         CreatedAt = DateTime.UtcNow.ToLocalTime(),
                         CreatedBy = "system",
                         IsDeleted = false
@@ -182,12 +183,13 @@ namespace Elepla.Repository.Data
             foreach (var curriculumName in curriculums)
             {
                 var curriculumExists = await unitOfWork.CurriculumFrameworkRepository.CurriculumFrameworkExistsAsync(curriculumName);
-                if (!curriculumExists)
+                if (curriculumExists is null)
                 {
                     var curriculum = new CurriculumFramework
                     {
                         CurriculumId = Guid.NewGuid().ToString(),
                         Name = curriculumName,
+                        IsApproved = true,
                         CreatedAt = DateTime.UtcNow.ToLocalTime(),
                         CreatedBy = "system",
                         IsDeleted = false

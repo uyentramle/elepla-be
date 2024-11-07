@@ -19,7 +19,8 @@ namespace Elepla.Repository.Interfaces
         IUserPackageRepository UserPackageRepository { get; }
         IPaymentRepository PaymentRepository { get; }
         IQuestionBankRepository QuestionBankRepository { get; }
-        ISubjectRepository SubjectRepository { get; }
+		IAnswerRepository AnswerRepository { get; }
+		ISubjectRepository SubjectRepository { get; }
         ICurriculumFrameworkRepository CurriculumFrameworkRepository { get; }
         IGradeRepository GradeRepository { get; }
         ISubjectInCurriculumRepository SubjectInCurriculumRepository { get; }
@@ -28,8 +29,11 @@ namespace Elepla.Repository.Interfaces
         IPlanbookCollectionRepository PlanbookCollectionRepository { get; }
         IPlanbookRepository PlanbookRepository { get; }
         IActivityRepository ActivityRepository { get; }
-        ITeachingScheduleRepository TeachingScheduleRepository { get; }
+		IPlanBookShareRepository PlanBookShareRepository { get; }
+		ITeachingScheduleRepository TeachingScheduleRepository { get; }
         IFeedbackRepository FeedbackRepository { get; }
+        IExamRepository ExamRepository { get; }
+        IQuestionInExamRepository QuestionInExamRepository { get; }
         Task<int> SaveChangeAsync();
     }
 }

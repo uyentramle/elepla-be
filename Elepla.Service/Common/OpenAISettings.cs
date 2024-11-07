@@ -8,7 +8,8 @@ namespace Elepla.Service.Common
 {
     public class OpenAISettings
     {
-        public string ApiKey { get; set; }
+        public string ApiKey1 { get; set; }
+        public string ApiKey2 { get; set; }
     }
 
 }
