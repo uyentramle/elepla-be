@@ -14,5 +14,6 @@ namespace Elepla.Service.Common
         public AuthenticationSettings Authentication { get; set; }
         public TwilioSettings Twilio { get; set; }
         public FirebaseSettings Firebase { get; set; }
+        public OpenAISettings OpenAI { get; set; }
     }
 }

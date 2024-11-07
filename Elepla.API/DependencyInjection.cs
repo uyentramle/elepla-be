@@ -103,9 +103,10 @@ namespace Elepla.API
             services.AddScoped<IFirebaseService, FirebaseService>();
             services.AddScoped<ITokenService, TokenService>();
 			services.AddScoped<IUrlService, UrlService>();
+            services.AddScoped<IOpenAIService, OpenAIService>();
 
-			// User
-			services.AddScoped<IAccountRepository, AccountRepository>();
+            // User
+            services.AddScoped<IAccountRepository, AccountRepository>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IAccountService, AccountService>();
 
