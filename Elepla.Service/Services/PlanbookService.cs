@@ -708,5 +708,93 @@ namespace Elepla.Service.Services
             }
         }
         #endregion
+
+        #region Clone Planbook
+        public async Task<ResponseModel> ClonePlanbookAsync(ClonePlanbookDTO model)
+        {
+            try
+            {
+                // Kiểm tra planbookDto có tồn tại không
+                var planbook = await _unitOfWork.PlanbookRepository.GetByIdAsync(model.PlanbookId);
+                if (planbook is null)
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "Planbook not found."
+                    };
+                }
+
+                // Kiểm tra collection có tồn tại không
+                if (!string.IsNullOrEmpty(model.CollectionId))
+                {
+                    var existingCollection = await _unitOfWork.PlanbookCollectionRepository.GetByIdAsync(model.CollectionId);
+
+                    if (existingCollection is null)
+                    {
+                        return new ResponseModel
+                        {
+                            Success = false,
+                            Message = "Collection not found."
+                        };
+                    }
+                }
+
+                // Clone Planbook
+                var clonePlanbook = new Planbook
+                {
+                    PlanbookId = Guid.NewGuid().ToString(),
+                    Title = planbook.Title,
+                    SchoolName = planbook.SchoolName,
+                    TeacherName = planbook.TeacherName,
+                    Subject = planbook.Subject,
+                    ClassName = planbook.ClassName,
+                    DurationInPeriods = planbook.DurationInPeriods,
+                    KnowledgeObjective = planbook.KnowledgeObjective,
+                    SkillsObjective = planbook.SkillsObjective,
+                    QualitiesObjective = planbook.QualitiesObjective,
+                    TeachingTools = planbook.TeachingTools,
+                    Notes = planbook.Notes,
+                    IsDefault = false,
+                    CollectionId = model.CollectionId,
+                    LessonId = planbook.LessonId,
+                    Activities = new List<Activity>()
+                };
+
+                // Clone các hoạt động
+                var activities = await _unitOfWork.ActivityRepository.GetByPlanbookIdAsync(model.PlanbookId);
+                var cloneActivities = activities.Select(a => new Activity
+                {
+                    ActivityId = Guid.NewGuid().ToString(),
+                    PlanbookId = clonePlanbook.PlanbookId,
+                    Title = a.Title,
+                    Objective = a.Objective,
+                    Content = a.Content,
+                    Product = a.Product,
+                    Implementation = a.Implementation,
+                    Index = a.Index
+                }).ToList();
+
+                await _unitOfWork.PlanbookRepository.AddAsync(clonePlanbook);
+                await _unitOfWork.ActivityRepository.CreateRangeActivityAsync(cloneActivities);
+                await _unitOfWork.SaveChangeAsync();
+
+                return new ResponseModel
+                {
+                    Success = true,
+                    Message = "Planbook cloned successfully."
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ErrorResponseModel<string>
+                {
+                    Success = false,
+                    Message = "An error occurred while cloning the planbook.",
+                    Errors = new List<string> { ex.Message }
+                };
+            }
+        }
+        #endregion
     }
 }
