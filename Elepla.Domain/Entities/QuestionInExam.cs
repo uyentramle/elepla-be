@@ -14,6 +14,7 @@ namespace Elepla.Domain.Entities
         // Foreign Key
         public string ExamId { get; set; }
         public string QuestionId { get; set; }
+        public int Index { get; set; }
 
         // Navigation properties
         public virtual Exam Exam { get; set; }

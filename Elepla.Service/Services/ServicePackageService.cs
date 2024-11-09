@@ -89,7 +89,7 @@ namespace Elepla.Service.Services
                         servicePackage.Price = model.Price;
                         servicePackage.Discount = model.Discount;
                         //servicePackage.Duration = model.Duration;
-                        servicePackage.MaxLessonPlans = model.MaxLessonPlans;
+                        servicePackage.MaxPlanbooks = model.MaxLessonPlans;
                         servicePackage.IsDeleted = false;
 
                         _unitOfWork.ServicePackageRepository.Update(servicePackage);

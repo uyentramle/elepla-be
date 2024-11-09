@@ -319,7 +319,7 @@ namespace Elepla.Service.Services
                     var activitiesToUpdate = new List<Activity>();
                     var newActivities = new List<Activity>();
 
-                    // Tạo một HashSet chứa các Id của các hoạt động cần giữ lại
+                    // Tạo một HashSet chứa các UserPackageId của các hoạt động cần giữ lại
                     var activityIdsToKeep = model.Activities.Select(a => a.ActivityId).ToHashSet();
 
                     // Lọc ra các hoạt động không còn trong danh sách cần giữ
