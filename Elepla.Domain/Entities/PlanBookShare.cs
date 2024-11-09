@@ -19,6 +19,5 @@ namespace Elepla.Domain.Entities
 
 		public virtual Planbook PlanBook { get; set; }
 		public virtual User User { get; set; }
-
 	}
 }

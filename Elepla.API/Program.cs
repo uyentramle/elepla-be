@@ -8,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
 builder.WebHost.UseUrls($"http://*:{port}");
-builder.Services.AddHealthChecks();
+//builder.Services.AddHealthChecks();
 
 var configuration = builder.Configuration.Get<AppConfiguration>();
 
@@ -32,11 +32,11 @@ using (var scope = app.Services.CreateScope())
 }
 
 // Configure the HTTP request pipeline.
-//if (app.Environment.IsDevelopment())
-//{
-//    app.UseSwagger();
-//    app.UseSwaggerUI();
-//}
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 app.UseSwagger();
 app.UseSwaggerUI(options =>
@@ -48,6 +48,7 @@ app.UseSwaggerUI(options =>
 app.UseHttpsRedirection();
 
 app.UseCors();
+
 app.UseAuthorization();
 
 app.MapControllers();

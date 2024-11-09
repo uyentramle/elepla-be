@@ -307,7 +307,7 @@ namespace Elepla.Service.Mappers
 				.ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Price))
 				.ForMember(dest => dest.Discount, opt => opt.MapFrom(src => src.Discount))
 				//.ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration))
-				.ForMember(dest => dest.MaxLessonPlans, opt => opt.MapFrom(src => src.MaxLessonPlans))
+				.ForMember(dest => dest.MaxLessonPlans, opt => opt.MapFrom(src => src.MaxPlanbooks))
 				.ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
 				.ForMember(dest => dest.CreatedBy, opt => opt.MapFrom(src => src.CreatedBy))
 				.ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.UpdatedAt))
@@ -325,7 +325,7 @@ namespace Elepla.Service.Mappers
 				.ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Price))
 				.ForMember(dest => dest.Discount, opt => opt.MapFrom(src => src.Discount))
 				//.ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration))
-				.ForMember(dest => dest.MaxLessonPlans, opt => opt.MapFrom(src => src.MaxLessonPlans))
+				.ForMember(dest => dest.MaxPlanbooks, opt => opt.MapFrom(src => src.MaxLessonPlans))
 				.ReverseMap();
 
 			// Mapping UpdateServicePackageDTO to ServicePackage
@@ -336,7 +336,7 @@ namespace Elepla.Service.Mappers
 				.ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Price))
 				.ForMember(dest => dest.Discount, opt => opt.MapFrom(src => src.Discount))
 				//.ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration))
-				.ForMember(dest => dest.MaxLessonPlans, opt => opt.MapFrom(src => src.MaxLessonPlans))
+				.ForMember(dest => dest.MaxPlanbooks, opt => opt.MapFrom(src => src.MaxLessonPlans))
 				.ReverseMap();
 			#endregion
 
