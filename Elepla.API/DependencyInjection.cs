@@ -8,6 +8,7 @@ using Elepla.Service.Mappers;
 using Elepla.Service.Services;
 using Elepla.Service.Utils;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -74,7 +75,7 @@ namespace Elepla.API
             {
                 options.AddDefaultPolicy(builder =>
                 {
-                    builder.WithOrigins("http://localhost:5173")
+                    builder.WithOrigins("http://localhost:5173", "https://elepla.vercel.app")
                         .AllowAnyHeader()
                         .AllowAnyMethod();
                 });
@@ -86,11 +87,12 @@ namespace Elepla.API
             services.AddControllers();
             services.AddEndpointsApiExplorer(); // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             services.AddMemoryCache();
+            services.AddHealthChecks();
 
             return services;
         }
 
-        public static IServiceCollection AddInfrastructuresService(this IServiceCollection services, string databaseConnection)
+        public static IServiceCollection AddInfrastructuresService(this IServiceCollection services, string[] databaseConnection)
         {
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<ITimeService, TimeService>();
@@ -203,7 +205,35 @@ namespace Elepla.API
             services.AddScoped<IQuestionInExamService, QuestionInExamService>();
 
             // Add database context
-            services.AddDbContext<AppDbContext>(option => option.UseSqlServer(databaseConnection));
+            string selectedConnectionString = null;
+
+            foreach (var connectionString in databaseConnection)
+            {
+                try
+                {
+                    // Thử kết nối với chuỗi hiện tại
+                    using (var connection = new SqlConnection(connectionString))
+                    {
+                        connection.Open();
+                    }
+
+                    // Nếu kết nối thành công, sử dụng chuỗi này
+                    selectedConnectionString = connectionString;
+                    break;
+                }
+                catch
+                {
+                    // Nếu kết nối không thành công, tiếp tục thử chuỗi tiếp theo
+                    continue;
+                }
+            }
+
+            if (string.IsNullOrEmpty(selectedConnectionString))
+            {
+                throw new Exception("Không thể kết nối với bất kỳ cơ sở dữ liệu nào.");
+            }
+
+            services.AddDbContext<AppDbContext>(option => option.UseSqlServer(selectedConnectionString));
 
             // Add AutoMapper
             services.AddAutoMapper(typeof(MapperConfigurationsProfile).Assembly);
