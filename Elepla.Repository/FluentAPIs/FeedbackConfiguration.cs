@@ -15,6 +15,11 @@ namespace Elepla.Repository.FluentAPIs
         {
             builder.ToTable("Feedback");
             builder.HasKey(x => x.FeedbackId);
+            builder.Property(x => x.Content).HasMaxLength(1000);
+            builder.Property(x => x.Rate).IsRequired();
+            builder.Property(x => x.Type)
+                .HasMaxLength(50)
+                .IsRequired();
             builder.HasOne(x => x.Teacher)
                 .WithMany(x => x.Feedbacks)
                 .HasForeignKey(x => x.TeacherId)
