@@ -1,6 +1,7 @@
 ﻿using Elepla.Service.Interfaces;
 using Elepla.Service.Models.ViewModels.FeedbackViewModels;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Threading.Tasks;
 
 namespace Elepla.API.Controllers
@@ -46,5 +47,69 @@ namespace Elepla.API.Controllers
             return BadRequest(response);
         }
         #endregion
+
+        #region Update Feedback
+        [HttpPut]
+        //[Authorize]
+        public async Task<IActionResult> UpdateFeedbackAsync(UpdateFeedbackDTO model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var response = await _feedbackService.UpdateFeedbackAsync(model);
+            if (response.Success)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
+        }
+        #endregion
+
+        #region Delete Feedback (Hard Delete)
+        [HttpDelete]
+        //[Authorize]
+        public async Task<IActionResult> HardDeleteFeedbackAsync(string feedbackId)
+        {
+            var response = await _feedbackService.HardDeleteFeedbackAsync(feedbackId);
+            if (response.Success)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
+        }
+        #endregion
+
+
+        #region Flag feedback
+        [HttpPost]
+        //[Authorize(Roles = "AcademyStaff")]
+        public async Task<IActionResult> FlagFeedbackAsync(string feedbackId)
+        {
+            var response = await _feedbackService.FlagFeedbackAsync(feedbackId);
+            if (response.Success)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
+        }
+        #endregion
+
+
+        #region View flagged feedback with pagination
+        [HttpGet]
+        //[Authorize(Roles = "AcademyStaff")]
+        public async Task<IActionResult> GetFlaggedFeedbackAsync(int pageIndex = 0, int pageSize = 10)
+        {
+            var response = await _feedbackService.GetFlaggedFeedbackAsync(pageIndex, pageSize);
+            if (response.Success)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
+        }
+        #endregion
+
     }
 }
