@@ -148,12 +148,12 @@ namespace Elepla.Repository.Repositories
         // Add entity
         public async Task AddAsync(TEntity entity)
         {
+            entity.CreatedAt = _timeService.GetCurrentTime();
             var currentUserId = _claimsService.GetCurrentUserId();
 
             // Check if ClaimService is available
             if (currentUserId != Guid.Empty)
             {
-                entity.CreatedAt = _timeService.GetCurrentTime();
                 entity.CreatedBy = currentUserId.ToString();
             }
 

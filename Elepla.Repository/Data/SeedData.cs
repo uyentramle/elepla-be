@@ -33,7 +33,6 @@ namespace Elepla.Repository.Data
                     {
                         Name = roleName,
                         IsDefault = true,
-                        CreatedAt = DateTime.UtcNow.ToLocalTime(),
                         CreatedBy = "system",
                         IsDeleted = false
                     };
@@ -164,7 +163,6 @@ namespace Elepla.Repository.Data
                         SubjectId = Guid.NewGuid().ToString(),
                         Name = subjectName,
                         IsApproved = true,
-                        CreatedAt = DateTime.UtcNow.ToLocalTime(),
                         CreatedBy = "system",
                         IsDeleted = false
                     };
@@ -190,7 +188,6 @@ namespace Elepla.Repository.Data
                         CurriculumId = Guid.NewGuid().ToString(),
                         Name = curriculumName,
                         IsApproved = true,
-                        CreatedAt = DateTime.UtcNow.ToLocalTime(),
                         CreatedBy = "system",
                         IsDeleted = false
                     };
@@ -215,7 +212,6 @@ namespace Elepla.Repository.Data
                     {
                         GradeId = Guid.NewGuid().ToString(),
                         Name = gradeName,
-                        CreatedAt = DateTime.UtcNow.ToLocalTime(),
                         CreatedBy = "system",
                         IsDeleted = false
                     };
