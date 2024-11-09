@@ -16,9 +16,9 @@ namespace Elepla.Repository.Repositories
         {
         }
 
-        public async Task<bool> CurriculumFrameworkExistsAsync(string curriculumFrameworkName)
+        public async Task<CurriculumFramework?> CurriculumFrameworkExistsAsync(string curriculumFrameworkName)
         {
-            return await _dbContext.CurriculumFrameworks.AnyAsync(x => x.Name == curriculumFrameworkName);
+            return await _dbContext.CurriculumFrameworks.FirstOrDefaultAsync(c => c.Name.Equals(curriculumFrameworkName));
         }
     }
 }

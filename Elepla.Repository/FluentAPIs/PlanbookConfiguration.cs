@@ -20,10 +20,12 @@ namespace Elepla.Repository.FluentAPIs
             builder.Property(x => x.ClassName).HasMaxLength(20);
             builder.HasOne(x => x.PlanbookCollection)
                 .WithMany(x => x.Planbooks)
-                .HasForeignKey(x => x.CollectionId);
+                .HasForeignKey(x => x.CollectionId)
+                .OnDelete(DeleteBehavior.Restrict); // Sẽ không xóa PlanbookCollection khi xóa Planbook
             builder.HasOne(x => x.Lesson)
                 .WithMany(x => x.Planbooks)
-                .HasForeignKey(x => x.LessonId);
+                .HasForeignKey(x => x.LessonId)
+                .OnDelete(DeleteBehavior.Restrict); // Sẽ không xóa Lesson khi xóa Planbook
             builder.HasMany(x => x.Activities)
                 .WithOne(x => x.Planbook)
                 .HasForeignKey(x => x.PlanbookId)

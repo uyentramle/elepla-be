@@ -102,5 +102,32 @@ namespace Elepla.API.Controllers
             }
             return BadRequest(response);
         }
+
+		[HttpPost]
+        public async Task<IActionResult> CreatePlanbookUsingAIAsync(string lessonId)
+		{
+            var response = await _planbookService.GetPlanbookUsingAIAsync(lessonId);
+            if (response != null)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ClonePlanbookAsync(ClonePlanbookDTO model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var response = await _planbookService.ClonePlanbookAsync(model);
+            if (response != null)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
+        }
     }
 }

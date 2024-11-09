@@ -7,8 +7,7 @@ using System.Threading.Tasks;
 
 namespace Elepla.Repository.Interfaces
 {
-    public interface ICurriculumFrameworkRepository : IGenericRepository<CurriculumFramework>
+    public interface IQuestionInExamRepository
     {
-        Task<CurriculumFramework?> CurriculumFrameworkExistsAsync(string curriculumFrameworkName);
     }
 }

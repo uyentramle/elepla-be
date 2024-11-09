@@ -19,5 +19,7 @@ namespace Elepla.Service.Interfaces
 		Task<ResponseModel> DeletePlanbookAsync(string planbookId);
         Task<ResponseModel> SoftRemovePlanbookAsync(string planbookId);
         Task<ResponseModel> GetPlanbookFromTemplateAsync(string lessonId);
+		Task<ResponseModel> GetPlanbookUsingAIAsync(string lessonId);
+		Task<ResponseModel> ClonePlanbookAsync(ClonePlanbookDTO model);
     }
 }

@@ -69,7 +69,7 @@ namespace Elepla.API
                 });
             });
 
-
+            // Add CORS policy
             services.AddCors(options =>
             {
                 options.AddDefaultPolicy(builder =>
@@ -87,7 +87,6 @@ namespace Elepla.API
             services.AddEndpointsApiExplorer(); // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             services.AddMemoryCache();
 
-
             return services;
         }
 
@@ -104,9 +103,10 @@ namespace Elepla.API
             services.AddScoped<IFirebaseService, FirebaseService>();
             services.AddScoped<ITokenService, TokenService>();
 			services.AddScoped<IUrlService, UrlService>();
+            services.AddScoped<IOpenAIService, OpenAIService>();
 
-			// User
-			services.AddScoped<IAccountRepository, AccountRepository>();
+            // User
+            services.AddScoped<IAccountRepository, AccountRepository>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IAccountService, AccountService>();
 
@@ -194,8 +194,18 @@ namespace Elepla.API
             services.AddScoped<IFeedbackRepository, FeedbackRepository>();
             services.AddScoped<IFeedbackService, FeedbackService>();
 
+            // Exam
+            services.AddScoped<IExamRepository, ExamRepository>();
+            services.AddScoped<IExamService, ExamService>();
+
+            // Question In Exam
+            services.AddScoped<IQuestionInExamRepository, QuestionInExamRepository>();
+            services.AddScoped<IQuestionInExamService, QuestionInExamService>();
+
+            // Add database context
             services.AddDbContext<AppDbContext>(option => option.UseSqlServer(databaseConnection));
 
+            // Add AutoMapper
             services.AddAutoMapper(typeof(MapperConfigurationsProfile).Assembly);
 
             return services;

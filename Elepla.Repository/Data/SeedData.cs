@@ -183,12 +183,13 @@ namespace Elepla.Repository.Data
             foreach (var curriculumName in curriculums)
             {
                 var curriculumExists = await unitOfWork.CurriculumFrameworkRepository.CurriculumFrameworkExistsAsync(curriculumName);
-                if (!curriculumExists)
+                if (curriculumExists is null)
                 {
                     var curriculum = new CurriculumFramework
                     {
                         CurriculumId = Guid.NewGuid().ToString(),
                         Name = curriculumName,
+                        IsApproved = true,
                         CreatedAt = DateTime.UtcNow.ToLocalTime(),
                         CreatedBy = "system",
                         IsDeleted = false

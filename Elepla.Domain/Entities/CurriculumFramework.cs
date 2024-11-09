@@ -14,6 +14,7 @@ namespace Elepla.Domain.Entities
         // Attributes
         public string Name { get; set; }
         public string? Description { get; set; }
+        public bool IsApproved { get; set; }
 
         // Navigation properties
         public virtual ICollection<SubjectInCurriculum> SubjectInCurriculums { get; set; } = new List<SubjectInCurriculum>();
