@@ -145,6 +145,49 @@ namespace Elepla.API.Controllers
 
         #endregion
 
+        #region Export Exam to Word without Color
+        [HttpGet]
+        public async Task<IActionResult> ExportExamToWordNoColor(string examId)
+        {
+            var response = await _examService.ExportExamToWordNoColorAsync(examId) as SuccessResponseModel<byte[]>;
+
+            if (response == null || !response.Success)
+            {
+                return StatusCode(500, response?.Message ?? "Failed to generate Word document.");
+            }
+
+            var wordData = response.Data;
+
+            if (wordData == null || wordData.Length == 0)
+            {
+                return StatusCode(500, "Failed to generate Word data.");
+            }
+
+            return File(wordData, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", $"Exam_{examId}.docx");
+        }
+        #endregion
+
+        #region Export Exam to PDF without Color
+        [HttpGet]
+        public async Task<IActionResult> ExportExamToPdfNoColor(string examId)
+        {
+            var response = await _examService.ExportExamToPdfNoColorAsync(examId) as SuccessResponseModel<byte[]>;
+
+            if (response == null || !response.Success)
+            {
+                return StatusCode(500, response?.Message ?? "Failed to generate PDF.");
+            }
+
+            var pdfData = response.Data;
+
+            if (pdfData == null || pdfData.Length == 0)
+            {
+                return StatusCode(500, "Failed to generate PDF data.");
+            }
+
+            return File(pdfData, "application/pdf", $"Exam_{examId}.pdf");
+        }
+        #endregion
 
     }
 }

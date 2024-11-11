@@ -37,8 +37,7 @@ namespace Elepla.Service.Services
             try
             {
                 var paginationResult = await _unitOfWork.ExamRepository.GetAsync(
-                    filter: e => e.UserId == userId,
-                    includeProperties: "QuestionInExams.Question.Answers"
+                    filter: e => e.UserId == userId
                 );
                 var exams = paginationResult.Items;
 
@@ -50,27 +49,15 @@ namespace Elepla.Service.Services
                         Message = "No exams found for the specified user."
                     };
                 }
-                var examDtos = exams.Select(exam => new ViewExamDTO
+
+                var examDtos = exams.Select(exam => new ViewExamByUserDTO
                 {
                     ExamId = exam.ExamId,
                     Title = exam.Title,
                     Time = exam.Time,
-                    UserId = exam.UserId,
-                    Questions = exam.QuestionInExams.Select(q => new QuestionDetailDTO
-                    {
-                        QuestionId = q.Question.QuestionId,
-                        Question = q.Question.Question,
-                        Type = q.Question.Type,
-                        Answers = q.Question.Answers.Select(a => new AnswerDTO
-                        {
-                            AnswerId = a.AnswerId,
-                            AnswerText = a.AnswerText,
-                            IsCorrect = a.IsCorrect
-                        }).ToList()
-                    }).ToList()
                 }).ToList();
 
-                return new SuccessResponseModel<List<ViewExamDTO>>
+                return new SuccessResponseModel<List<ViewExamByUserDTO>>
                 {
                     Success = true,
                     Message = "Exams retrieved successfully.",
@@ -108,19 +95,22 @@ namespace Elepla.Service.Services
                 Title = exam.Title,
                 Time = exam.Time,
                 UserId = exam.UserId,
-                Questions = exam.QuestionInExams.Select(q => new QuestionDetailDTO
-                {
-                    QuestionId = q.Question.QuestionId,
-                    Question = q.Question.Question,
-                    Type = q.Question.Type,
-                    Answers = q.Question.Answers.Select(a => new AnswerDTO
+                Questions = exam.QuestionInExams
+                    .OrderBy(q => q.Index) 
+                    .Select(q => new QuestionDetailDTO
                     {
-                        AnswerId = a.AnswerId,
-                        AnswerText = a.AnswerText,
-                        IsCorrect = a.IsCorrect
+                        QuestionId = q.Question.QuestionId,
+                        Question = q.Question.Question,
+                        Type = q.Question.Type,
+                        Answers = q.Question.Answers.Select(a => new AnswerDTO
+                        {
+                            AnswerId = a.AnswerId,
+                            AnswerText = a.AnswerText,
+                            IsCorrect = a.IsCorrect
+                        }).ToList()
                     }).ToList()
-                }).ToList()
-            };
+                        };
+
 
             return new SuccessResponseModel<ViewExamDTO>
             {
@@ -145,14 +135,15 @@ namespace Elepla.Service.Services
 
                 await _unitOfWork.ExamRepository.AddAsync(exam);
 
-                // Add questions to the exam
-                foreach (var questionId in model.QuestionIds)
+                // Add questions to the exam with Index set based on their order
+                for (int i = 0; i < model.QuestionIds.Count; i++)
                 {
                     var questionInExam = new QuestionInExam
                     {
                         QuestionInExamId = Guid.NewGuid().ToString(),
                         ExamId = exam.ExamId,
-                        QuestionId = questionId
+                        QuestionId = model.QuestionIds[i],
+                        Index = i + 1 // Set Index based on order
                     };
                     await _unitOfWork.QuestionInExamRepository.AddAsync(questionInExam);
                 }
@@ -172,10 +163,12 @@ namespace Elepla.Service.Services
                 {
                     Success = false,
                     Message = "An error occurred while creating the exam.",
-                    Errors = new List<string> { ex.Message }
+                    Errors = new List<string> { ex.InnerException?.Message ?? ex.Message }
                 };
             }
         }
+
+
 
         public async Task<ResponseModel> UpdateExamAsync(UpdateExamDTO model)
         {
@@ -215,13 +208,14 @@ namespace Elepla.Service.Services
                 var existingQuestions = await _unitOfWork.QuestionInExamRepository.GetAsync(q => q.ExamId == exam.ExamId);
                 _unitOfWork.QuestionInExamRepository.DeleteRange(existingQuestions);
 
-                foreach (var questionId in model.QuestionIds)
+                for (int i = 0; i < model.QuestionIds.Count; i++)
                 {
                     var questionInExam = new QuestionInExam
                     {
                         QuestionInExamId = Guid.NewGuid().ToString(),
                         ExamId = exam.ExamId,
-                        QuestionId = questionId
+                        QuestionId = model.QuestionIds[i],
+                        Index = i + 1 // Set Index based on order
                     };
                     await _unitOfWork.QuestionInExamRepository.AddAsync(questionInExam);
                 }
@@ -245,6 +239,7 @@ namespace Elepla.Service.Services
                 };
             }
         }
+
 
         public async Task<ResponseModel> DeleteExamAsync(string examId)
         {
@@ -324,13 +319,16 @@ namespace Elepla.Service.Services
                     body.AppendChild(timeParagraph);
                     body.AppendChild(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new DocumentFormat.OpenXml.Wordprocessing.Run(new DocumentFormat.OpenXml.Wordprocessing.Text("")))); // Empty line
 
-                    // Add questions and answers
-                    foreach (var questionInExam in exam.QuestionInExams)
+                    // Add questions and answers with numbering
+                    int questionNumber = 1;
+                    foreach (var questionInExam in exam.QuestionInExams.OrderBy(q => q.Index))
                     {
                         var question = questionInExam.Question;
+
+                        // Add question number and text
                         var questionParagraph = new DocumentFormat.OpenXml.Wordprocessing.Paragraph(
                             new DocumentFormat.OpenXml.Wordprocessing.Run(
-                                new DocumentFormat.OpenXml.Wordprocessing.Text($"{question.Question}")
+                                new DocumentFormat.OpenXml.Wordprocessing.Text($"{questionNumber}. {question.Question}")
                             )
                             {
                                 RunProperties = new DocumentFormat.OpenXml.Wordprocessing.RunProperties { Bold = new DocumentFormat.OpenXml.Wordprocessing.Bold() }
@@ -363,8 +361,8 @@ namespace Elepla.Service.Services
                             body.AppendChild(answerParagraph);
                         }
 
-                        // Add empty line between questions
-                        body.AppendChild(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new DocumentFormat.OpenXml.Wordprocessing.Run(new DocumentFormat.OpenXml.Wordprocessing.Text(""))));
+                        questionNumber++;
+                        body.AppendChild(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new DocumentFormat.OpenXml.Wordprocessing.Run(new DocumentFormat.OpenXml.Wordprocessing.Text("")))); // Empty line between questions
                     }
                 }
 
@@ -377,6 +375,7 @@ namespace Elepla.Service.Services
                 };
             }
         }
+
 
 
         public async Task<ResponseModel> ExportExamToPdfAsync(string examId)
@@ -415,11 +414,14 @@ namespace Elepla.Service.Services
                         document.Add(new Paragraph($"Thời gian: {exam.Time} phút").SetFontSize(14));
                         document.Add(new Paragraph("\n"));
 
-                        // Add questions and answers
-                        foreach (var questionInExam in exam.QuestionInExams)
+                        // Add questions and answers with numbering
+                        int questionNumber = 1;
+                        foreach (var questionInExam in exam.QuestionInExams.OrderBy(q => q.Index))
                         {
                             var question = questionInExam.Question;
-                            document.Add(new Paragraph($"{question.Question}")
+
+                            // Add question number and text
+                            document.Add(new Paragraph($"{questionNumber}. {question.Question}")
                                 .SetFontSize(14)
                                 .SetBold());
 
@@ -439,6 +441,7 @@ namespace Elepla.Service.Services
                                 document.Add(paragraph);
                             }
 
+                            questionNumber++;
                             document.Add(new Paragraph("\n")); // Empty line between questions
                         }
                     }
@@ -453,6 +456,168 @@ namespace Elepla.Service.Services
                 };
             }
         }
+
+        public async Task<ResponseModel> ExportExamToWordNoColorAsync(string examId)
+        {
+            var exam = await _unitOfWork.ExamRepository.GetByIdAsync(examId, includeProperties: "QuestionInExams.Question.Answers");
+            if (exam == null)
+            {
+                return new ResponseModel
+                {
+                    Success = false,
+                    Message = "Exam not found."
+                };
+            }
+
+            using (var memoryStream = new MemoryStream())
+            {
+                using (WordprocessingDocument wordDoc = WordprocessingDocument.Create(memoryStream, WordprocessingDocumentType.Document))
+                {
+                    var mainPart = wordDoc.AddMainDocumentPart();
+                    mainPart.Document = new DocumentFormat.OpenXml.Wordprocessing.Document();
+                    var body = mainPart.Document.AppendChild(new DocumentFormat.OpenXml.Wordprocessing.Body());
+
+                    // Add title and time
+                    var titleParagraph = new DocumentFormat.OpenXml.Wordprocessing.Paragraph(
+                        new DocumentFormat.OpenXml.Wordprocessing.Run(
+                            new DocumentFormat.OpenXml.Wordprocessing.Text($"Bài thi: {exam.Title}")
+                        )
+                        {
+                            RunProperties = new DocumentFormat.OpenXml.Wordprocessing.RunProperties { Bold = new DocumentFormat.OpenXml.Wordprocessing.Bold() }
+                        }
+                    );
+                    body.AppendChild(titleParagraph);
+
+                    var timeParagraph = new DocumentFormat.OpenXml.Wordprocessing.Paragraph(
+                        new DocumentFormat.OpenXml.Wordprocessing.Run(
+                            new DocumentFormat.OpenXml.Wordprocessing.Text($"Thời gian: {exam.Time} phút")
+                        )
+                    );
+                    body.AppendChild(timeParagraph);
+                    body.AppendChild(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new DocumentFormat.OpenXml.Wordprocessing.Run(new DocumentFormat.OpenXml.Wordprocessing.Text("")))); // Empty line
+
+                    // Add questions and answers with numbering
+                    int questionNumber = 1;
+                    foreach (var questionInExam in exam.QuestionInExams.OrderBy(q => q.Index))
+                    {
+                        var question = questionInExam.Question;
+
+                        // Add question number and text
+                        var questionParagraph = new DocumentFormat.OpenXml.Wordprocessing.Paragraph(
+                            new DocumentFormat.OpenXml.Wordprocessing.Run(
+                                new DocumentFormat.OpenXml.Wordprocessing.Text($"{questionNumber}. {question.Question}")
+                            )
+                            {
+                                RunProperties = new DocumentFormat.OpenXml.Wordprocessing.RunProperties { Bold = new DocumentFormat.OpenXml.Wordprocessing.Bold() }
+                            }
+                        );
+                        body.AppendChild(questionParagraph);
+
+                        // Label answers with letters A, B, C, D
+                        var answerLabels = new[] { "A", "B", "C", "D" };
+                        for (int j = 0; j < question.Answers.Count && j < answerLabels.Length; j++)
+                        {
+                            var answer = question.Answers.ElementAt(j);
+                            var answerText = $"{answerLabels[j]}. {answer.AnswerText}";
+
+                            // No color styling applied here for correct answers
+                            var answerRun = new DocumentFormat.OpenXml.Wordprocessing.Run(
+                                new DocumentFormat.OpenXml.Wordprocessing.Text(answerText)
+                            );
+
+                            var answerParagraph = new DocumentFormat.OpenXml.Wordprocessing.Paragraph(answerRun);
+                            body.AppendChild(answerParagraph);
+                        }
+
+                        questionNumber++;
+                        body.AppendChild(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new DocumentFormat.OpenXml.Wordprocessing.Run(new DocumentFormat.OpenXml.Wordprocessing.Text("")))); // Empty line between questions
+                    }
+                }
+
+                // Return the Word document as a byte array
+                return new SuccessResponseModel<byte[]>
+                {
+                    Success = true,
+                    Message = "Exam exported to Word successfully.",
+                    Data = memoryStream.ToArray() // Convert memory stream to byte array
+                };
+            }
+        }
+
+        public async Task<ResponseModel> ExportExamToPdfNoColorAsync(string examId)
+        {
+            var exam = await _unitOfWork.ExamRepository.GetByIdAsync(examId, includeProperties: "QuestionInExams.Question.Answers");
+            if (exam == null)
+            {
+                return new ResponseModel
+                {
+                    Success = false,
+                    Message = "Exam not found."
+                };
+            }
+
+            // Path to your DejaVuSans.ttf font file
+            var fontPath = Path.Combine("font", "DejaVuSans.ttf");
+
+            // Using a memory stream instead of saving the file on disk
+            using (var memoryStream = new MemoryStream())
+            {
+                using (var pdfWriter = new PdfWriter(memoryStream))
+                {
+                    using (var pdfDoc = new PdfDocument(pdfWriter))
+                    {
+                        var document = new Document(pdfDoc);
+
+                        // Load DejaVuSans font that supports Vietnamese characters
+                        var vietnameseFont = PdfFontFactory.CreateFont(fontPath, PdfEncodings.IDENTITY_H);
+                        document.SetFont(vietnameseFont);
+
+                        // Add title and time
+                        document.Add(new Paragraph($"Bài thi: {exam.Title}")
+                            .SetFontSize(18)
+                            .SetBold()
+                            .SetTextAlignment(iText.Layout.Properties.TextAlignment.CENTER));
+                        document.Add(new Paragraph($"Thời gian: {exam.Time} phút").SetFontSize(14));
+                        document.Add(new Paragraph("\n"));
+
+                        // Add questions and answers with numbering
+                        int questionNumber = 1;
+                        foreach (var questionInExam in exam.QuestionInExams.OrderBy(q => q.Index))
+                        {
+                            var question = questionInExam.Question;
+
+                            // Add question number and text
+                            document.Add(new Paragraph($"{questionNumber}. {question.Question}")
+                                .SetFontSize(14)
+                                .SetBold());
+
+                            // Label answers with letters A, B, C, D
+                            var answerLabels = new[] { "A", "B", "C", "D" };
+                            for (int j = 0; j < question.Answers.Count && j < answerLabels.Length; j++)
+                            {
+                                var answer = question.Answers.ElementAt(j);
+                                var paragraph = new Paragraph($"{answerLabels[j]}. {answer.AnswerText}").SetFontSize(12);
+
+                                // No color styling applied here for correct answers
+                                document.Add(paragraph);
+                            }
+
+                            questionNumber++;
+                            document.Add(new Paragraph("\n")); // Empty line between questions
+                        }
+                    }
+                }
+
+                // Return the PDF as a byte array
+                return new SuccessResponseModel<byte[]>
+                {
+                    Success = true,
+                    Message = "Exam exported to PDF successfully.",
+                    Data = memoryStream.ToArray() // Convert memory stream to byte array
+                };
+            }
+        }
+
 
     }
 }
