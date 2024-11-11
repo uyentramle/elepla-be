@@ -16,5 +16,16 @@ namespace Elepla.Repository.Repositories
         {
         }
 
+        public async Task<ServicePackage?> GetActiveUserPackageAsync(string userId)
+        {
+            var userPackage = await _dbContext.UserPackages.FirstOrDefaultAsync(up => up.UserId.Equals(userId) && up.IsActive);
+
+            if (userPackage is null)
+            {
+                return null;
+            }
+
+            return await _dbContext.ServicePackages.FirstOrDefaultAsync(sp => sp.PackageId.Equals(userPackage.PackageId));
+        }
     }
 }

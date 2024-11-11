@@ -231,18 +231,38 @@ namespace Elepla.Service.Services
                 }
 
                 // Kiểm tra collection có tồn tại không
-                if (!string.IsNullOrEmpty(model.CollectionId))
-				{
-                    var existingCollection = await _unitOfWork.PlanbookCollectionRepository.GetByIdAsync(model.CollectionId);
+                var existingCollection = await _unitOfWork.PlanbookCollectionRepository.GetByIdAsync(model.CollectionId);
 
-                    if (existingCollection is null)
+                if (existingCollection is null)
+                {
+                    return new ResponseModel
                     {
-                        return new ResponseModel
-                        {
-                            Success = false,
-                            Message = "Collection not found."
-                        };
-                    }
+                        Success = false,
+                        Message = "Collection not found."
+                    };
+                }
+
+                // Lấy gói dịch vụ của người dùng đang sử dụng
+                var userPackage = await _unitOfWork.UserPackageRepository.GetActiveUserPackageAsync(existingCollection.TeacherId);
+
+                if (userPackage is null)
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "User package not found."
+                    };
+                }
+
+                var createdPlanbookCount = await _unitOfWork.PlanbookRepository.CountPlanbookByUserId(existingCollection.TeacherId);
+
+                if (createdPlanbookCount >= userPackage.MaxPlanbooks)
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "You have reached the maximum number of planbooks allowed by your package."
+                    };
                 }
 
                 // Tạo planbookDto
