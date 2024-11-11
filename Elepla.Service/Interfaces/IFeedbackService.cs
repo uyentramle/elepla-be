@@ -12,5 +12,9 @@ namespace Elepla.Service.Interfaces
     {
         Task<ResponseModel> GetFeedbackByPlanbookIdAsync(string planbookId, int pageIndex, int pageSize);
         Task<ResponseModel> SubmitFeedbackAsync(CreateFeedbackDTO model);
+        Task<ResponseModel> UpdateFeedbackAsync(UpdateFeedbackDTO model);
+        Task<ResponseModel> HardDeleteFeedbackAsync(string feedbackId);
+        Task<ResponseModel> FlagFeedbackAsync(string feedbackId);
+        Task<ResponseModel> GetFlaggedFeedbackAsync(int pageIndex, int pageSize);
     }
 }

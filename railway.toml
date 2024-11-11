@@ -1,0 +1,9 @@
+[build]
+builder = "dockerfile"
+dockerfilePath = "./Elepla.API/Dockerfile"
+
+[deploy]
+startCommand = "dotnet Elepla.API.dll"
+restartPolicyType = "always"
+healthCheckPath = "/health"
+port = 8080

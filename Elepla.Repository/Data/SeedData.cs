@@ -19,6 +19,7 @@ namespace Elepla.Repository.Data
             await InitializeSubject(unitOfWork);
             await InitializeCurriculum(unitOfWork);
             await InitializeGrade(unitOfWork);
+            await InitializeServicePackage(unitOfWork);
         }
 
         private static async Task InitializeRole(IUnitOfWork unitOfWork)
@@ -33,7 +34,6 @@ namespace Elepla.Repository.Data
                     {
                         Name = roleName,
                         IsDefault = true,
-                        CreatedAt = DateTime.UtcNow.ToLocalTime(),
                         CreatedBy = "system",
                         IsDeleted = false
                     };
@@ -123,29 +123,29 @@ namespace Elepla.Repository.Data
                 }
             }
 
-            var teacherRole = await unitOfWork.RoleRepository.GetRoleByNameAsync(RoleEnums.Teacher.ToString());
+            //var teacherRole = await unitOfWork.RoleRepository.GetRoleByNameAsync(RoleEnums.Teacher.ToString());
             
-            if (teacherRole != null)
-            {
-                var existingTeacher = await unitOfWork.AccountRepository.GetUserByUsernameAsync("teacher");
-                if (existingTeacher == null)
-                {
-                    var teacher = new User
-                    {
-                        UserId = Guid.NewGuid().ToString(),
-                        Username = "teacher",
-                        Email = "teacher@example.com",
-                        EmailConfirmed = true,
-                        PasswordHash = hashedPassword,
-                        Gender = GenderEnums.Unknown.ToString(),
-                        Status = true,
-                        RoleId = teacherRole.RoleId,
-                        CreatedBy = "system",
-                    };
+            //if (teacherRole != null)
+            //{
+            //    var existingTeacher = await unitOfWork.AccountRepository.GetUserByUsernameAsync("teacher");
+            //    if (existingTeacher == null)
+            //    {
+            //        var teacher = new User
+            //        {
+            //            UserId = Guid.NewGuid().ToString(),
+            //            Username = "teacher",
+            //            Email = "teacher@example.com",
+            //            EmailConfirmed = true,
+            //            PasswordHash = hashedPassword,
+            //            Gender = GenderEnums.Unknown.ToString(),
+            //            Status = true,
+            //            RoleId = teacherRole.RoleId,
+            //            CreatedBy = "system",
+            //        };
 
-                    await unitOfWork.AccountRepository.AddAsync(teacher);
-                }
-            }
+            //        await unitOfWork.AccountRepository.AddAsync(teacher);
+            //    }
+            //}
 
             await unitOfWork.SaveChangeAsync();
         }
@@ -164,7 +164,6 @@ namespace Elepla.Repository.Data
                         SubjectId = Guid.NewGuid().ToString(),
                         Name = subjectName,
                         IsApproved = true,
-                        CreatedAt = DateTime.UtcNow.ToLocalTime(),
                         CreatedBy = "system",
                         IsDeleted = false
                     };
@@ -183,14 +182,13 @@ namespace Elepla.Repository.Data
             foreach (var curriculumName in curriculums)
             {
                 var curriculumExists = await unitOfWork.CurriculumFrameworkRepository.CurriculumFrameworkExistsAsync(curriculumName);
-                if (!curriculumExists)
+                if (curriculumExists is null)
                 {
                     var curriculum = new CurriculumFramework
                     {
                         CurriculumId = Guid.NewGuid().ToString(),
                         Name = curriculumName,
                         IsApproved = true,
-                        CreatedAt = DateTime.UtcNow.ToLocalTime(),
                         CreatedBy = "system",
                         IsDeleted = false
                     };
@@ -215,12 +213,45 @@ namespace Elepla.Repository.Data
                     {
                         GradeId = Guid.NewGuid().ToString(),
                         Name = gradeName,
-                        CreatedAt = DateTime.UtcNow.ToLocalTime(),
                         CreatedBy = "system",
                         IsDeleted = false
                     };
 
                     await unitOfWork.GradeRepository.AddAsync(grade);
+                }
+            }
+
+            await unitOfWork.SaveChangeAsync();
+        }
+
+        private static async Task InitializeServicePackage(IUnitOfWork unitOfWork)
+        {
+            var servicePackages = new List<(string Name, decimal Price, decimal Discount, DateTime StartDate, DateTime EndDate, int MaxPlanbooks)>
+            {
+                ("Gói miễn phí", 0, 0, new DateTime(2024, 9, 5), new DateTime(2025, 5, 31), 5),
+                ("Gói cơ bản", 10000, 0, new DateTime(2024, 9, 5), new DateTime(2025, 5, 31), 50),
+                ("Gói cao cấp", 30000, 0, new DateTime(2024, 9, 5), new DateTime(2025, 5, 31), 300)
+            };
+
+            foreach (var servicePackageName in servicePackages)
+            {
+                var servicePackageExists = await unitOfWork.ServicePackageRepository.ServicePackageExistsAsync(servicePackageName.Name);
+                if (servicePackageExists is null)
+                {
+                    var servicePackage = new ServicePackage
+                    {
+                        PackageId = Guid.NewGuid().ToString(),
+                        PackageName = servicePackageName.Name,
+                        Price = servicePackageName.Price,
+                        Discount = servicePackageName.Discount,
+                        StartDate = servicePackageName.StartDate,
+                        EndDate = servicePackageName.EndDate,
+                        MaxPlanbooks = servicePackageName.MaxPlanbooks,
+                        CreatedBy = "system",
+                        IsDeleted = false
+                    };
+
+                    await unitOfWork.ServicePackageRepository.AddAsync(servicePackage);
                 }
             }
 

@@ -44,6 +44,7 @@ namespace Elepla.Service.Services
             };
         }
 
+
         // Submit new feedback for a Planbook
         public async Task<ResponseModel> SubmitFeedbackAsync(CreateFeedbackDTO model)
         {
@@ -70,6 +71,123 @@ namespace Elepla.Service.Services
                     Errors = new List<string> { ex.Message }
                 };
             }
+        }
+
+        // Update existing feedback
+        public async Task<ResponseModel> UpdateFeedbackAsync(UpdateFeedbackDTO model)
+        {
+            try
+            {
+                var feedback = await _unitOfWork.FeedbackRepository.GetByIdAsync(model.FeedbackId);
+                if (feedback == null)
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "Feedback not found."
+                    };
+                }
+
+                _mapper.Map(model, feedback);
+                _unitOfWork.FeedbackRepository.Update(feedback);
+                await _unitOfWork.SaveChangeAsync();
+
+                return new ResponseModel
+                {
+                    Success = true,
+                    Message = "Feedback updated successfully."
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ErrorResponseModel<object>
+                {
+                    Success = false,
+                    Message = "An error occurred while updating feedback.",
+                    Errors = new List<string> { ex.Message }
+                };
+            }
+        }
+
+
+        // Hard delete feedback by Id
+        public async Task<ResponseModel> HardDeleteFeedbackAsync(string feedbackId)
+        {
+            try
+            {
+                var feedback = await _unitOfWork.FeedbackRepository.GetByIdAsync(feedbackId);
+                if (feedback == null)
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "Feedback not found."
+                    };
+                }
+
+                _unitOfWork.FeedbackRepository.Delete(feedback);
+                await _unitOfWork.SaveChangeAsync();
+
+                return new ResponseModel
+                {
+                    Success = true,
+                    Message = "Feedback deleted successfully."
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ErrorResponseModel<object>
+                {
+                    Success = false,
+                    Message = "An error occurred while deleting feedback.",
+                    Errors = new List<string> { ex.Message }
+                };
+            }
+        }
+
+        // Flag a feedback
+        public async Task<ResponseModel> FlagFeedbackAsync(string feedbackId)
+        {
+            var feedback = await _unitOfWork.FeedbackRepository.GetByIdAsync(feedbackId);
+            if (feedback == null)
+            {
+                return new ResponseModel
+                {
+                    Success = false,
+                    Message = "Feedback not found."
+                };
+            }
+
+            // Toggle the flag status
+            feedback.IsFlagged = !feedback.IsFlagged;
+            _unitOfWork.FeedbackRepository.Update(feedback);
+            await _unitOfWork.SaveChangeAsync();
+
+            return new ResponseModel
+            {
+                Success = true,
+                Message = feedback.IsFlagged ? "Feedback flagged successfully." : "Feedback unflagged successfully."
+            };
+        }
+
+        // Get all flagged feedbacks
+        public async Task<ResponseModel> GetFlaggedFeedbackAsync(int pageIndex, int pageSize)
+        {
+            var flaggedFeedbacks = await _unitOfWork.FeedbackRepository.GetAsync(
+                filter: f => f.IsFlagged && !f.IsDeleted,
+                includeProperties: "Teacher,Planbook",
+                pageIndex: pageIndex,
+                pageSize: pageSize
+            );
+
+            var feedbackDtos = _mapper.Map<Pagination<ViewFeedbackDTO>>(flaggedFeedbacks);
+
+            return new SuccessResponseModel<object>
+            {
+                Success = true,
+                Message = "Flagged feedback retrieved successfully.",
+                Data = feedbackDtos
+            };
         }
     }
 }

@@ -124,8 +124,10 @@ namespace Elepla.Service.Services
         {
             try
             {
-                var subject = await _unitOfWork.SubjectRepository.GetByIdAsync(model.SubjectId);
-                if (subject is null || subject.IsDeleted)
+                var subject = await _unitOfWork.SubjectRepository.GetByIdAsync(
+                                            id: model.SubjectId,
+                                            filter: s => !s.IsDeleted && s.IsApproved);
+                if (subject is null)
                 {
                     return new ResponseModel
                     {
@@ -160,7 +162,10 @@ namespace Elepla.Service.Services
         {
             try
             {
-                var subject = await _unitOfWork.SubjectRepository.GetByIdAsync(subjectId);
+                var subject = await _unitOfWork.SubjectRepository.GetByIdAsync(
+                                            id: subjectId,
+                                            filter: s => s.IsApproved);
+
                 if (subject is null)
                 {
                     return new ResponseModel
@@ -175,7 +180,7 @@ namespace Elepla.Service.Services
                     return new ResponseModel
                     {
                         Success = false,
-                        Message = "Cannot delete a deleted subject."
+                        Message = "Subject already deleted."
                     };
                 }
 

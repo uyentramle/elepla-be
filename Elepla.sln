@@ -5,11 +5,16 @@ VisualStudioVersion = 17.9.34728.123
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Elepla.API", "Elepla.API\Elepla.API.csproj", "{00582A18-2DCE-4552-B805-AAF38BD0BE86}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elepla.Domain", "Elepla.Domain\Elepla.Domain.csproj", "{3591BCB4-6576-4705-9AEA-C28C0A109795}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Elepla.Domain", "Elepla.Domain\Elepla.Domain.csproj", "{3591BCB4-6576-4705-9AEA-C28C0A109795}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elepla.Service", "Elepla.Service\Elepla.Service.csproj", "{8E021ECE-C49A-4DF2-A6E8-49EF416C178D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Elepla.Service", "Elepla.Service\Elepla.Service.csproj", "{8E021ECE-C49A-4DF2-A6E8-49EF416C178D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elepla.Repository", "Elepla.Repository\Elepla.Repository.csproj", "{601A6E0D-FAF8-4477-8126-50B8C16F794D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Elepla.Repository", "Elepla.Repository\Elepla.Repository.csproj", "{601A6E0D-FAF8-4477-8126-50B8C16F794D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{42B052B5-ACAF-4D2B-846B-60F737209CA5}"
+	ProjectSection(SolutionItems) = preProject
+		railway.toml = railway.toml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -28,6 +28,7 @@ namespace Elepla.Service.Services
         private readonly IGoogleService _googleService;
         private readonly IFacebookService _facebookService;
         private readonly IAccountService _accountService;
+        private readonly IUserPackageService _userPackageService;
 
         public AuthService(
             IUnitOfWork unitOfWork, 
@@ -40,12 +41,14 @@ namespace Elepla.Service.Services
             ITokenService tokenService,
             IGoogleService googleService,
             IFacebookService facebookService,
-            IAccountService accountService) 
+            IAccountService accountService,
+            IUserPackageService userPackageService) 
             : base(unitOfWork, mapper, timeService, passwordHasher, emailSender, smsSender, cache, tokenService)
         {
             _googleService = googleService;
             _facebookService = facebookService;
             _accountService = accountService;
+            _userPackageService = userPackageService;
         }
 
         #region Login
@@ -275,6 +278,9 @@ namespace Elepla.Service.Services
 
                     // Cập nhật ảnh đại diện
                     await _accountService.UpdateAvatarAsync(updateUserAvatarDto);
+
+                    // Thêm gói miễn phí cho người dùng mới đăng ký
+                    await _userPackageService.AddFreePackageToUserAsync(user.UserId);
                 }
 
                 // Kiểm tra nếu người dùng bị khóa
@@ -658,6 +664,9 @@ namespace Elepla.Service.Services
                 // Xóa token trong cache sau khi đăng ký thành công
                 _cache.Remove($"{model.PhoneNumberOrEmail}_phonge_register_token");
                 _cache.Remove($"{model.PhoneNumberOrEmail}_email_register_token");
+
+                // Thêm gói miễn phí cho người dùng mới đăng ký
+                await _userPackageService.AddFreePackageToUserAsync(user.UserId);
 
                 return new SuccessResponseModel<object>
                 {

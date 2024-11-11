@@ -9,5 +9,6 @@ namespace Elepla.Repository.Interfaces
 {
     public interface IPlanbookRepository : IGenericRepository<Planbook>
     {
+        Task<int> CountPlanbookByUserId(string userId);
     }
 }
