@@ -17,6 +17,9 @@ namespace Elepla.Repository.Repositories
         {
         }
 
-       
+        public async Task<ServicePackage?> ServicePackageExistsAsync(string servicePackageName)
+        {
+            return await _dbContext.ServicePackages.FirstOrDefaultAsync(r => r.PackageName.Equals(servicePackageName));
+        }
     }
 }

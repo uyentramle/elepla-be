@@ -13,7 +13,17 @@ namespace Elepla.API.Controllers
             _userPackageService = userPackageService;
         }
 
-        #region Get User Packages
+        [HttpGet]
+        public async Task<IActionResult> GetAllUserPackagesAsync(string? keyword, int pageIndex, int pageSize)
+        {
+            var response = await _userPackageService.GetAllUserPackagesAsync(keyword, pageIndex, pageSize);
+            if (response.Success)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
+        }
+
         [HttpGet]
         //[Authorize]
         public async Task<IActionResult> GetUserPackagesAsync(string userId)
@@ -25,12 +35,10 @@ namespace Elepla.API.Controllers
             }
             return BadRequest(response);
         }
-        #endregion
 
-        #region Get User Package Details
         [HttpGet]
         //[Authorize]
-        public async Task<IActionResult> GetUserPackageDetailsAsync(int userPackageId)
+        public async Task<IActionResult> GetUserPackageDetailsAsync(string userPackageId)
         {
             var response = await _userPackageService.GetUserPackageDetailsAsync(userPackageId);
             if (response.Success)
@@ -39,6 +47,5 @@ namespace Elepla.API.Controllers
             }
             return NotFound(response);
         }
-        #endregion
     }
 }
