@@ -45,8 +45,8 @@ namespace Elepla.API.Controllers
 
         #region Add New Service Package
         [HttpPost]
-        //[Authorize]
-        public async Task<IActionResult> AddServicePackageAsync(CreateServicePackageDTO model)
+		[Authorize(Roles = "Manager")]
+		public async Task<IActionResult> AddServicePackageAsync(CreateServicePackageDTO model)
         {
             if (!ModelState.IsValid)
             {
@@ -64,8 +64,8 @@ namespace Elepla.API.Controllers
 
         #region Update Service Package
         [HttpPut]
-        //[Authorize]
-        public async Task<IActionResult> UpdateServicePackageAsync(UpdateServicePackageDTO model)
+		[Authorize(Roles = "Manager")]
+		public async Task<IActionResult> UpdateServicePackageAsync(UpdateServicePackageDTO model)
         {
             if (!ModelState.IsValid)
             {
@@ -83,8 +83,8 @@ namespace Elepla.API.Controllers
 
         #region Delete Service Package
         [HttpDelete]
-        //[Authorize]
-        public async Task<IActionResult> DeleteServicePackageAsync(string packageId)
+		[Authorize(Roles = "Manager")]
+		public async Task<IActionResult> DeleteServicePackageAsync(string packageId)
         {
             var response = await _servicePackageService.DeleteServicePackageAsync(packageId);
             if (response.Success)

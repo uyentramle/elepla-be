@@ -1,4 +1,5 @@
 ﻿using Elepla.Service.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
@@ -15,7 +16,8 @@ namespace Elepla.API.Controllers
 
         #region Get All Users Payment History
         [HttpGet("GetAllPayments")]
-        public async Task<IActionResult> GetAllUserPaymentHistoryAsync(int pageIndex = 0, int pageSize = 10)
+		[Authorize(Roles = "Manager")]
+		public async Task<IActionResult> GetAllUserPaymentHistoryAsync(int pageIndex = 0, int pageSize = 10)
         {
             var response = await _paymentService.GetAllUserPaymentHistoryAsync(pageIndex, pageSize);
             if (response.Success)
@@ -28,7 +30,7 @@ namespace Elepla.API.Controllers
 
         #region View User Payment History
         [HttpGet("history/{teacherId}")]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> GetUserPaymentHistoryAsync(string teacherId, int pageIndex = 0, int pageSize = 10)
         {
             var response = await _paymentService.GetUserPaymentHistoryAsync(teacherId, pageIndex, pageSize);
@@ -42,7 +44,7 @@ namespace Elepla.API.Controllers
 
         #region View Payment Details
         [HttpGet("{paymentId}")]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> GetPaymentDetailsAsync(string paymentId)
         {
             var response = await _paymentService.GetPaymentDetailsAsync(paymentId);
@@ -58,7 +60,8 @@ namespace Elepla.API.Controllers
 
         // Revenue report by month
         [HttpGet("RevenueByMonth/{year}")]
-        public async Task<IActionResult> GetRevenueByMonthAsync(int year)
+		[Authorize(Roles = "Manager")]
+		public async Task<IActionResult> GetRevenueByMonthAsync(int year)
         {
             var response = await _paymentService.GetRevenueByMonthAsync(year);
             if (response.Success)
@@ -70,7 +73,8 @@ namespace Elepla.API.Controllers
 
         // Revenue report by quarter
         [HttpGet("RevenueByQuarter/{year}")]
-        public async Task<IActionResult> GetRevenueByQuarterAsync(int year)
+		[Authorize(Roles = "Manager")]
+		public async Task<IActionResult> GetRevenueByQuarterAsync(int year)
         {
             var response = await _paymentService.GetRevenueByQuarterAsync(year);
             if (response.Success)
@@ -82,7 +86,8 @@ namespace Elepla.API.Controllers
 
         // Revenue report by year
         [HttpGet("RevenueByYear")]
-        public async Task<IActionResult> GetRevenueByYearAsync()
+		[Authorize(Roles = "Manager")]
+		public async Task<IActionResult> GetRevenueByYearAsync()
         {
             var response = await _paymentService.GetRevenueByYearAsync();
             if (response.Success)

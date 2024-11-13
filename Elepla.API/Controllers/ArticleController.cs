@@ -1,5 +1,6 @@
 ﻿using Elepla.Service.Interfaces;
 using Elepla.Service.Models.ViewModels.ArticleViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -36,6 +37,7 @@ namespace Elepla.API.Controllers
 		}
 
 		[HttpPost]
+		[Authorize(Roles = "Admin")]
 		public async Task<IActionResult> CreateArticleAsync(CreateArticleDTO model)
 		{
 			if (!ModelState.IsValid)
@@ -55,6 +57,7 @@ namespace Elepla.API.Controllers
 		}
 
 		[HttpPut]
+		[Authorize(Roles = "Admin")]
 		public async Task<IActionResult> UpdateArticleAsync(UpdateArticleDTO model)
 		{
 			var response = await _articleService.UpdateArticleAsync(model);
@@ -69,6 +72,7 @@ namespace Elepla.API.Controllers
 		}
 
 		[HttpDelete]
+		[Authorize(Roles = "Admin")]
 		public async Task<IActionResult> DeleteArticleAsync(string id)
 		{
 			var response = await _articleService.DeleteArticleAsync(id);
