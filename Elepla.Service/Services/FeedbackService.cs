@@ -189,5 +189,45 @@ namespace Elepla.Service.Services
                 Data = feedbackDtos
             };
         }
-    }
+
+		// Get all system feedbacks
+		public async Task<ResponseModel> GetSystemFeedbackAsync(int pageIndex, int pageSize)
+		{
+			var systemFeedbacks = await _unitOfWork.FeedbackRepository.GetAsync(
+						            filter: f => f.Type == "System" && !f.IsDeleted,
+									includeProperties: "Teacher,Planbook",
+									pageIndex: pageIndex,
+									pageSize: pageSize
+									);
+
+			var feedbackDtos = _mapper.Map<Pagination<ViewFeedbackDTO>>(systemFeedbacks);
+
+			return new SuccessResponseModel<object>
+			{
+				Success = true,
+				Message = "System feedback retrieved successfully.",
+				Data = feedbackDtos
+			};
+		}
+
+		// Get all planbook feedbacks
+		public async Task<ResponseModel> GetPlanbookFeedbackAsync(int pageIndex, int pageSize)
+		{
+			var planbookFeedbacks = await _unitOfWork.FeedbackRepository.GetAsync(
+									filter: f => f.Type == "Planbook" && !f.IsDeleted,
+				                    includeProperties: "Teacher,Planbook",
+									pageIndex: pageIndex,
+									pageSize: pageSize
+                                    );
+
+			var feedbackDtos = _mapper.Map<Pagination<ViewFeedbackDTO>>(planbookFeedbacks);
+
+			return new SuccessResponseModel<object>
+			{
+				Success = true,
+				Message = "Planbook feedback retrieved successfully.",
+				Data = feedbackDtos
+			};
+		}
+	}
 }

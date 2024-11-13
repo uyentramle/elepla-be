@@ -111,5 +111,30 @@ namespace Elepla.API.Controllers
         }
         #endregion
 
-    }
+        #region View system feedback 
+        [HttpGet]
+        public async Task<IActionResult> GetSystemFeedbackAsync(int pageIndex = 0, int pageSize = 10)
+		{
+			var response = await _feedbackService.GetSystemFeedbackAsync(pageIndex, pageSize);
+			if (response.Success)
+			{
+				return Ok(response);
+			}
+			return BadRequest(response);
+		}
+		#endregion
+
+		#region View planbook feedbacks
+		[HttpGet]
+		public async Task<IActionResult> GetPlanbookFeedbackAsync(int pageIndex = 0, int pageSize = 10)
+		{
+			var response = await _feedbackService.GetPlanbookFeedbackAsync(pageIndex, pageSize);
+			if (response.Success)
+			{
+				return Ok(response);
+			}
+			return BadRequest(response);
+		}
+		#endregion
+	}
 }
