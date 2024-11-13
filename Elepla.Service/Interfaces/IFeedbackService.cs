@@ -16,5 +16,7 @@ namespace Elepla.Service.Interfaces
         Task<ResponseModel> HardDeleteFeedbackAsync(string feedbackId);
         Task<ResponseModel> FlagFeedbackAsync(string feedbackId);
         Task<ResponseModel> GetFlaggedFeedbackAsync(int pageIndex, int pageSize);
-    }
+        Task<ResponseModel> GetSystemFeedbackAsync(int pageIndex, int pageSize);
+        Task<ResponseModel> GetPlanbookFeedbackAsync(int pageIndex, int pageSize);
+	}
 }
