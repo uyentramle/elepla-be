@@ -1,5 +1,6 @@
 ﻿using Elepla.Service.Interfaces;
 using Elepla.Service.Models.ViewModels.GradeViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -37,7 +38,8 @@ namespace Elepla.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateGradeAsync(CreateGradeDTO model)
+		[Authorize(Roles = "Admin")]
+		public async Task<IActionResult> CreateGradeAsync(CreateGradeDTO model)
         {
             if (!ModelState.IsValid)
             {
@@ -53,7 +55,8 @@ namespace Elepla.API.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> UpdateGradeAsync(UpdateGradeDTO model)
+		[Authorize(Roles = "Admin")]
+		public async Task<IActionResult> UpdateGradeAsync(UpdateGradeDTO model)
         {
             if (!ModelState.IsValid)
             {
@@ -69,7 +72,8 @@ namespace Elepla.API.Controllers
         }
 
         [HttpDelete]
-        public async Task<IActionResult> DeleteGradeAsync(string gradeId)
+		[Authorize(Roles = "Admin")]
+		public async Task<IActionResult> DeleteGradeAsync(string gradeId)
         {
             var response = await _gradeService.DeleteGradeAsync(gradeId);
             if (response.Success)

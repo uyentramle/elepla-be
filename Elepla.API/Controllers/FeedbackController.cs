@@ -1,5 +1,6 @@
 ﻿using Elepla.Service.Interfaces;
 using Elepla.Service.Models.ViewModels.FeedbackViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
@@ -31,7 +32,7 @@ namespace Elepla.API.Controllers
 
         #region Submit Feedback
         [HttpPost]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> SubmitFeedbackAsync(CreateFeedbackDTO model)
         {
             if (!ModelState.IsValid)
@@ -50,7 +51,7 @@ namespace Elepla.API.Controllers
 
         #region Update Feedback
         [HttpPut]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> UpdateFeedbackAsync(UpdateFeedbackDTO model)
         {
             if (!ModelState.IsValid)
@@ -69,7 +70,7 @@ namespace Elepla.API.Controllers
 
         #region Delete Feedback (Hard Delete)
         [HttpDelete]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> HardDeleteFeedbackAsync(string feedbackId)
         {
             var response = await _feedbackService.HardDeleteFeedbackAsync(feedbackId);
@@ -99,7 +100,7 @@ namespace Elepla.API.Controllers
 
         #region View flagged feedback with pagination
         [HttpGet]
-        //[Authorize(Roles = "AcademyStaff")]
+        [Authorize(Roles = "AcademyStaff")]
         public async Task<IActionResult> GetFlaggedFeedbackAsync(int pageIndex = 0, int pageSize = 10)
         {
             var response = await _feedbackService.GetFlaggedFeedbackAsync(pageIndex, pageSize);

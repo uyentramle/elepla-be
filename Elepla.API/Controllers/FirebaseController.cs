@@ -1,4 +1,5 @@
 ﻿using Elepla.Service.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,6 +15,7 @@ namespace Elepla.API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin, Manager, AcademicStaff, Teacher")]
         public async Task<IActionResult> UploadAvatarImageAsync(IFormFile file)
         {
             if (file == null || file.Length == 0)
@@ -38,7 +40,8 @@ namespace Elepla.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> UploadArticleImageAsync(IFormFile file)
+        [Authorize(Roles = "Admin, Manager, AcademicStaff, Teacher")]
+		public async Task<IActionResult> UploadArticleImageAsync(IFormFile file)
         {
             if (file == null || file.Length == 0)
             {

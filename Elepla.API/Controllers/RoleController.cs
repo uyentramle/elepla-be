@@ -1,5 +1,6 @@
 ﻿using Elepla.Service.Interfaces;
 using Elepla.Service.Models.ViewModels.RoleViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,7 +17,7 @@ namespace Elepla.API.Controllers
 
         #region Role Management
         [HttpGet]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetActiveRolesAsync(int pageIndex = 0, int pageSize = 10)
         {
             var response = await _roleService.GetActiveRolesAsync(pageIndex, pageSize);
@@ -24,7 +25,7 @@ namespace Elepla.API.Controllers
         }
 
         [HttpPost]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateRoleAsync(CreateRoleDTO model)
         {
             if (!ModelState.IsValid)
@@ -45,7 +46,7 @@ namespace Elepla.API.Controllers
         }
 
         [HttpPut]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateRoleAsync(UpdateRoleDTO model)
         {
             if (!ModelState.IsValid)
@@ -66,7 +67,7 @@ namespace Elepla.API.Controllers
         }
 
         [HttpDelete]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteRoleAsync(int roleId)
         {
             var response = await _roleService.DeleteRoleAsync(roleId);
