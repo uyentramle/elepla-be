@@ -92,8 +92,9 @@ namespace Elepla.Service.Services
                             Message = "Login success",
                             AccessToken = accessToken,
                             RefreshToken = refreshToken,
-                            TokenExpiryTime = tokenExpiryTime
-                        };
+                            TokenExpiryTime = tokenExpiryTime,
+							Role = user.Role.Name
+						};
                     }
                     else
                     {
@@ -310,8 +311,9 @@ namespace Elepla.Service.Services
                     Message = "Login successful.",
                     AccessToken = accessToken,
                     RefreshToken = refreshToken,
-                    TokenExpiryTime = tokenExpiryTime
-                };
+                    TokenExpiryTime = tokenExpiryTime,
+					Role = user.Role.Name
+				};
             }
             catch (Exception ex)
             {
