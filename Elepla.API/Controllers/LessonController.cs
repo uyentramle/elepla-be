@@ -1,5 +1,6 @@
 ﻿using Elepla.Service.Interfaces;
 using Elepla.Service.Models.ViewModels.LessonViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -48,7 +49,8 @@ namespace Elepla.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateLessonAsync(CreateLessonDTO model)
+		[Authorize(Roles = "AcademicStaff")]
+		public async Task<IActionResult> CreateLessonAsync(CreateLessonDTO model)
         {
             if (!ModelState.IsValid)
             {
@@ -64,7 +66,8 @@ namespace Elepla.API.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> UpdateLessonAsync(UpdateLessonDTO model)
+		[Authorize(Roles = "AcademicStaff")]
+		public async Task<IActionResult> UpdateLessonAsync(UpdateLessonDTO model)
         {
             if (!ModelState.IsValid)
             {
@@ -80,7 +83,8 @@ namespace Elepla.API.Controllers
         }
 
         [HttpDelete]
-        public async Task<IActionResult> DeleteLessonAsync(string lessonId)
+		[Authorize(Roles = "AcademicStaff")]
+		public async Task<IActionResult> DeleteLessonAsync(string lessonId)
         {
             var response = await _lessonService.DeleteLessonAsync(lessonId);
             if (response != null)

@@ -5,6 +5,7 @@ using Elepla.Repository.Interfaces;
 using Elepla.Service.Common;
 using Elepla.Service.Interfaces;
 using Elepla.Service.Models.ResponseModels;
+using Elepla.Service.Models.ViewModels.AccountViewModels;
 using Elepla.Service.Models.ViewModels.AuthViewModels;
 using Elepla.Service.Utils;
 using Microsoft.AspNetCore.Identity;
@@ -24,10 +25,10 @@ namespace Elepla.Service.Services
 {
     public class AuthService : BaseService, IAuthService
     {
-        private readonly AppConfiguration _appConfiguration;
-        private readonly ITokenService _tokenService;
         private readonly IGoogleService _googleService;
         private readonly IFacebookService _facebookService;
+        private readonly IAccountService _accountService;
+        private readonly IUserPackageService _userPackageService;
 
         public AuthService(
             IUnitOfWork unitOfWork, 
@@ -37,128 +38,131 @@ namespace Elepla.Service.Services
             IEmailSender emailSender,
             ISmsSender smsSender,
             IMemoryCache cache,
-            AppConfiguration appConfiguration,
             ITokenService tokenService,
             IGoogleService googleService,
-            IFacebookService facebookService) 
-            : base(unitOfWork, mapper, timeService, passwordHasher, emailSender, smsSender, cache)
+            IFacebookService facebookService,
+            IAccountService accountService,
+            IUserPackageService userPackageService) 
+            : base(unitOfWork, mapper, timeService, passwordHasher, emailSender, smsSender, cache, tokenService)
         {
-            _appConfiguration = appConfiguration;
-            _tokenService = tokenService;
             _googleService = googleService;
             _facebookService = facebookService;
+            _accountService = accountService;
+            _userPackageService = userPackageService;
         }
 
         #region Login
         // Login
         public async Task<ResponseModel> LoginAsync(LoginDTO model)
         {
-            var user = await _unitOfWork.AccountRepository.GetUserByEmailOrUsernameOrPhoneNumberAsync(model.Username);
-
-            if (user != null)
+            try
             {
-                // Kiểm tra nếu người dùng bị khóa
-                if (!user.Status)
+                var user = await _unitOfWork.AccountRepository.GetUserByEmailOrUsernameOrPhoneNumberAsync(model.Username);
+
+                if (user != null)
                 {
-                    return new AuthenticationResponseModel
+                    // Kiểm tra nếu người dùng bị khóa
+                    if (!user.Status)
                     {
-                        Success = false,
-                        Message = "User account is blocked. Please contact support."
-                    };
-                }
+                        return new AuthenticationResponseModel
+                        {
+                            Success = false,
+                            Message = "User account is blocked. Please contact support."
+                        };
+                    }
 
-                // Kiểm tra mật khẩu
-                var result = _passwordHasher.VerifyPassword(user.PasswordHash, model.Password);
+                    // Kiểm tra mật khẩu
+                    var result = _passwordHasher.VerifyPassword(user.PasswordHash, model.Password);
 
-                if (result)
-                {
-                    var accessToken = GenerateJsonWebToken(user, out DateTime tokenExpiryTime);
-                    var refreshToken = GenerateRefreshToken();
-
-                    user.RefreshToken = refreshToken;
-                    user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(_appConfiguration.JWT.RefreshTokenDurationInDays);
-                    user.LastLogin = _timeService.GetCurrentTime();
-
-                    _unitOfWork.AccountRepository.Update(user);
-                    await _unitOfWork.SaveChangeAsync();
-
-                    return new AuthenticationResponseModel
+                    if (result)
                     {
-                        Success = true,
-                        Message = "Login success",
-                        AccessToken = accessToken,
-                        RefreshToken = refreshToken,
-                        TokenExpiryTime = tokenExpiryTime
-                    };
+                        var accessToken = _tokenService.GenerateJsonWebToken(user, out DateTime tokenExpiryTime);
+                        var refreshToken = _tokenService.GenerateRefreshToken(out DateTime refreshTokenExpiryTime);
+
+                        user.RefreshToken = refreshToken;
+                        user.RefreshTokenExpiryTime = refreshTokenExpiryTime;
+                        user.LastLogin = _timeService.GetCurrentTime();
+
+                        _unitOfWork.AccountRepository.Update(user);
+                        await _unitOfWork.SaveChangeAsync();
+
+                        return new AuthenticationResponseModel
+                        {
+                            Success = true,
+                            Message = "Login success",
+                            AccessToken = accessToken,
+                            RefreshToken = refreshToken,
+                            TokenExpiryTime = tokenExpiryTime
+							//Role = user.Role.Name
+						};
+                    }
+                    else
+                    {
+                        return new AuthenticationResponseModel
+                        {
+                            Success = false,
+                            Message = "Wrong password!",
+                        };
+                    }
                 }
                 else
                 {
                     return new AuthenticationResponseModel
                     {
                         Success = false,
-                        Message = "Wrong password!",
+                        Message = "User not found!",
                     };
                 }
             }
-            else
+            catch (Exception ex)
             {
-                return new AuthenticationResponseModel
+                return new ErrorResponseModel<object>
                 {
                     Success = false,
-                    Message = "User not found!",
+                    Message = "An error occurred while processing login.",
+                    Errors = new List<string> { ex.Message }
                 };
             }
         }
 
         // Generate JWT
-        private string GenerateJsonWebToken(User user, out DateTime tokenExpiryTime)
-        {
-            var jwt = _appConfiguration.JWT;
+        //private string GenerateJsonWebToken(User user, out DateTime tokenExpiryTime)
+        //{
+        //    var jwt = _appConfiguration.JWT;
 
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt.JWTSecretKey));
-            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+        //    var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt.JWTSecretKey));
+        //    var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
-            var claims = new List<Claim>
-            {
-                //new Claim(JwtRegisteredClaimNames.Sub, user.Username),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                //new Claim(JwtRegisteredClaimNames.Name, user.Username),
-                new Claim(ClaimTypes.Name, user.UserId),
-                new Claim ("userId", user.UserId.ToString())
-            };
+        //    var claims = new List<Claim>
+        //    {
+        //        //new Claim(JwtRegisteredClaimNames.Sub, user.Username),
+        //        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+        //        //new Claim(JwtRegisteredClaimNames.Name, user.Username),
+        //        new Claim(ClaimTypes.Name, user.UserId),
+        //        new Claim ("userId", user.UserId.ToString())
+        //    };
 
-            var roles = _unitOfWork.RoleRepository.GetByIdAsync(user.RoleId).Result.Name;
+        //    var roles = user.Role.Name;
 
-            // Thêm các claim về vai trò
-            //foreach (var role in roles)
-            //{
-            //    claims.Add(new Claim(ClaimTypes.Role, role));
-            //}
+        //    // Thêm các claim về vai trò
+        //    //foreach (var role in roles)
+        //    //{
+        //    //    claims.Add(new Claim(ClaimTypes.Role, role));
+        //    //}
 
-            claims.Add(new Claim(ClaimTypes.Role, roles));
+        //    claims.Add(new Claim(ClaimTypes.Role, roles));
 
-            tokenExpiryTime = _timeService.GetCurrentTime().AddMinutes(jwt.AccessTokenDurationInMinutes);
+        //    tokenExpiryTime = _timeService.GetCurrentTime().AddMinutes(jwt.AccessTokenDurationInMinutes);
 
-            var token = new JwtSecurityToken(
-                issuer: jwt.Issuer,
-                audience: jwt.Audience,
-                claims: claims,
-                expires: tokenExpiryTime,
-                signingCredentials: credentials);
+        //    var token = new JwtSecurityToken(
+        //        issuer: jwt.Issuer,
+        //        audience: jwt.Audience,
+        //        claims: claims,
+        //        expires: tokenExpiryTime,
+        //        signingCredentials: credentials);
 
-            return new JwtSecurityTokenHandler().WriteToken(token);
-        }
-
-        // Generate refresh token
-        private string GenerateRefreshToken()
-        {
-            var randomNumber = new byte[32];
-            using (var rng = RandomNumberGenerator.Create())
-            {
-                rng.GetBytes(randomNumber);
-                return Convert.ToBase64String(randomNumber);
-            }
-        }
+        //    return new JwtSecurityTokenHandler().WriteToken(token);
+        //}
         #endregion
 
         #region Social Login
@@ -265,16 +269,19 @@ namespace Elepla.Service.Services
                     await _unitOfWork.AccountRepository.AddAsync(user);
                     await _unitOfWork.SaveChangeAsync();
 
-                    //// Cập nhật avatar sau khi tạo người dùng
-                    //var updateUserAvatarDto = new UpdateAvatarDTO
-                    //{
-                    //    GoogleEmail = dto.Provider == "Google" ? dto.Email : null,
-                    //    FacebookEmail = dto.Provider == "Facebook" ? dto.Email : null,
-                    //    AvatarUrl = dto.PictureUrl
-                    //};
+                    // Cập nhật avatar sau khi tạo người dùng
+                    var updateUserAvatarDto = new UpdateAvatarDTO
+                    {
+                        GoogleEmail = dto.Provider == "Google" ? dto.Email : null,
+                        FacebookEmail = dto.Provider == "Facebook" ? dto.Email : null,
+                        AvatarUrl = dto.PictureUrl
+                    };
 
-                    //// Cập nhật ảnh đại diện
-                    //await _accountService.UpdateAvatarAsync(updateUserAvatarDto);
+                    // Cập nhật ảnh đại diện
+                    await _accountService.UpdateAvatarAsync(updateUserAvatarDto);
+
+                    // Thêm gói miễn phí cho người dùng mới đăng ký
+                    await _userPackageService.AddFreePackageToUserAsync(user.UserId);
                 }
 
                 // Kiểm tra nếu người dùng bị khóa
@@ -288,11 +295,11 @@ namespace Elepla.Service.Services
                 }
 
                 // Tạo JWT token hoặc phản hồi xác thực khác
-                var accessToken = GenerateJsonWebToken(user, out DateTime tokenExpiryTime);
-                var refreshToken = GenerateRefreshToken();
+                var accessToken = _tokenService.GenerateJsonWebToken(user, out DateTime tokenExpiryTime);
+                var refreshToken = _tokenService.GenerateRefreshToken(out DateTime refreshTokenExpiryTime);
 
                 user.RefreshToken = refreshToken;
-                user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(_appConfiguration.JWT.RefreshTokenDurationInDays);
+                user.RefreshTokenExpiryTime = refreshTokenExpiryTime;
                 user.LastLogin = _timeService.GetCurrentTime();
 
                 _unitOfWork.AccountRepository.Update(user);
@@ -305,7 +312,8 @@ namespace Elepla.Service.Services
                     AccessToken = accessToken,
                     RefreshToken = refreshToken,
                     TokenExpiryTime = tokenExpiryTime
-                };
+					//Role = user.Role.Name
+				};
             }
             catch (Exception ex)
             {
@@ -320,36 +328,12 @@ namespace Elepla.Service.Services
         #endregion
 
         #region Refresh Token
-        // Get principal from expired token
-        private ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
-        {
-            var tokenValidationParameters = new TokenValidationParameters
-            {
-                ValidateAudience = false,
-                ValidateIssuer = false,
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_appConfiguration.JWT.JWTSecretKey)),
-                ValidateLifetime = false // Không cần kiểm tra thời hạn
-            };
-
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out SecurityToken securityToken);
-
-            var jwtSecurityToken = securityToken as JwtSecurityToken;
-            if (jwtSecurityToken == null || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
-            {
-                throw new SecurityTokenException("Invalid token");
-            }
-
-            return principal;
-        }
-
         // Refresh token
         public async Task<ResponseModel> RefreshTokenAsync(RefreshTokenDTO model)
         {
             try
             {
-                var principal = GetPrincipalFromExpiredToken(model.AccessToken);
+                var principal = _tokenService.GetPrincipalFromExpiredToken(model.AccessToken);
                 var userId = principal.Identity.Name;
 
                 var user = await _unitOfWork.AccountRepository.GetByIdAsync(userId);
@@ -374,11 +358,11 @@ namespace Elepla.Service.Services
                     };
                 }
 
-                var newAccessToken = GenerateJsonWebToken(user, out DateTime tokenExpiryTime);
-                var newRefreshToken = GenerateRefreshToken();
+                var newAccessToken = _tokenService.GenerateJsonWebToken(user, out DateTime tokenExpiryTime);
+                var newRefreshToken = _tokenService.GenerateRefreshToken(out DateTime refreshTokenExpiryTime);
 
                 user.RefreshToken = newRefreshToken;
-                user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(_appConfiguration.JWT.RefreshTokenDurationInDays);
+                user.RefreshTokenExpiryTime = refreshTokenExpiryTime;
 
                 _unitOfWork.AccountRepository.Update(user);
                 await _unitOfWork.SaveChangeAsync();
@@ -404,278 +388,311 @@ namespace Elepla.Service.Services
         #endregion
 
         #region Register
-        // Generate verification code
-        private string GenerateVerificationCode()
-        {
-            return new Random().Next(100000, 999999).ToString();
-        }
-
         // Send verification code to phone number or email when user register
         public async Task<ResponseModel> SendRegisterVerificationCodeAsync(SendRegisterCodeDTO model)
         {
-            if (IsEmail(model.PhoneNumberOrEmail))
+            try
             {
-                var user = await _unitOfWork.AccountRepository.GetUserByEmailAsync(model.PhoneNumberOrEmail);
-                if (user != null)
+                if (IsEmail(model.PhoneNumberOrEmail))
+                {
+                    var user = await _unitOfWork.AccountRepository.GetUserByEmailAsync(model.PhoneNumberOrEmail);
+                    if (user != null)
+                    {
+                        return new ResponseModel
+                        {
+                            Success = false,
+                            Message = "Email already in use."
+                        };
+                    }
+
+                    var emailCode = _tokenService.GenerateVerificationCode();
+                    await _emailSender.SendEmailAsync(model.PhoneNumberOrEmail, "Xác thực tài khoản", $"Mã xác thực của bạn là: {emailCode}, mã sẽ hết hiệu lực sau 10 phút.");
+                    _cache.Set(model.PhoneNumberOrEmail, emailCode, TimeSpan.FromMinutes(10));
+                }
+                else if (IsPhoneNumber(model.PhoneNumberOrEmail))
+                {
+                    var user = await _unitOfWork.AccountRepository.GetUserByPhoneNumberAsync(model.PhoneNumberOrEmail);
+                    if (user != null)
+                    {
+                        return new ResponseModel
+                        {
+                            Success = false,
+                            Message = "Phone number already in use."
+                        };
+                    }
+
+                    var phoneCode = _tokenService.GenerateVerificationCode();
+                    await _smsSender.SendSmsAsync(model.PhoneNumberOrEmail, $"Mã xác thực của bạn là: {phoneCode}, mã sẽ hết hiệu lực sau 10 phút.");
+                    _cache.Set(model.PhoneNumberOrEmail, phoneCode, TimeSpan.FromMinutes(10));
+                }
+                else
                 {
                     return new ResponseModel
                     {
                         Success = false,
-                        Message = "Email already in use."
+                        Message = "Invalid phone number or email format."
                     };
                 }
 
-                var emailCode = GenerateVerificationCode();
-                await _emailSender.SendEmailAsync(model.PhoneNumberOrEmail, "Xác thực tài khoản", $"Mã xác thực của bạn là: {emailCode}, mã sẽ hết hiệu lực sau 10 phút.");
-                _cache.Set(model.PhoneNumberOrEmail, emailCode, TimeSpan.FromMinutes(10));
-            }
-            else if (IsPhoneNumber(model.PhoneNumberOrEmail))
-            {
-                var user = await _unitOfWork.AccountRepository.GetUserByPhoneNumberAsync(model.PhoneNumberOrEmail);
-                if (user != null)
+                DateTime expiryTime = DateTime.UtcNow.ToLocalTime().AddMinutes(10); // Thời gian hết hạn 10 phút từ bây giờ
+
+                return new SuccessResponseModel<object>
                 {
-                    return new ResponseModel
+                    Success = true,
+                    Message = "Verification code sent.",
+                    Data = new
                     {
-                        Success = false,
-                        Message = "Phone number already in use."
-                    };
-                }
-
-                var phoneCode = GenerateVerificationCode();
-                await _smsSender.SendSmsAsync(model.PhoneNumberOrEmail, $"Mã xác thực của bạn là: {phoneCode}, mã sẽ hết hiệu lực sau 10 phút.");
-                _cache.Set(model.PhoneNumberOrEmail, phoneCode, TimeSpan.FromMinutes(10));
-            }
-            else
-            {
-                return new ResponseModel
-                {
-                    Success = false,
-                    Message = "Invalid phone number or email format."
+                        CodeExpiryTime = expiryTime
+                    }
                 };
             }
-
-            DateTime expiryTime = DateTime.UtcNow.ToLocalTime().AddMinutes(10); // Thời gian hết hạn 10 phút từ bây giờ
-
-            return new SuccessResponseModel<object>
+            catch (Exception ex)
             {
-                Success = true,
-                Message = "Verification code sent.",
-                Data = new
+                return new ErrorResponseModel<object>
                 {
-                    CodeExpiryTime = expiryTime
-                }
-            };
+                    Success = false,
+                    Message = "An error occurred while sending verification code.",
+                    Errors = new List<string> { ex.Message }
+                };
+            }
         }
 
         // Verify phone number or email by verification code when user register
         public async Task<ResponseModel> VerifyRegisterCodeAsync(VerifyRegisterCodeDTO model)
         {
-            if (string.IsNullOrEmpty(model.PhoneNumberOrEmail) || string.IsNullOrEmpty(model.VerificationCode))
+            try
             {
+                if (string.IsNullOrEmpty(model.PhoneNumberOrEmail) || string.IsNullOrEmpty(model.VerificationCode))
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "Phone number or email and verification code are required."
+                    };
+                }
+
+                if (IsEmail(model.PhoneNumberOrEmail))
+                {
+                    // Kiểm tra email tồn tại
+                    var user = await _unitOfWork.AccountRepository.GetUserByEmailAsync(model.PhoneNumberOrEmail);
+                    if (user != null)
+                    {
+                        return new ResponseModel
+                        {
+                            Success = false,
+                            Message = "Email already in use."
+                        };
+                    }
+
+                    // Xác thực mã
+                    if (_cache.TryGetValue(model.PhoneNumberOrEmail, out string savedEmailCode) && savedEmailCode == model.VerificationCode)
+                    {
+                        _cache.Remove(model.PhoneNumberOrEmail);
+                        var emailToken = _tokenService.GenerateToken(model.PhoneNumberOrEmail, "email", "register", out DateTime expiryTime);
+
+                        return new SuccessResponseModel<object>
+                        {
+                            Success = true,
+                            Message = "Email verified.",
+                            Data = new
+                            {
+                                Token = emailToken,
+                                TokenExpiryTime = expiryTime
+                            }
+                        };
+                    }
+                }
+                else if (IsPhoneNumber(model.PhoneNumberOrEmail))
+                {
+                    // Kiểm tra số điện thoại tồn tại
+                    var user = await _unitOfWork.AccountRepository.GetUserByPhoneNumberAsync(model.PhoneNumberOrEmail);
+                    if (user != null)
+                    {
+                        return new ResponseModel
+                        {
+                            Success = false,
+                            Message = "Phone number already in use."
+                        };
+                    }
+
+                    // Xác thực mã
+                    if (_cache.TryGetValue(model.PhoneNumberOrEmail, out string savedPhoneCode) && savedPhoneCode == model.VerificationCode)
+                    {
+                        _cache.Remove(model.PhoneNumberOrEmail);
+                        var phoneToken = _tokenService.GenerateToken(model.PhoneNumberOrEmail, "phone", "register", out DateTime expiryTime);
+
+                        return new SuccessResponseModel<object>
+                        {
+                            Success = true,
+                            Message = "Phone number verified.",
+                            Data = new
+                            {
+                                Token = phoneToken,
+                                TokenExpiryTime = expiryTime
+                            }
+                        };
+                    }
+                }
+
                 return new ResponseModel
                 {
                     Success = false,
-                    Message = "Phone number or email and verification code are required."
+                    Message = "Invalid verification code."
                 };
             }
-
-            if (IsEmail(model.PhoneNumberOrEmail))
+            catch (Exception ex)
             {
-                // Kiểm tra email tồn tại
-                var user = await _unitOfWork.AccountRepository.GetUserByEmailAsync(model.PhoneNumberOrEmail);
-                if (user != null)
+                return new ErrorResponseModel<object>
                 {
-                    return new ResponseModel
-                    {
-                        Success = false,
-                        Message = "Email already in use."
-                    };
-                }
-
-                // Xác thực mã
-                if (_cache.TryGetValue(model.PhoneNumberOrEmail, out string savedEmailCode) && savedEmailCode == model.VerificationCode)
-                {
-                    _cache.Remove(model.PhoneNumberOrEmail);
-                    var emailToken = _tokenService.GenerateToken(model.PhoneNumberOrEmail, "email", "register", out DateTime expiryTime);
-                    
-                    return new SuccessResponseModel<object>
-                    {
-                        Success = true,
-                        Message = "Email verified.",
-                        Data = new
-                        {
-                            Token = emailToken,
-                            TokenExpiryTime = expiryTime
-                        }
-                    };
-                }
+                    Success = false,
+                    Message = "An error occurred while verifying code.",
+                    Errors = new List<string> { ex.Message }
+                };
             }
-            else if (IsPhoneNumber(model.PhoneNumberOrEmail))
-            {
-                // Kiểm tra số điện thoại tồn tại
-                var user = await _unitOfWork.AccountRepository.GetUserByPhoneNumberAsync(model.PhoneNumberOrEmail);
-                if (user != null)
-                {
-                    return new ResponseModel
-                    {
-                        Success = false,
-                        Message = "Phone number already in use."
-                    };
-                }
-
-                // Xác thực mã
-                if (_cache.TryGetValue(model.PhoneNumberOrEmail, out string savedPhoneCode) && savedPhoneCode == model.VerificationCode)
-                {
-                    _cache.Remove(model.PhoneNumberOrEmail);
-                    var phoneToken = _tokenService.GenerateToken(model.PhoneNumberOrEmail, "phone", "register", out DateTime expiryTime);
-                    
-                    return new SuccessResponseModel<object>
-                    {
-                        Success = true,
-                        Message = "Phone number verified.",
-                        Data = new
-                        {
-                            Token = phoneToken,
-                            TokenExpiryTime = expiryTime
-                        }
-                    };
-                }
-            }
-
-            return new ResponseModel
-            {
-                Success = false,
-                Message = "Invalid verification code."
-            };
         }
 
         // Register
         public async Task<ResponseModel> RegisterAsync(RegisterDTO model)
         {
-            if (IsEmail(model.PhoneNumberOrEmail))
+            try
             {
-                if (!_tokenService.ValidateToken(model.PhoneNumberOrEmail, "email", "register", model.RegisterToken))
+                if (IsEmail(model.PhoneNumberOrEmail))
+                {
+                    if (!_tokenService.ValidateToken(model.PhoneNumberOrEmail, "email", "register", model.RegisterToken))
+                    {
+                        return new ResponseModel
+                        {
+                            Success = false,
+                            Message = "Invalid or expired email registration token."
+                        };
+                    }
+
+                    var emailExists = await _unitOfWork.AccountRepository.GetUserByEmailAsync(model.PhoneNumberOrEmail);
+                    if (emailExists != null)
+                    {
+                        return new ResponseModel
+                        {
+                            Success = false,
+                            Message = $"{model.PhoneNumberOrEmail} already exists"
+                        };
+                    }
+                }
+                else if (IsPhoneNumber(model.PhoneNumberOrEmail))
+                {
+                    if (!_tokenService.ValidateToken(model.PhoneNumberOrEmail, "phone", "register", model.RegisterToken))
+                    {
+                        return new ResponseModel
+                        {
+                            Success = false,
+                            Message = "Invalid or expired phone registration token."
+                        };
+                    }
+
+                    var phoneExists = await _unitOfWork.AccountRepository.GetUserByPhoneNumberAsync(model.PhoneNumberOrEmail);
+                    if (phoneExists != null)
+                    {
+                        return new ResponseModel
+                        {
+                            Success = false,
+                            Message = $"{model.PhoneNumberOrEmail} already exists"
+                        };
+                    }
+                }
+                else
                 {
                     return new ResponseModel
                     {
                         Success = false,
-                        Message = "Invalid or expired email registration token."
+                        Message = "Invalid phone number or email format."
                     };
                 }
 
-                var emailExists = await _unitOfWork.AccountRepository.GetUserByEmailAsync(model.PhoneNumberOrEmail);
-                if (emailExists != null)
+                // Kiểm tra xem username có đủ độ dài yêu cầu không (tối thiểu 6 ký tự)
+                if (model.Username.Length < 6 || model.Username.Length > 20)
                 {
                     return new ResponseModel
                     {
                         Success = false,
-                        Message = $"{model.PhoneNumberOrEmail} already exists"
+                        Message = "Username must be between 6 and 20 characters long."
                     };
                 }
-            }
-            else if (IsPhoneNumber(model.PhoneNumberOrEmail))
-            {
-                if (!_tokenService.ValidateToken(model.PhoneNumberOrEmail, "phone", "register", model.RegisterToken))
+
+                // Kiểm tra username đã tồn tại chưa
+                var userExists = await _unitOfWork.AccountRepository.GetUserByUsernameAsync(model.Username);
+                if (userExists != null)
                 {
                     return new ResponseModel
                     {
                         Success = false,
-                        Message = "Invalid or expired phone registration token."
+                        Message = $"{model.Username} already exists"
                     };
                 }
 
-                var phoneExists = await _unitOfWork.AccountRepository.GetUserByPhoneNumberAsync(model.PhoneNumberOrEmail);
-                if (phoneExists != null)
+                var user = _mapper.Map<User>(model);
+
+                // Kiểm tra mật khẩu có đúng định dạng không
+                var passwordErrors = _passwordHasher.ValidatePassword(model.Password);
+                if (passwordErrors.Any())
                 {
-                    return new ResponseModel
+                    return new ErrorResponseModel<string>
                     {
                         Success = false,
-                        Message = $"{model.PhoneNumberOrEmail} already exists"
+                        Message = "Password is not in correct format.",
+                        Errors = passwordErrors.ToList()
                     };
                 }
-            }
-            else
-            {
-                return new ResponseModel
+
+                // Băm mật khẩu
+                user.PasswordHash = _passwordHasher.HashPassword(model.Password);
+
+                // Gán email hoặc số điện thoại cho người dùng dựa vào input
+                if (IsEmail(model.PhoneNumberOrEmail))
                 {
-                    Success = false,
-                    Message = "Invalid phone number or email format."
-                };
-            }
-
-            // Kiểm tra xem username có đủ độ dài yêu cầu không (tối thiểu 6 ký tự)
-            if (model.Username.Length < 6 || model.Username.Length > 20)
-            {
-                return new ResponseModel
-                {
-                    Success = false,
-                    Message = "Username must be between 6 and 20 characters long."
-                };
-            }
-
-            // Kiểm tra username đã tồn tại chưa
-            var userExists = await _unitOfWork.AccountRepository.GetUserByUsernameAsync(model.Username);
-            if (userExists != null)
-            {
-                return new ResponseModel
-                {
-                    Success = false,
-                    Message = $"{model.Username} already exists"
-                };
-            }
-
-            var user = _mapper.Map<User>(model);
-
-            // Kiểm tra mật khẩu có đúng định dạng không
-            var passwordErrors = _passwordHasher.ValidatePassword(model.Password);
-            if (passwordErrors.Any())
-            {
-                return new ErrorResponseModel<string>
-                {
-                    Success = false,
-                    Message = "Password is not in correct format.",
-                    Errors = passwordErrors.ToList()
-                };
-            }
-
-            // Băm mật khẩu
-            user.PasswordHash = _passwordHasher.HashPassword(model.Password);
-
-            // Gán email hoặc số điện thoại cho người dùng dựa vào input
-            if (IsEmail(model.PhoneNumberOrEmail))
-            {
-                user.Email = model.PhoneNumberOrEmail;
-                user.EmailConfirmed = true;
-            }
-            else if (IsPhoneNumber(model.PhoneNumberOrEmail))
-            {
-                user.PhoneNumber = model.PhoneNumberOrEmail;
-                user.PhoneNumberConfirmed = true;
-            }
-
-            user.RoleId = (await _unitOfWork.RoleRepository.GetRoleByNameAsync(RoleEnums.Teacher.ToString())).RoleId;
-            user.CreatedBy = user.UserId;
-
-            await _unitOfWork.AccountRepository.AddAsync(user);
-            await _unitOfWork.SaveChangeAsync();
-
-            // Xóa token trong cache sau khi đăng ký thành công
-            _cache.Remove($"{model.PhoneNumberOrEmail}_phonge_register_token");
-            _cache.Remove($"{model.PhoneNumberOrEmail}_email_register_token");
-
-            return new SuccessResponseModel<object>
-            {
-                Success = true,
-                Message = "Registration success.",
-                Data = new
-                {
-                    UserId = user.UserId,
-                    FullName = user.FirstName + " " + user.LastName,
-                    PhoneNumber = user.PhoneNumber,
-                    Username = user.Username,
-                    Email = user.Email
+                    user.Email = model.PhoneNumberOrEmail;
+                    user.EmailConfirmed = true;
                 }
-            };
+                else if (IsPhoneNumber(model.PhoneNumberOrEmail))
+                {
+                    user.PhoneNumber = model.PhoneNumberOrEmail;
+                    user.PhoneNumberConfirmed = true;
+                }
+
+                user.RoleId = (await _unitOfWork.RoleRepository.GetRoleByNameAsync(RoleEnums.Teacher.ToString())).RoleId;
+                user.CreatedBy = user.UserId;
+
+                await _unitOfWork.AccountRepository.AddAsync(user);
+                await _unitOfWork.SaveChangeAsync();
+
+                // Xóa token trong cache sau khi đăng ký thành công
+                _cache.Remove($"{model.PhoneNumberOrEmail}_phonge_register_token");
+                _cache.Remove($"{model.PhoneNumberOrEmail}_email_register_token");
+
+                // Thêm gói miễn phí cho người dùng mới đăng ký
+                await _userPackageService.AddFreePackageToUserAsync(user.UserId);
+
+                return new SuccessResponseModel<object>
+                {
+                    Success = true,
+                    Message = "Registration success.",
+                    Data = new
+                    {
+                        UserId = user.UserId,
+                        FullName = user.FirstName + " " + user.LastName,
+                        PhoneNumber = user.PhoneNumber,
+                        Username = user.Username,
+                        Email = user.Email
+                    }
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ErrorResponseModel<object>
+                {
+                    Success = false,
+                    Message = "An error occurred while registering.",
+                    Errors = new List<string> { ex.Message }
+                };
+            }
         }
 
         // Check email format
@@ -705,136 +722,171 @@ namespace Elepla.Service.Services
         // Send verification code to phone number or email when user forgot password
         public async Task<ResponseModel> SendForgotPasswordVerificationCodeAsync(SendForgotPasswordCodeDTO model)
         {
-            var user = await _unitOfWork.AccountRepository.GetUserByEmailOrUsernameOrPhoneNumberAsync(model.PhoneNumberOrEmail, includeUsername: false);
-
-            if (user is null)
+            try
             {
-                return new ResponseModel
+                var user = await _unitOfWork.AccountRepository.GetUserByEmailOrUsernameOrPhoneNumberAsync(model.PhoneNumberOrEmail, includeUsername: false);
+
+                if (user is null)
                 {
-                    Success = false,
-                    Message = "User not found."
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "User not found."
+                    };
+                }
+
+                string code = _tokenService.GenerateVerificationCode();
+                DateTime expiryTime = DateTime.UtcNow.ToLocalTime().AddMinutes(10);
+
+                if (model.PhoneNumberOrEmail.Contains("@"))
+                {
+
+                    await _emailSender.SendEmailAsync(model.PhoneNumberOrEmail, "Quên mật khẩu?", $"Mã xác thực của bạn là: {code}, mã sẽ hết hiệu lực sau 10 phút.");
+                }
+                else
+                {
+                    await _smsSender.SendSmsAsync(model.PhoneNumberOrEmail, $"Mã xác thực của bạn là: {code}, mã sẽ hết hiệu lực sau 10 phút.");
+                }
+
+                _cache.Set(model.PhoneNumberOrEmail, code, TimeSpan.FromMinutes(10)); // Lưu mã xác thực vào bộ đệm với thời gian hết hạn 10 phút
+
+                return new SuccessResponseModel<object>
+                {
+                    Success = true,
+                    Message = "Verification code sent.",
+                    Data = new
+                    {
+                        CodeExpiryTime = expiryTime
+                    }
                 };
             }
-
-            string code = GenerateVerificationCode();
-            DateTime expiryTime = DateTime.UtcNow.ToLocalTime().AddMinutes(10);
-
-            if (model.PhoneNumberOrEmail.Contains("@"))
+            catch (Exception ex)
             {
-                
-                await _emailSender.SendEmailAsync(model.PhoneNumberOrEmail, "Quên mật khẩu?", $"Mã xác thực của bạn là: {code}, mã sẽ hết hiệu lực sau 10 phút.");
-            }
-            else
-            {
-                await _smsSender.SendSmsAsync(model.PhoneNumberOrEmail, $"Mã xác thực của bạn là: {code}, mã sẽ hết hiệu lực sau 10 phút.");
-            }
-
-            _cache.Set(model.PhoneNumberOrEmail, code, TimeSpan.FromMinutes(10)); // Lưu mã xác thực vào bộ đệm với thời gian hết hạn 10 phút
-
-            return new SuccessResponseModel<object>
-            {
-                Success = true,
-                Message = "Verification code sent.",
-                Data = new
+                return new ErrorResponseModel<object>
                 {
-                    CodeExpiryTime = expiryTime
-                }
-            };
+                    Success = false,
+                    Message = "An error occurred while sending verification code.",
+                    Errors = new List<string> { ex.Message }
+                };
+            }
         }
 
         // Verify forgot password code by phone number or email
         public async Task<ResponseModel> VerifyForgotPasswordCodeAsync(VerifyForgotPasswordCodeDTO model)
         {
-            var user = await _unitOfWork.AccountRepository.GetUserByEmailOrUsernameOrPhoneNumberAsync(model.PhoneNumberOrEmail, includeUsername: false);
-
-            if (user is null)
+            try
             {
+                var user = await _unitOfWork.AccountRepository.GetUserByEmailOrUsernameOrPhoneNumberAsync(model.PhoneNumberOrEmail, includeUsername: false);
+
+                if (user is null)
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "User not found."
+                    };
+                }
+
+                // Lấy mã từ bộ nhớ cache
+                if (_cache.TryGetValue(model.PhoneNumberOrEmail, out string? cachedCode) && cachedCode == model.VerificationCode)
+                {
+                    // Mã xác thực hợp lệ, tạo token reset password
+                    var resetToken = _tokenService.GenerateToken(
+                        model.PhoneNumberOrEmail,
+                        model.PhoneNumberOrEmail.Contains("@") ? "email" : "phone",
+                        "reset",
+                        out DateTime expiryTime
+                    );
+
+                    return new SuccessResponseModel<object>
+                    {
+                        Success = true,
+                        Message = "Verification successful. Proceed to password reset.",
+                        Data = new
+                        {
+                            ResetToken = resetToken,
+                            ResetTokenExpiryTime = expiryTime
+                        }
+                    };
+                }
+
                 return new ResponseModel
                 {
                     Success = false,
-                    Message = "User not found."
+                    Message = "Invalid verification code."
                 };
             }
-
-            // Lấy mã từ bộ nhớ cache
-            if (_cache.TryGetValue(model.PhoneNumberOrEmail, out string? cachedCode) && cachedCode == model.VerificationCode)
+            catch (Exception ex)
             {
-                // Mã xác thực hợp lệ, tạo token reset password
-                var resetToken = _tokenService.GenerateToken(
-                    model.PhoneNumberOrEmail,
-                    model.PhoneNumberOrEmail.Contains("@") ? "email" : "phone",
-                    "reset",
-                    out DateTime expiryTime
-                );
-
-                return new SuccessResponseModel<object>
+                return new ErrorResponseModel<object>
                 {
-                    Success = true,
-                    Message = "Verification successful. Proceed to password reset.",
-                    Data = new
-                    {
-                        ResetToken = resetToken,
-                        ResetTokenExpiryTime = expiryTime
-                    }
+                    Success = false,
+                    Message = "An error occurred while verifying code.",
+                    Errors = new List<string> { ex.Message }
                 };
             }
-
-            return new ResponseModel
-            {
-                Success = false,
-                Message = "Invalid verification code."
-            };
         }
 
         // Reset password
         public async Task<ResponseModel> ResetPasswordAsync(ResetPasswordDTO model)
         {
-            var user = await _unitOfWork.AccountRepository.GetUserByEmailOrUsernameOrPhoneNumberAsync(model.PhoneNumberOrEmail, includeUsername: false);
-
-            if (user is null)
+            try
             {
+                var user = await _unitOfWork.AccountRepository.GetUserByEmailOrUsernameOrPhoneNumberAsync(model.PhoneNumberOrEmail, includeUsername: false);
+
+                if (user is null)
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "User not found."
+                    };
+                }
+
+                string method = model.PhoneNumberOrEmail.Contains("@") ? "email" : "phone";
+                if (!_tokenService.ValidateToken(model.PhoneNumberOrEmail, method, "reset", model.ResetPasswordToken))
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "Invalid or expired reset token."
+                    };
+                }
+
+                // Kiểm tra mật khẩu mới có đúng định dạng không
+                var passwordErrors = _passwordHasher.ValidatePassword(model.NewPassword);
+                if (passwordErrors.Any())
+                {
+                    return new ErrorResponseModel<string>
+                    {
+                        Success = false,
+                        Message = "Password is not in correct format.",
+                        Errors = passwordErrors.ToList()
+                    };
+                }
+
+                // Băm mật khẩu mới
+                user.PasswordHash = _passwordHasher.HashPassword(model.NewPassword);
+                user.UpdatedBy = user.UserId;
+
+                _unitOfWork.AccountRepository.Update(user);
+                await _unitOfWork.SaveChangeAsync();
+
                 return new ResponseModel
                 {
-                    Success = false,
-                    Message = "User not found."
+                    Success = true,
+                    Message = "Password has been reset successfully."
                 };
             }
-
-            string method = model.PhoneNumberOrEmail.Contains("@") ? "email" : "phone";
-            if (!_tokenService.ValidateToken(model.PhoneNumberOrEmail, method, "reset", model.ResetPasswordToken))
+            catch (Exception ex)
             {
-                return new ResponseModel
+                return new ErrorResponseModel<object>
                 {
                     Success = false,
-                    Message = "Invalid or expired reset token."
+                    Message = "An error occurred while resetting password.",
+                    Errors = new List<string> { ex.Message }
                 };
             }
-
-            // Kiểm tra mật khẩu mới có đúng định dạng không
-            var passwordErrors = _passwordHasher.ValidatePassword(model.NewPassword);
-            if (passwordErrors.Any())
-            {
-                return new ErrorResponseModel<string>
-                {
-                    Success = false,
-                    Message = "Password is not in correct format.",
-                    Errors = passwordErrors.ToList()
-                };
-            }
-
-            // Băm mật khẩu mới
-            user.PasswordHash = _passwordHasher.HashPassword(model.NewPassword);
-            user.UpdatedBy = user.UserId;
-
-            _unitOfWork.AccountRepository.Update(user);
-            await _unitOfWork.SaveChangeAsync();
-
-            return new ResponseModel
-            {
-                Success = true,
-                Message = "Password has been reset successfully."
-            };
-
         }
         #endregion
     }

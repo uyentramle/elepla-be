@@ -20,6 +20,7 @@ namespace Elepla.Service.Services
         protected readonly IEmailSender _emailSender;
         protected readonly ISmsSender _smsSender;
         protected readonly IMemoryCache _cache;
+        protected readonly ITokenService _tokenService;
 
         public BaseService(
             IUnitOfWork unitOfWork, 
@@ -28,7 +29,8 @@ namespace Elepla.Service.Services
             IPasswordService passwordHasher,
             IEmailSender emailSender,
             ISmsSender smsSender,
-            IMemoryCache cache)
+            IMemoryCache cache,
+            ITokenService tokenService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -37,6 +39,7 @@ namespace Elepla.Service.Services
             _emailSender = emailSender;
             _smsSender = smsSender;
             _cache = cache;
+            _tokenService = tokenService;
         }
     }
 }

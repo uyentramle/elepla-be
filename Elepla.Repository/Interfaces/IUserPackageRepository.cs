@@ -9,5 +9,6 @@ namespace Elepla.Repository.Interfaces
 {
     public interface IUserPackageRepository : IGenericRepository<UserPackage>
     {
+        Task<ServicePackage?> GetActiveUserPackageAsync(string userId);
     }
 }

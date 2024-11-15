@@ -4,6 +4,7 @@ using Elepla.Repository.Common;
 using Elepla.Repository.Interfaces;
 using Elepla.Service.Interfaces;
 using Elepla.Service.Models.ResponseModels;
+using Elepla.Service.Models.ViewModels.AnswerViewModels;
 using Elepla.Service.Models.ViewModels.QuestionBankViewModels;
 using System;
 using System.Collections.Generic;
@@ -24,10 +25,13 @@ namespace Elepla.Service.Services
 			_mapper = mapper;
 		}
 
-		public async Task<ResponseModel> GetAllQuestionBankAsync(int pageIndex, int pageSize)
+		public async Task<ResponseModel> GetAllQuestionBankAsync(string? keyword, int pageIndex, int pageSize)
 		{
 			var questions = await _unitOfWork.QuestionBankRepository.GetAsync(
-				filter: r => r.IsDeleted.Equals(false),
+				filter: r => r.IsDeleted.Equals(false)
+				&& (string.IsNullOrEmpty(keyword)
+				|| r.Question.Contains(keyword)),
+				orderBy: r => r.OrderBy(r => r.Question),
 				pageIndex: pageIndex,
 				pageSize: pageSize
 				);
@@ -41,9 +45,9 @@ namespace Elepla.Service.Services
 			};
 		}
 
-		public async Task<ResponseModel> GetQuestionBankByIdAsync(string id)
+		public async Task<ResponseModel> GetQuestionBankByIdAsync(string questionId)
 		{
-			var question = await _unitOfWork.QuestionBankRepository.GetByIdAsync(id);
+			var question = await _unitOfWork.QuestionBankRepository.GetByQuestionIdAsync(questionId);
 			if (question == null)
 			{
 				return new ResponseModel
@@ -53,7 +57,17 @@ namespace Elepla.Service.Services
 				};
 			}
 
-			var questionDto = _mapper.Map<ViewListQuestionBankDTO>(question);
+			var questionDto = _mapper.Map<ViewDetailQuestionDTO>(question);
+
+			questionDto.Chapter = question.Chapter?.Name ?? string.Empty;
+			questionDto.Lesson = question.Lesson?.Name ?? string.Empty;
+
+			questionDto.Answers = question.Answers.Select(a => new ViewListAnswerDTO
+			{
+				AnswerId = a.AnswerId,
+				AnswerText = a.AnswerText,
+				IsCorrect = a.IsCorrect.ToString()
+			}).ToList();
 
 			return new SuccessResponseModel<object>
 			{
@@ -68,8 +82,24 @@ namespace Elepla.Service.Services
 			try
 			{
 				var question = _mapper.Map<QuestionBank>(model);
+
 				await _unitOfWork.QuestionBankRepository.AddAsync(question);
 				await _unitOfWork.SaveChangeAsync();
+
+				if (model.Answers != null && model.Answers.Count > 0)
+				{
+					foreach (var answer in model.Answers)
+					{
+						var existingAnswer = await _unitOfWork.AnswerRepository.GetByQuestionIdAndTextAsync(question.QuestionId, answer.AnswerText);
+						if (existingAnswer == null)
+						{
+							var mapper = _mapper.Map<Answer>(answer);
+
+							mapper.QuestionId = question.QuestionId;
+							await _unitOfWork.AnswerRepository.CreateAnswerAsync(mapper);
+						}
+					}
+				}
 
 				return new ResponseModel
 				{
@@ -79,10 +109,10 @@ namespace Elepla.Service.Services
 			}
 			catch (Exception ex)
 			{
-				return new ErrorResponseModel<object>
+				return new ResponseModel
 				{
 					Success = false,
-					Message = ex.Message
+					Message = "An error occurred while creating the question: " + ex.Message
 				};
 			}
 		}
@@ -91,7 +121,7 @@ namespace Elepla.Service.Services
 		{
 			try
 			{
-				var question = await _unitOfWork.QuestionBankRepository.GetByIdAsync(model.QuestionId);
+				var question = await _unitOfWork.QuestionBankRepository.GetByQuestionIdAsync(model.QuestionId);
 				if (question == null)
 				{
 					return new ResponseModel
@@ -113,6 +143,32 @@ namespace Elepla.Service.Services
 				_unitOfWork.QuestionBankRepository.Update(question);
 				await _unitOfWork.SaveChangeAsync();
 
+				var existingAnswers = await _unitOfWork.AnswerRepository.GetByQuestionIdAsync(model.QuestionId);
+				var existingAnswerIds = existingAnswers.Select(a => a.AnswerId).ToList();
+				foreach (var answer in existingAnswers)
+				{
+					var updatedAnswer = model.Answers.FirstOrDefault(a => a.AnswerId == answer.AnswerId);
+					if (updatedAnswer != null)
+					{
+						_mapper.Map(updatedAnswer, answer);
+						await _unitOfWork.AnswerRepository.UpdateAnswerAsync(answer);
+					}
+					else
+					{
+						await _unitOfWork.AnswerRepository.DeleteAnswerAsync(answer);
+					}
+				}
+
+				foreach (var newAnswer in model.Answers)
+				{
+					var existingNewAnswer = await _unitOfWork.AnswerRepository.GetByQuestionIdAndTextAsync(question.QuestionId, newAnswer.AnswerText);
+					if (!existingAnswerIds.Contains(newAnswer.AnswerId) && existingNewAnswer == null)
+					{
+						var answerToAdd = _mapper.Map<Answer>(newAnswer);
+						await _unitOfWork.AnswerRepository.CreateAnswerAsync(answerToAdd);
+					}
+				}
+
 				return new ResponseModel
 				{
 					Success = true,
@@ -121,7 +177,7 @@ namespace Elepla.Service.Services
 			}
 			catch (Exception ex)
 			{
-				return new ErrorResponseModel<object>
+				return new ResponseModel
 				{
 					Success = false,
 					Message = ex.Message
@@ -129,11 +185,11 @@ namespace Elepla.Service.Services
 			}
 		}
 
-		public async Task<ResponseModel> DeleteQuestionAsync(string id)
+		public async Task<ResponseModel> DeleteQuestionAsync(string questionId)
 		{
 			try
 			{
-				var question = await _unitOfWork.QuestionBankRepository.GetByIdAsync(id);
+				var question = await _unitOfWork.QuestionBankRepository.GetByIdAsync(questionId);
 				if (question == null)
 				{
 					return new ResponseModel
@@ -147,11 +203,17 @@ namespace Elepla.Service.Services
 					return new ResponseModel
 					{
 						Success = false,
-						Message = "Can't delete question is deleted."
+						Message = "Question is already deleted."
 					};
 				}
 
-				_unitOfWork.QuestionBankRepository.SoftRemove(question);
+				var existingAnswers = await _unitOfWork.AnswerRepository.GetByQuestionIdAsync(questionId);
+				foreach (var answer in existingAnswers)
+				{
+					await _unitOfWork.AnswerRepository.DeleteAnswerAsync(answer);
+				}
+
+				_unitOfWork.QuestionBankRepository.Delete(question);
 				await _unitOfWork.SaveChangeAsync();
 
 				return new ResponseModel

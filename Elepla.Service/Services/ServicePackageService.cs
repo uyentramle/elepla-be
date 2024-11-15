@@ -44,7 +44,6 @@ namespace Elepla.Service.Services
             };
         }
 
-
         // Get a service package by its ID
         public async Task<ResponseModel> GetServicePackageByIdAsync(string packageId)
         {
@@ -74,15 +73,52 @@ namespace Elepla.Service.Services
         {
             try
             {
-                var package = _mapper.Map<ServicePackage>(model);
+                // Check if a service package with the same name already exists
+                var existingPackages = await _unitOfWork.ServicePackageRepository.GetAllAsync(
+                    filter: p => p.PackageName == model.PackageName
+                );
 
-                await _unitOfWork.ServicePackageRepository.AddAsync(package);
+                if (existingPackages.Any())
+                {
+                    // If the service package has been soft deleted, restore it
+                    var servicePackage = existingPackages.First();
+                    if (servicePackage.IsDeleted)
+                    {
+                        servicePackage.Description = model.Description;
+                        servicePackage.Price = model.Price;
+                        servicePackage.Discount = model.Discount;
+                        servicePackage.StartDate = model.StartDate;
+                        servicePackage.EndDate = model.EndDate;
+                        servicePackage.MaxPlanbooks = model.MaxLessonPlans;
+                        servicePackage.IsDeleted = false;
+
+                        _unitOfWork.ServicePackageRepository.Update(servicePackage);
+                        await _unitOfWork.SaveChangeAsync();
+
+                        return new ResponseModel
+                        {
+                            Success = true,
+                            Message = "Service package restored successfully."
+                        };
+                    }
+
+                    // If the service package already exists and is not deleted, return an error
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "Service package already exists."
+                    };
+                }
+
+                // If no such package exists, create a new one
+                var newPackage = _mapper.Map<ServicePackage>(model);
+                await _unitOfWork.ServicePackageRepository.AddAsync(newPackage);
                 await _unitOfWork.SaveChangeAsync();
 
                 return new ResponseModel
                 {
                     Success = true,
-                    Message = "Service package created successfully.",
+                    Message = "Service package created successfully."
                 };
             }
             catch (Exception ex)

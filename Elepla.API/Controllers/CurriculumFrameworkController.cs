@@ -1,5 +1,6 @@
 ﻿using Elepla.Service.Interfaces;
 using Elepla.Service.Models.ViewModels.CurriculumViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,6 +15,7 @@ namespace Elepla.API.Controllers
             _curriculumFrameworkService = curriculumFrameworkService;
         }
 
+        #region Manage Curriculum Framework For Admin
         [HttpGet]
         public async Task<IActionResult> GetAllCurriculumFrameworkAsync(string? keyword, int pageIndex = 0, int pageSize = 10)
         {
@@ -37,7 +39,8 @@ namespace Elepla.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateCurriculumFrameworkAsync(CreateCurriculumDTO model)
+		[Authorize(Roles = "Admin")]
+		public async Task<IActionResult> CreateCurriculumFrameworkAsync(CreateCurriculumDTO model)
         {
             if (!ModelState.IsValid)
             {
@@ -53,7 +56,8 @@ namespace Elepla.API.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> UpdateCurriculumFrameworkAsync(UpdateCurriculumDTO model)
+		[Authorize(Roles = "Admin")]
+		public async Task<IActionResult> UpdateCurriculumFrameworkAsync(UpdateCurriculumDTO model)
         {
             if (!ModelState.IsValid)
             {
@@ -69,7 +73,8 @@ namespace Elepla.API.Controllers
         }
 
         [HttpDelete]
-        public async Task<IActionResult> DeleteCurriculumFrameworkAsync(string curriculumFrameworkId)
+		[Authorize(Roles = "Admin")]
+		public async Task<IActionResult> DeleteCurriculumFrameworkAsync(string curriculumFrameworkId)
         {
             var response = await _curriculumFrameworkService.DeleteCurriculumFrameworkAsync(curriculumFrameworkId);
             if (response.Success)
@@ -78,5 +83,61 @@ namespace Elepla.API.Controllers
             }
             return BadRequest(response);
         }
+        #endregion
+
+        #region Suggested Curriculum For Admin
+        [HttpGet]
+		[Authorize(Roles = "Admin")]
+		public async Task<IActionResult> GetAllSuggestedCurriculumAsync(string? keyword, int pageIndex = 0, int pageSize = 10)
+        {
+            var response = await _curriculumFrameworkService.GetAllSuggestedCurriculumAsync(keyword, pageIndex, pageSize);
+            if (response != null)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
+        }
+
+        [HttpPost]
+		[Authorize(Roles = "AcademicStaff")]
+		public async Task<IActionResult> CreateSuggestedCurriculumAsync(CreateSuggestedCurriculumDTO model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var response = await _curriculumFrameworkService.CreateSuggestedCurriculumAsync(model);
+            if (response != null)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
+        }
+
+        [HttpPut]
+		[Authorize(Roles = "Admin")]
+		public async Task<IActionResult> ApproveSuggestedCurriculumAsync(string curriculumId)
+        {
+            var response = await _curriculumFrameworkService.ApproveSuggestedCurriculumAsync(curriculumId);
+            if (response != null)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
+        }
+
+		[HttpDelete]
+		[Authorize(Roles = "Admin, AcademicStaff")]
+		public async Task<IActionResult> DeleteSuggestedCurriculumAsync(string curriculumId)
+		{
+			var response = await _curriculumFrameworkService.DeleteSuggestedCurriculumAsync(curriculumId);
+			if (response != null)
+			{
+				return Ok(response);
+			}
+			return BadRequest(response);
+		}
+        #endregion
     }
 }

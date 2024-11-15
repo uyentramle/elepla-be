@@ -20,5 +20,16 @@ namespace Elepla.Repository.Repositories
         {
             return await _dbContext.Lessons.FirstOrDefaultAsync(l => l.Name.Equals(lessonName) && l.ChapterId.Equals(chapterId));
         }
+
+        public async Task<Lesson?> GetByIdAsync(string lessonId)
+        {
+            return await _dbContext.Lessons
+                .Include(l => l.Chapter)                                 
+                .ThenInclude(c => c.SubjectInCurriculum)                  
+                .ThenInclude(s => s.Subject)                              
+                .ThenInclude(g => g.SubjectInCurriculums)                 
+                .Include(l => l.Chapter.SubjectInCurriculum.Grade)        
+                .FirstOrDefaultAsync(l => l.LessonId == lessonId);
+        }
     }
 }
