@@ -924,6 +924,9 @@ namespace Elepla.Service.Mappers
                 .ForMember(dest => dest.Time, opt => opt.Condition(src => src.Time != null))
                 .ForMember(dest => dest.QuestionInExams, opt => opt.Ignore());
 
+            CreateMap<DeleteQuestionFromExamDTO, Exam>()
+                .ForMember(dest => dest.QuestionInExams, opt => opt.Ignore());
+
             #endregion
 
 

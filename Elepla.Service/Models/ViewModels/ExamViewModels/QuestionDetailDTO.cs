@@ -11,7 +11,7 @@ namespace Elepla.Service.Models.ViewModels.ExamViewModels
         public string QuestionId { get; set; }
         public string Question { get; set; }
         public string Type { get; set; }
-        public int Index { get; set; }
+        public string Index { get; set; }
         public List<AnswerDTO> Answers { get; set; } = new List<AnswerDTO>();
     }
 }

@@ -102,13 +102,13 @@ namespace Elepla.Service.Services
                 Time = exam.Time,
                 UserId = exam.UserId,
                 Questions = exam.QuestionInExams
-                    .OrderBy(q => q.Index) 
+                    .OrderBy(q => q.Index)
                     .Select(q => new QuestionDetailDTO
                     {
                         QuestionId = q.Question.QuestionId,
                         Question = q.Question.Question,
                         Type = q.Question.Type,
-                        Index = q.Index,
+                        Index = $"Câu {q.Index}", // Format Index as "Câu X"
                         Answers = q.Question.Answers.Select(a => new AnswerDTO
                         {
                             AnswerId = a.AnswerId,
@@ -116,8 +116,7 @@ namespace Elepla.Service.Services
                             IsCorrect = a.IsCorrect
                         }).ToList()
                     }).ToList()
-                        };
-
+            };
 
             return new SuccessResponseModel<ViewExamDTO>
             {
@@ -625,6 +624,41 @@ namespace Elepla.Service.Services
                     Success = true,
                     Message = "Exam exported to PDF successfully.",
                     Data = memoryStream.ToArray() // Convert memory stream to byte array
+                };
+            }
+        }
+
+        public async Task<ResponseModel> DeleteQuestionsFromExamAsync(string examId, DeleteQuestionFromExamDTO model)
+        {
+            try
+            {
+                var questionsInExam = await _unitOfWork.QuestionInExamRepository.GetAsync(q => q.ExamId == examId && model.QuestionIds.Contains(q.QuestionId));
+
+                if (!questionsInExam.Any())
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "No matching questions found in the specified exam."
+                    };
+                }
+
+                _unitOfWork.QuestionInExamRepository.DeleteRange(questionsInExam);
+                await _unitOfWork.SaveChangeAsync();
+
+                return new ResponseModel
+                {
+                    Success = true,
+                    Message = "Questions deleted from exam successfully."
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ErrorResponseModel<object>
+                {
+                    Success = false,
+                    Message = "An error occurred while deleting questions from the exam.",
+                    Errors = new List<string> { ex.Message }
                 };
             }
         }

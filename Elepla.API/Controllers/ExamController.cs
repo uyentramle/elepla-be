@@ -146,6 +146,8 @@ namespace Elepla.API.Controllers
         #endregion
 
         #region Export Exam to Word without Color
+        //[Authorize]
+
         [HttpGet]
         public async Task<IActionResult> ExportExamToWordNoColor(string examId)
         {
@@ -168,6 +170,8 @@ namespace Elepla.API.Controllers
         #endregion
 
         #region Export Exam to PDF without Color
+        //[Authorize]
+
         [HttpGet]
         public async Task<IActionResult> ExportExamToPdfNoColor(string examId)
         {
@@ -186,6 +190,28 @@ namespace Elepla.API.Controllers
             }
 
             return File(pdfData, "application/pdf", $"Exam_{examId}.pdf");
+        }
+        #endregion
+
+
+        #region Delete Question From Exam
+        //[Authorize]
+        [HttpDelete]
+        public async Task<IActionResult> DeleteQuestionsFromExam(string examId, [FromBody] DeleteQuestionFromExamDTO model)
+        {
+            if (string.IsNullOrEmpty(examId) || model.QuestionIds == null || !model.QuestionIds.Any())
+            {
+                return BadRequest("Exam ID and at least one Question ID are required.");
+            }
+
+            var response = await _examService.DeleteQuestionsFromExamAsync(examId, model);
+
+            if (response.Success)
+            {
+                return Ok(response);
+            }
+
+            return StatusCode(500, response);
         }
         #endregion
 
