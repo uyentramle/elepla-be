@@ -196,7 +196,6 @@ namespace Elepla.API
             services.AddScoped<IFeedbackRepository, FeedbackRepository>();
             services.AddScoped<IFeedbackService, FeedbackService>();
 
-            services.AddDbContext<AppDbContext>(option => option.UseSqlServer(databaseConnection));
             // Exam
             services.AddScoped<IExamRepository, ExamRepository>();
             services.AddScoped<IExamService, ExamService>();
