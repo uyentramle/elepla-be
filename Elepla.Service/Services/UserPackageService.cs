@@ -127,6 +127,7 @@ namespace Elepla.Service.Services
 
                 var userPackage = new UserPackage
                 {
+                    UserPackageId = Guid.NewGuid().ToString(),
                     UserId = userId,
                     PackageId = freePackage.PackageId,
                     StartDate = DateTime.Now,
