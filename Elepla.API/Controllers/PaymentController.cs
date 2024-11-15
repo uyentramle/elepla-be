@@ -15,9 +15,9 @@ namespace Elepla.API.Controllers
         }
 
         #region Get All Users Payment History
-        [HttpGet("GetAllPayments")]
-		[Authorize(Roles = "Manager")]
-		public async Task<IActionResult> GetAllUserPaymentHistoryAsync(int pageIndex = 0, int pageSize = 10)
+        [HttpGet]
+        [Authorize(Roles = "Manager")]
+        public async Task<IActionResult> GetAllUserPaymentHistoryAsync(int pageIndex = 0, int pageSize = 10)
         {
             var response = await _paymentService.GetAllUserPaymentHistoryAsync(pageIndex, pageSize);
             if (response.Success)
@@ -29,7 +29,7 @@ namespace Elepla.API.Controllers
         #endregion
 
         #region View User Payment History
-        [HttpGet("history/{teacherId}")]
+        [HttpGet]
         [Authorize]
         public async Task<IActionResult> GetUserPaymentHistoryAsync(string teacherId, int pageIndex = 0, int pageSize = 10)
         {
@@ -43,7 +43,7 @@ namespace Elepla.API.Controllers
         #endregion
 
         #region View Payment Details
-        [HttpGet("{paymentId}")]
+        [HttpGet]
         [Authorize]
         public async Task<IActionResult> GetPaymentDetailsAsync(string paymentId)
         {
@@ -59,7 +59,7 @@ namespace Elepla.API.Controllers
         #region View Revenue Reports
 
         // Revenue report by month
-        [HttpGet("RevenueByMonth/{year}")]
+        [HttpGet]
 		[Authorize(Roles = "Manager")]
 		public async Task<IActionResult> GetRevenueByMonthAsync(int year)
         {
@@ -72,7 +72,7 @@ namespace Elepla.API.Controllers
         }
 
         // Revenue report by quarter
-        [HttpGet("RevenueByQuarter/{year}")]
+        [HttpGet]
 		[Authorize(Roles = "Manager")]
 		public async Task<IActionResult> GetRevenueByQuarterAsync(int year)
         {
@@ -85,7 +85,7 @@ namespace Elepla.API.Controllers
         }
 
         // Revenue report by year
-        [HttpGet("RevenueByYear")]
+        [HttpGet]
 		[Authorize(Roles = "Manager")]
 		public async Task<IActionResult> GetRevenueByYearAsync()
         {

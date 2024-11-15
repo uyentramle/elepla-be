@@ -353,8 +353,9 @@ namespace Elepla.Service.Mappers
 				.ForMember(dest => dest.TotalAmount, opt => opt.MapFrom(src => src.TotalAmount))
 				.ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
 				.ForMember(dest => dest.TeacherId, opt => opt.MapFrom(src => src.TeacherId))
-				//.ForMember(dest => dest.PackageName, opt => opt.MapFrom(src => src.Package.PackageName)) // Package name from associated ServicePackage
-				.ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
+                //.ForMember(dest => dest.Fullname, opt => opt.MapFrom(src => src.FullName))
+                //.ForMember(dest => dest.PackageName, opt => opt.MapFrom(src => src.Package.PackageName)) // Package name from associated ServicePackage
+                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
 				.ReverseMap();
 
 			// Mapping Payment to PaymentDetailDTO

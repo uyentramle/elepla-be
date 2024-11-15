@@ -12,6 +12,7 @@ namespace Elepla.Service.Models.ViewModels.PaymentViewModels
         public decimal TotalAmount { get; set; }
         public string Status { get; set; }
         public string TeacherId { get; set; }
+        public string Fullname { get; set; }
         public string PackageName { get; set; } 
         public DateTime CreatedAt { get; set; } 
     }
