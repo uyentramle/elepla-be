@@ -31,8 +31,7 @@ namespace Elepla.Service.Services
                 pageSize: pageSize
             );
 
-            // Prepare response data directly from entities without mapping
-            var paymentHistory = payments.Items.Select(p => new
+            var paymentHistory = payments.Items.Select(p => new UserPaymentHistoryDTO
             {
                 PaymentId = p.PaymentId,
                 TotalAmount = p.TotalAmount,
@@ -55,6 +54,7 @@ namespace Elepla.Service.Services
             };
         }
 
+
         // Get payment details by payment ID
         public async Task<ResponseModel> GetPaymentDetailsAsync(string paymentId)
         {
@@ -72,8 +72,7 @@ namespace Elepla.Service.Services
                 };
             }
 
-            // Return payment details directly from the Payment entity
-            var paymentDetails = new
+            var paymentDetails = new PaymentDetailsDTO
             {
                 PaymentId = payment.PaymentId,
                 TotalAmount = payment.TotalAmount,
@@ -96,24 +95,24 @@ namespace Elepla.Service.Services
             };
         }
 
+
         // Get payment history of all users
         public async Task<ResponseModel> GetAllUserPaymentHistoryAsync(int pageIndex, int pageSize)
         {
             var payments = await _unitOfWork.PaymentRepository.GetAsync(
                 filter: null,
-                includeProperties: "Teacher,UserPackage.Package", // Include Teacher to fetch FullName
+                includeProperties: "Teacher,UserPackage.Package",
                 pageIndex: pageIndex,
                 pageSize: pageSize
             );
 
-            // Prepare response data directly from entities
-            var paymentHistory = payments.Items.Select(p => new
+            var paymentHistory = payments.Items.Select(p => new AllUserPaymentHistoryDTO
             {
                 PaymentId = p.PaymentId,
                 TotalAmount = p.TotalAmount,
                 Status = p.Status,
                 TeacherId = p.TeacherId,
-                FullName = p.FullName, 
+                FullName = p.FullName,
                 PackageName = p.UserPackage?.Package?.PackageName,
                 PackageId = p.UserPackage?.Package?.PackageId,
                 CreatedAt = p.CreatedAt
