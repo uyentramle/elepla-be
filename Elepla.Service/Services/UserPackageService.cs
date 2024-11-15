@@ -27,12 +27,18 @@ namespace Elepla.Service.Services
         // Get all user packages
         public async Task<ResponseModel> GetAllUserPackagesAsync(string? keyword, int pageIndex, int pageSize)
         {
+            // Validate pageSize to avoid divide-by-zero errors
+            if (pageSize <= 0)
+            {
+                pageSize = 10; // Set a default page size if it’s invalid
+            }
+
             var userPackages = await _unitOfWork.UserPackageRepository.GetAsync(
-                                            filter: up => !up.IsDeleted && (string.IsNullOrEmpty(keyword) || up.Package.PackageName.Contains(keyword)),
-                                            includeProperties: "Package,User",
-                                            orderBy: up => up.OrderBy(p => p.CreatedAt),
-                                            pageIndex: pageIndex,
-                                            pageSize: pageSize);
+                filter: up => !up.IsDeleted && (string.IsNullOrEmpty(keyword) || up.Package.PackageName.Contains(keyword)),
+                includeProperties: "Package,User",
+                orderBy: up => up.OrderBy(p => p.CreatedAt),
+                pageIndex: pageIndex,
+                pageSize: pageSize);
 
             var userPackageDtos = _mapper.Map<Pagination<ViewListUserPackageDTO>>(userPackages);
 
@@ -47,9 +53,21 @@ namespace Elepla.Service.Services
         // Get all user packages for a specific user
         public async Task<ResponseModel> GetUserPackagesAsync(string userId)
         {
+            // Check if the user exists
+            var user = await _unitOfWork.AccountRepository.GetByIdAsync(userId);
+            if (user == null)
+            {
+                return new ResponseModel
+                {
+                    Success = false,
+                    Message = "User ID not found."
+                };
+            }
+
+            // Retrieve user packages
             var userPackages = await _unitOfWork.UserPackageRepository.GetAllAsync(
-                                            filter: up => up.UserId.Equals(userId) && !up.IsDeleted,
-                                            includeProperties: "Package,User");
+                filter: up => up.UserId.Equals(userId) && !up.IsDeleted,
+                includeProperties: "Package,User");
 
             var userPackageDtos = _mapper.Map<List<ViewListUserPackageDTO>>(userPackages);
 
