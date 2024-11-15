@@ -55,6 +55,13 @@ namespace Elepla.Service.Services
                     ExamId = exam.ExamId,
                     Title = exam.Title,
                     Time = exam.Time,
+                    CreatedAt = exam.CreatedAt,
+                    CreatedBy = exam.CreatedBy,
+                    UpdatedAt = exam.UpdatedAt,
+                    UpdatedBy = exam.UpdatedBy,
+                    DeletedAt = exam.DeletedAt,
+                    DeletedBy = exam.DeletedBy,
+                    IsDeleted = exam.IsDeleted
                 }).ToList();
 
                 return new SuccessResponseModel<List<ViewExamByUserDTO>>
@@ -74,7 +81,6 @@ namespace Elepla.Service.Services
                 };
             }
         }
-
 
 
         public async Task<ResponseModel> GetExamByIdAsync(string examId)
@@ -187,6 +193,9 @@ namespace Elepla.Service.Services
                 exam.Title = model.Title ?? exam.Title;
                 exam.Time = model.Time ?? exam.Time;
 
+                // Update the UpdatedAt field to reflect the modification time
+                exam.UpdatedAt = DateTime.Now;
+
                 // Validate that all QuestionIds exist in the QuestionBank
                 var validQuestionIds = (await _unitOfWork.QuestionBankRepository
                     .GetAllAsync(q => model.QuestionIds.Contains(q.QuestionId)))
@@ -239,6 +248,7 @@ namespace Elepla.Service.Services
                 };
             }
         }
+
 
 
         public async Task<ResponseModel> DeleteExamAsync(string examId)
