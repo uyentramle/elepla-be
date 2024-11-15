@@ -93,7 +93,8 @@ namespace Elepla.Service.Services
                             AccessToken = accessToken,
                             RefreshToken = refreshToken,
                             TokenExpiryTime = tokenExpiryTime
-                        };
+							//Role = user.Role.Name
+						};
                     }
                     else
                     {
@@ -311,7 +312,8 @@ namespace Elepla.Service.Services
                     AccessToken = accessToken,
                     RefreshToken = refreshToken,
                     TokenExpiryTime = tokenExpiryTime
-                };
+					//Role = user.Role.Name
+				};
             }
             catch (Exception ex)
             {

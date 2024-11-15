@@ -1,4 +1,5 @@
 ﻿using Elepla.Service.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
@@ -25,7 +26,7 @@ namespace Elepla.API.Controllers
         }
 
         [HttpGet]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> GetUserPackagesAsync(string userId)
         {
             var response = await _userPackageService.GetUserPackagesAsync(userId);
@@ -37,7 +38,7 @@ namespace Elepla.API.Controllers
         }
 
         [HttpGet]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> GetUserPackageDetailsAsync(string userPackageId)
         {
             var response = await _userPackageService.GetUserPackageDetailsAsync(userPackageId);

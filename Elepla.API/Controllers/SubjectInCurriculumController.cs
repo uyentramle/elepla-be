@@ -1,5 +1,6 @@
 ﻿using Elepla.Service.Interfaces;
 using Elepla.Service.Models.ViewModels.SubjectInCurriculumViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -48,7 +49,8 @@ namespace Elepla.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateSubjectInCurriculumAsync(CreateSubjectInCurriculumDTO model)
+        [Authorize(Roles = "AcademicStaff")]
+		public async Task<IActionResult> CreateSubjectInCurriculumAsync(CreateSubjectInCurriculumDTO model)
         {
             if (!ModelState.IsValid)
             {
@@ -64,7 +66,8 @@ namespace Elepla.API.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> UpdateSubjectInCurriculumAsync(UpdateSubjectInCurriculumDTO model)
+        [Authorize(Roles = "AcademicStaff")]
+		public async Task<IActionResult> UpdateSubjectInCurriculumAsync(UpdateSubjectInCurriculumDTO model)
         {
             if (!ModelState.IsValid)
             {
@@ -80,7 +83,8 @@ namespace Elepla.API.Controllers
         }
 
         [HttpDelete]
-        public async Task<IActionResult> DeleteSubjectInCurriculumAsync(string subjectInCurriculumId)
+        [Authorize(Roles = "AcademicStaff")]
+		public async Task<IActionResult> DeleteSubjectInCurriculumAsync(string subjectInCurriculumId)
         {
             var response = await _subjectInCurriculumService.DeleteSubjectInCurriculumAsync(subjectInCurriculumId);
             if (response != null)
