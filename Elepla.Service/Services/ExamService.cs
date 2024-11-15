@@ -108,6 +108,7 @@ namespace Elepla.Service.Services
                         QuestionId = q.Question.QuestionId,
                         Question = q.Question.Question,
                         Type = q.Question.Type,
+                        Index = q.Index,
                         Answers = q.Question.Answers.Select(a => new AnswerDTO
                         {
                             AnswerId = a.AnswerId,

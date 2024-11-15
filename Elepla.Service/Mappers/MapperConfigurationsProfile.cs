@@ -899,6 +899,7 @@ namespace Elepla.Service.Mappers
                 .ForMember(dest => dest.QuestionId, opt => opt.MapFrom(src => src.QuestionId))
                 .ForMember(dest => dest.Question, opt => opt.MapFrom(src => src.Question))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Index, opt => opt.MapFrom(src => src.QuestionInExams.Select(q => q.Index)))
                 .ForMember(dest => dest.Answers, opt => opt.MapFrom(src => src.Answers))
                 .ReverseMap();
 
