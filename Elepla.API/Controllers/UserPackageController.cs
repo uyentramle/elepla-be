@@ -15,7 +15,7 @@ namespace Elepla.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllUserPackagesAsync(string? keyword, int pageIndex, int pageSize)
+        public async Task<IActionResult> GetAllUserPackagesAsync(string? keyword, int pageIndex = 0, int pageSize = 10)
         {
             var response = await _userPackageService.GetAllUserPackagesAsync(keyword, pageIndex, pageSize);
             if (response.Success)
@@ -46,7 +46,7 @@ namespace Elepla.API.Controllers
             {
                 return Ok(response);
             }
-            return NotFound(response);
+            return BadRequest(response);
         }
     }
 }

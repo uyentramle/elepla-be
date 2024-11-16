@@ -19,6 +19,8 @@ namespace Elepla.Service.Services
 {
     public class AccountService : BaseService, IAccountService
     {
+        private readonly IUserPackageService _userPackageService;
+
         public AccountService(
             IUnitOfWork unitOfWork,
             IMapper mapper,
@@ -27,9 +29,11 @@ namespace Elepla.Service.Services
             IEmailSender emailSender,
             ISmsSender smsSender,
             IMemoryCache cache,
-            ITokenService tokenService)
+            ITokenService tokenService,
+            IUserPackageService userPackageService)
             : base(unitOfWork, mapper, timeService, passwordHasher, emailSender, smsSender, cache, tokenService)
         {
+            _userPackageService = userPackageService;
         }
 
         #region Manage User Profile
@@ -664,6 +668,9 @@ namespace Elepla.Service.Services
                 // Tạo mới existingUser
                 await _unitOfWork.AccountRepository.AddAsync(user);
                 await _unitOfWork.SaveChangeAsync();
+
+                // Thêm gói miễn phí cho người dùng mới tạo
+                await _userPackageService.AddFreePackageToUserAsync(user.UserId);
 
                 return new ResponseModel
                 {
