@@ -1,5 +1,6 @@
 ﻿using Elepla.Service.Interfaces;
 using Elepla.Service.Models.ViewModels.ActivityViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -29,6 +30,7 @@ namespace Elepla.API.Controllers
 		}
 
 		[HttpPost]
+		[Authorize]
 		public async Task<IActionResult> CreateActivityAsync(CreateActivityDTO model)
 		{
 			var response = await _activityService.CreateActivityAsync(model);
@@ -36,6 +38,7 @@ namespace Elepla.API.Controllers
 		}
 
 		[HttpPut]
+		[Authorize]
 		public async Task<IActionResult> UpdateActivityAsync(UpdateActivityDTO model)
 		{
 			var response = await _activityService.UpdateActivityAsync(model);
@@ -43,6 +46,7 @@ namespace Elepla.API.Controllers
 		}
 
 		[HttpDelete]
+		[Authorize]
 		public async Task<IActionResult> DeleteActivityAsync(string activityId)
 		{
 			var response = await _activityService.DeleteActivityAsync(activityId);

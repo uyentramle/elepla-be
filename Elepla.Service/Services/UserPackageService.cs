@@ -28,11 +28,11 @@ namespace Elepla.Service.Services
         public async Task<ResponseModel> GetAllUserPackagesAsync(string? keyword, int pageIndex, int pageSize)
         {
             var userPackages = await _unitOfWork.UserPackageRepository.GetAsync(
-                                            filter: up => !up.IsDeleted && (string.IsNullOrEmpty(keyword) || up.Package.PackageName.Contains(keyword)),
-                                            includeProperties: "Package,User",
-                                            orderBy: up => up.OrderBy(p => p.CreatedAt),
-                                            pageIndex: pageIndex,
-                                            pageSize: pageSize);
+                filter: up => !up.IsDeleted && (string.IsNullOrEmpty(keyword) || up.Package.PackageName.Contains(keyword)),
+                includeProperties: "Package,User",
+                orderBy: up => up.OrderBy(p => p.CreatedAt),
+                pageIndex: pageIndex,
+                pageSize: pageSize);
 
             var userPackageDtos = _mapper.Map<Pagination<ViewListUserPackageDTO>>(userPackages);
 
@@ -47,9 +47,21 @@ namespace Elepla.Service.Services
         // Get all user packages for a specific user
         public async Task<ResponseModel> GetUserPackagesAsync(string userId)
         {
+            // Check if the user exists
+            var user = await _unitOfWork.AccountRepository.GetByIdAsync(userId);
+            if (user == null)
+            {
+                return new ResponseModel
+                {
+                    Success = false,
+                    Message = "User ID not found."
+                };
+            }
+
+            // Retrieve user packages
             var userPackages = await _unitOfWork.UserPackageRepository.GetAllAsync(
-                                            filter: up => up.UserId.Equals(userId) && !up.IsDeleted,
-                                            includeProperties: "Package,User");
+                filter: up => up.UserId.Equals(userId) && !up.IsDeleted,
+                includeProperties: "Package,User");
 
             var userPackageDtos = _mapper.Map<List<ViewListUserPackageDTO>>(userPackages);
 
@@ -127,6 +139,7 @@ namespace Elepla.Service.Services
 
                 var userPackage = new UserPackage
                 {
+                    UserPackageId = Guid.NewGuid().ToString(),
                     UserId = userId,
                     PackageId = freePackage.PackageId,
                     StartDate = DateTime.Now,
@@ -152,6 +165,27 @@ namespace Elepla.Service.Services
                     Errors = new List<string> { ex.Message }
                 };
             }
+        }
+
+        public async Task<ResponseModel> GetCurrentUserPackageAsync(string userId)
+        {
+            var userPackage = await _unitOfWork.UserPackageRepository.GetActiveUserPackageAsync(userId);
+
+            if (userPackage is null)
+            {
+                return new ResponseModel
+                {
+                    Success = false,
+                    Message = "User package not found."
+                };
+            }
+
+            return new SuccessResponseModel<object>
+            {
+                Success = true,
+                Message = "Current user package retrieved successfully.",
+                Data = userPackage.PackageName
+            };
         }
     }
 }

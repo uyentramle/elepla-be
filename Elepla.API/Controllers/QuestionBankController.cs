@@ -1,6 +1,7 @@
 ﻿using Elepla.Service.Interfaces;
 using Elepla.Service.Models.ViewModels.QuestionBankViewModels;
 using Elepla.Service.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -29,6 +30,7 @@ namespace Elepla.API.Controllers
 		}
 
 		[HttpPost]
+		[Authorize]
 		public async Task<IActionResult> CreateQuestionAsync(CreateQuestionDTO model)
 		{
 			var response = await _questionBankService.CreateQuestionAsync(model);
@@ -36,6 +38,7 @@ namespace Elepla.API.Controllers
 		}
 
 		[HttpPut]
+		[Authorize]
 		public async Task<IActionResult> UpdateQuestionAsync(UpdateQuestionDTO model)
 		{
 			var response = await _questionBankService.UpdateQuestionAsync(model);
@@ -43,6 +46,7 @@ namespace Elepla.API.Controllers
 		}
 
 		[HttpDelete]
+		[Authorize]
 		public async Task<IActionResult> DeleteQuestionAsync(string id)
 		{
 			var response = await _questionBankService.DeleteQuestionAsync(id);

@@ -1,5 +1,6 @@
 ﻿using Elepla.Service.Interfaces;
 using Elepla.Service.Models.ViewModels.ChapterViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -48,7 +49,8 @@ namespace Elepla.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateChapterAsync(CreateChapterDTO model)
+		[Authorize(Roles = "AcademicStaff")]
+		public async Task<IActionResult> CreateChapterAsync(CreateChapterDTO model)
         {
             if (!ModelState.IsValid)
             {
@@ -64,7 +66,8 @@ namespace Elepla.API.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> UpdateChapterAsync(UpdateChapterDTO model)
+		[Authorize(Roles = "AcademicStaff")]
+		public async Task<IActionResult> UpdateChapterAsync(UpdateChapterDTO model)
         {
             if (!ModelState.IsValid)
             {
@@ -80,7 +83,8 @@ namespace Elepla.API.Controllers
         }
 
         [HttpDelete]
-        public async Task<IActionResult> DeleteChapterAsync(string chapterId)
+		[Authorize(Roles = "AcademicStaff")]
+		public async Task<IActionResult> DeleteChapterAsync(string chapterId)
         {
             var response = await _chapterService.DeleteChapterAsync(chapterId);
             if (response != null)

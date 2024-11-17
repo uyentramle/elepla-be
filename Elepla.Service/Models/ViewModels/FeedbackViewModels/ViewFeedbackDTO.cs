@@ -12,7 +12,8 @@ namespace Elepla.Service.Models.ViewModels.FeedbackViewModels
         public string? Content { get; set; }
         public int? Rate { get; set; }
         public string Type { get; set; }
-        public string TeacherName { get; set; }
+		public bool IsFlagged { get; set; }
+		public string TeacherName { get; set; }
         public string PlanbookTitle { get; set; }
         public DateTime CreatedAt { get; set; }
     }

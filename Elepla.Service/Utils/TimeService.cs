@@ -9,6 +9,11 @@ namespace Elepla.Service.Utils
 {
     public class TimeService : ITimeService
     {
-        public DateTime GetCurrentTime() => DateTime.UtcNow.ToLocalTime();
+        //public DateTime GetCurrentTime() => DateTime.UtcNow.ToLocalTime();
+        public DateTime GetCurrentTime()
+        {
+            var timeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+            return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone);
+        }
     }
 }

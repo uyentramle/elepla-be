@@ -26,27 +26,41 @@ namespace Elepla.Service.Services
         {
             var payments = await _unitOfWork.PaymentRepository.GetAsync(
                 filter: p => p.TeacherId == teacherId,
-                includeProperties: "Package",
+                includeProperties: "UserPackage.Package",
                 pageIndex: pageIndex,
                 pageSize: pageSize
             );
 
-            var paymentDtos = _mapper.Map<Pagination<PaymentDTO>>(payments);
+            var paymentHistory = payments.Items.Select(p => new UserPaymentHistoryDTO
+            {
+                PaymentId = p.PaymentId,
+                TotalAmount = p.TotalAmount,
+                Status = p.Status,
+                PackageName = p.UserPackage?.Package?.PackageName,
+                PackageId = p.UserPackage?.Package?.PackageId,
+                CreatedAt = p.CreatedAt
+            }).ToList();
 
             return new SuccessResponseModel<object>
             {
                 Success = true,
                 Message = "User payment history retrieved successfully.",
-                Data = paymentDtos
+                Data = new
+                {
+                    Payments = paymentHistory,
+                    PageIndex = pageIndex,
+                    PageSize = pageSize
+                }
             };
         }
+
 
         // Get payment details by payment ID
         public async Task<ResponseModel> GetPaymentDetailsAsync(string paymentId)
         {
             var payment = await _unitOfWork.PaymentRepository.GetByIdAsync(
                 paymentId,
-                includeProperties: "Package"
+                includeProperties: "UserPackage.Package"
             );
 
             if (payment == null)
@@ -58,34 +72,66 @@ namespace Elepla.Service.Services
                 };
             }
 
-            var result = _mapper.Map<PaymentDetailDTO>(payment);
+            var paymentDetails = new PaymentDetailsDTO
+            {
+                PaymentId = payment.PaymentId,
+                TotalAmount = payment.TotalAmount,
+                Status = payment.Status,
+                TeacherId = payment.TeacherId,
+                PackageName = payment.UserPackage?.Package?.PackageName,
+                PackageId = payment.UserPackage?.Package?.PackageId,
+                PackageDescription = payment.UserPackage?.Package?.Description,
+                CreatedAt = payment.CreatedAt,
+                PaymentMethod = payment.PaymentMethod,
+                FullName = payment.FullName,
+                AddressText = payment.AddressText
+            };
 
             return new SuccessResponseModel<object>
             {
                 Success = true,
                 Message = "Payment details retrieved successfully.",
-                Data = result
+                Data = paymentDetails
             };
         }
+
 
         // Get payment history of all users
         public async Task<ResponseModel> GetAllUserPaymentHistoryAsync(int pageIndex, int pageSize)
         {
             var payments = await _unitOfWork.PaymentRepository.GetAsync(
                 filter: null,
+                includeProperties: "Teacher,UserPackage.Package",
                 pageIndex: pageIndex,
                 pageSize: pageSize
             );
 
-            var paymentDtos = _mapper.Map<Pagination<PaymentDTO>>(payments);
+            var paymentHistory = payments.Items.Select(p => new AllUserPaymentHistoryDTO
+            {
+                PaymentId = p.PaymentId,
+                TotalAmount = p.TotalAmount,
+                Status = p.Status,
+                TeacherId = p.TeacherId,
+                FullName = p.FullName,
+                PackageName = p.UserPackage?.Package?.PackageName,
+                PackageId = p.UserPackage?.Package?.PackageId,
+                CreatedAt = p.CreatedAt
+            }).ToList();
 
             return new SuccessResponseModel<object>
             {
                 Success = true,
                 Message = "All users' payment history retrieved successfully.",
-                Data = paymentDtos
+                Data = new
+                {
+                    Payments = paymentHistory,
+                    PageIndex = pageIndex,
+                    PageSize = pageSize
+                }
             };
         }
+
+
 
         // Get revenue report by month for a specific year
         public async Task<ResponseModel> GetRevenueByMonthAsync(int year)
