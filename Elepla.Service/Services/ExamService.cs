@@ -19,6 +19,7 @@ using DocumentFormat.OpenXml;
 using iText.IO.Font.Constants;
 using iText.Kernel.Font;
 using iText.IO.Font;
+using Elepla.Service.Models.ViewModels.AnswerViewModels;
 
 namespace Elepla.Service.Services
 {
@@ -32,39 +33,15 @@ namespace Elepla.Service.Services
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
+
         public async Task<ResponseModel> GetExamsByUserIdAsync(string userId)
         {
             try
             {
-                var paginationResult = await _unitOfWork.ExamRepository.GetAsync(
-                    filter: e => e.UserId == userId
-                );
-                var exams = paginationResult.Items;
+                var exams = await _unitOfWork.ExamRepository.GetAllAsync(filter: e => e.UserId.Equals(userId));
+                var examDtos = _mapper.Map<List<ViewListExamDTO>>(exams);
 
-                if (!exams.Any())
-                {
-                    return new ResponseModel
-                    {
-                        Success = false,
-                        Message = "No exams found for the specified user."
-                    };
-                }
-
-                var examDtos = exams.Select(exam => new ViewExamByUserDTO
-                {
-                    ExamId = exam.ExamId,
-                    Title = exam.Title,
-                    Time = exam.Time,
-                    CreatedAt = exam.CreatedAt,
-                    CreatedBy = exam.CreatedBy,
-                    UpdatedAt = exam.UpdatedAt,
-                    UpdatedBy = exam.UpdatedBy,
-                    DeletedAt = exam.DeletedAt,
-                    DeletedBy = exam.DeletedBy,
-                    IsDeleted = exam.IsDeleted
-                }).ToList();
-
-                return new SuccessResponseModel<List<ViewExamByUserDTO>>
+                return new SuccessResponseModel<object>
                 {
                     Success = true,
                     Message = "Exams retrieved successfully.",
@@ -82,85 +59,81 @@ namespace Elepla.Service.Services
             }
         }
 
-
         public async Task<ResponseModel> GetExamByIdAsync(string examId)
         {
-            var exam = await _unitOfWork.ExamRepository.GetByIdAsync(examId, includeProperties: "QuestionInExams.Question.Answers");
-            if (exam == null)
+            try
             {
-                return new ResponseModel
+                var exam = await _unitOfWork.ExamRepository.GetByIdAsync(id: examId, includeProperties: "QuestionInExams.Question.Answers");
+                if (exam is null)
                 {
-                    Success = false,
-                    Message = "Exam not found."
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "Exam not found."
+                    };
+                }
+
+                var examDto = _mapper.Map<ViewDetailExamDTO>(exam);
+
+                //examDto.Questions = exam.QuestionInExams
+                //    .OrderBy(questionId => questionId.Index)
+                //    .Select(questionId => new QuestionInExamDTO
+                //    {
+                //        QuestionId = questionId.QuestionId,
+                //        Question = questionId.Question.Question,
+                //        Type = questionId.Question.Type,
+                //        Plum = questionId.Question.Plum,
+                //        Index = questionId.Index.ToString(),
+                //        Answers = questionId.Question.Answers.Select(a => new ViewListAnswerDTO
+                //        {
+                //            AnswerId = a.AnswerId,
+                //            AnswerText = a.AnswerText,
+                //            IsCorrect = a.IsCorrect
+                //        }).ToList()
+                //    })
+                //    .ToList();
+
+                return new SuccessResponseModel<object>
+                {
+                    Success = true,
+                    Message = "Exam retrieved successfully.",
+                    Data = examDto
                 };
             }
-
-            var examDto = new ViewExamDTO
+            catch (Exception ex)
             {
-                ExamId = exam.ExamId,
-                Title = exam.Title,
-                Time = exam.Time,
-                UserId = exam.UserId,
-                Questions = exam.QuestionInExams
-                    .OrderBy(q => q.Index)
-                    .Select(q => new QuestionDetailDTO
-                    {
-                        QuestionId = q.Question.QuestionId,
-                        Question = q.Question.Question,
-                        Type = q.Question.Type,
-                        Index = $"Câu {q.Index}", // Format Index as "Câu X"
-                        Answers = q.Question.Answers.Select(a => new AnswerDTO
-                        {
-                            AnswerId = a.AnswerId,
-                            AnswerText = a.AnswerText,
-                            IsCorrect = a.IsCorrect
-                        }).ToList()
-                    }).ToList()
-            };
-
-            return new SuccessResponseModel<ViewExamDTO>
-            {
-                Success = true,
-                Message = "Exam retrieved successfully.",
-                Data = examDto
-            };
+                return new ErrorResponseModel<object>
+                {
+                    Success = false,
+                    Message = "An error occurred while retrieving the exam.",
+                    Errors = new List<string> { ex.Message }
+                };
+            }
         }
-
 
         public async Task<ResponseModel> CreateExamAsync(CreateExamDTO model)
         {
             try
             {
-                var exam = new Exam
-                {
-                    ExamId = Guid.NewGuid().ToString(),
-                    Title = model.Title,
-                    Time = model.Time,
-                    UserId = model.UserId
-                };
+                var exam = _mapper.Map<Exam>(model);
 
                 await _unitOfWork.ExamRepository.AddAsync(exam);
 
-                // Add questions to the exam with Index set based on their order
-                for (int i = 0; i < model.QuestionIds.Count; i++)
+                var questionInExamList = model.QuestionIds.Select((questionId, index) => new QuestionInExam
                 {
-                    var questionInExam = new QuestionInExam
-                    {
-                        QuestionInExamId = Guid.NewGuid().ToString(),
-                        ExamId = exam.ExamId,
-                        QuestionId = model.QuestionIds[i],
-                        Index = i + 1 // Set Index based on order
-                    };
-                    await _unitOfWork.QuestionInExamRepository.AddAsync(questionInExam);
-                }
+                    QuestionInExamId = Guid.NewGuid().ToString(),
+                    ExamId = exam.ExamId,
+                    QuestionId = questionId,
+                    Index = index + 1
+                });
 
+                await _unitOfWork.QuestionInExamRepository.CreateRangeQuestionInExamAsync(questionInExamList);
                 await _unitOfWork.SaveChangeAsync();
 
-                return new SuccessResponseModel<string>
+                return new ResponseModel
                 {
                     Success = true,
                     Message = "Exam created successfully.",
-                    Data = exam.ExamId
                 };
             }
             catch (Exception ex)
@@ -169,12 +142,10 @@ namespace Elepla.Service.Services
                 {
                     Success = false,
                     Message = "An error occurred while creating the exam.",
-                    Errors = new List<string> { ex.InnerException?.Message ?? ex.Message }
+                    Errors = new List<string> { ex.Message }
                 };
             }
         }
-
-
 
         public async Task<ResponseModel> UpdateExamAsync(UpdateExamDTO model)
         {
@@ -190,46 +161,27 @@ namespace Elepla.Service.Services
                     };
                 }
 
-                exam.Title = model.Title ?? exam.Title;
-                exam.Time = model.Time ?? exam.Time;
-
-                // Update the UpdatedAt field to reflect the modification time
-                exam.UpdatedAt = DateTime.Now;
-
-                // Validate that all QuestionIds exist in the QuestionBank
-                var validQuestionIds = (await _unitOfWork.QuestionBankRepository
-                    .GetAllAsync(q => model.QuestionIds.Contains(q.QuestionId)))
-                    .Select(q => q.QuestionId)
-                    .ToList();
-
-                var invalidQuestionIds = model.QuestionIds.Except(validQuestionIds).ToList();
-                if (invalidQuestionIds.Any())
-                {
-                    return new ErrorResponseModel<List<string>>
-                    {
-                        Success = false,
-                        Message = "Some question IDs do not exist in the QuestionBank.",
-                        Errors = invalidQuestionIds
-                    };
-                }
-
-                // Update questions
-                var existingQuestions = await _unitOfWork.QuestionInExamRepository.GetAsync(q => q.ExamId == exam.ExamId);
-                _unitOfWork.QuestionInExamRepository.DeleteRange(existingQuestions);
-
-                for (int i = 0; i < model.QuestionIds.Count; i++)
-                {
-                    var questionInExam = new QuestionInExam
-                    {
-                        QuestionInExamId = Guid.NewGuid().ToString(),
-                        ExamId = exam.ExamId,
-                        QuestionId = model.QuestionIds[i],
-                        Index = i + 1 // Set Index based on order
-                    };
-                    await _unitOfWork.QuestionInExamRepository.AddAsync(questionInExam);
-                }
-
+                // Cập nhật thông tin bài kiểm tra
+                _mapper.Map(model, exam);
                 _unitOfWork.ExamRepository.Update(exam);
+
+                // Cập nhật câu hỏi trong bài kiểm tra sẽ có 2 trường hợp:
+                // 1. Thêm câu hỏi mới vào bài kiểm tra
+                // 2. Cập nhật lại câu hỏi đã có trong bài kiểm tra tức là xóa câu hỏi
+                // => Xóa tất cả câu hỏi trong bài kiểm tra và thêm lại câu hỏi cũ và mới
+
+                // Tạo 1 list chứa các câu hỏi sẽ thêm vào bài kiểm tra từ model
+                var questionInExamList = model.QuestionIds.Select((questionId, index) => new QuestionInExam
+                {
+                    QuestionInExamId = Guid.NewGuid().ToString(),
+                    ExamId = exam.ExamId,
+                    QuestionId = questionId,
+                    Index = index + 1
+                });
+
+                var questionsInExam = await _unitOfWork.QuestionInExamRepository.GetByExamIdAsync(model.ExamId);
+                _unitOfWork.QuestionInExamRepository.DeleteRangeQuestionInExamAsync(questionsInExam);
+                await _unitOfWork.QuestionInExamRepository.CreateRangeQuestionInExamAsync(questionInExamList);
                 await _unitOfWork.SaveChangeAsync();
 
                 return new ResponseModel
@@ -249,8 +201,6 @@ namespace Elepla.Service.Services
             }
         }
 
-
-
         public async Task<ResponseModel> DeleteExamAsync(string examId)
         {
             try
@@ -266,8 +216,8 @@ namespace Elepla.Service.Services
                 }
 
                 // Delete related questions
-                var questionsInExam = await _unitOfWork.QuestionInExamRepository.GetAsync(q => q.ExamId == examId);
-                _unitOfWork.QuestionInExamRepository.DeleteRange(questionsInExam);
+                var questionsInExam = await _unitOfWork.QuestionInExamRepository.GetByExamIdAsync(examId);
+                _unitOfWork.QuestionInExamRepository.DeleteRangeQuestionInExamAsync(questionsInExam);
 
                 // Delete exam
                 _unitOfWork.ExamRepository.Delete(exam);
@@ -323,7 +273,7 @@ namespace Elepla.Service.Services
 
                     var timeParagraph = new DocumentFormat.OpenXml.Wordprocessing.Paragraph(
                         new DocumentFormat.OpenXml.Wordprocessing.Run(
-                            new DocumentFormat.OpenXml.Wordprocessing.Text($"Thời gian: {exam.Time} phút")
+                            new DocumentFormat.OpenXml.Wordprocessing.Text($"Thời gian: {exam.Time}")
                         )
                     );
                     body.AppendChild(timeParagraph);
@@ -338,7 +288,7 @@ namespace Elepla.Service.Services
                         // Add question number and text
                         var questionParagraph = new DocumentFormat.OpenXml.Wordprocessing.Paragraph(
                             new DocumentFormat.OpenXml.Wordprocessing.Run(
-                                new DocumentFormat.OpenXml.Wordprocessing.Text($"{questionNumber}. {question.Question}")
+                                new DocumentFormat.OpenXml.Wordprocessing.Text($"Câu {questionNumber}. {question.Question}")
                             )
                             {
                                 RunProperties = new DocumentFormat.OpenXml.Wordprocessing.RunProperties { Bold = new DocumentFormat.OpenXml.Wordprocessing.Bold() }
@@ -386,8 +336,6 @@ namespace Elepla.Service.Services
             }
         }
 
-
-
         public async Task<ResponseModel> ExportExamToPdfAsync(string examId)
         {
             var exam = await _unitOfWork.ExamRepository.GetByIdAsync(examId, includeProperties: "QuestionInExams.Question.Answers");
@@ -401,7 +349,7 @@ namespace Elepla.Service.Services
             }
 
             // Path to your DejaVuSans.ttf font file
-            var fontPath = Path.Combine("font", "DejaVuSans.ttf");
+            var fontPath = Path.Combine("Resources", "Fonts", "DejaVuSans.ttf");
 
             // Using a memory stream instead of saving the file on disk
             using (var memoryStream = new MemoryStream())
@@ -421,7 +369,7 @@ namespace Elepla.Service.Services
                             .SetFontSize(18)
                             .SetBold()
                             .SetTextAlignment(iText.Layout.Properties.TextAlignment.CENTER));
-                        document.Add(new Paragraph($"Thời gian: {exam.Time} phút").SetFontSize(14));
+                        document.Add(new Paragraph($"Thời gian: {exam.Time}").SetFontSize(14));
                         document.Add(new Paragraph("\n"));
 
                         // Add questions and answers with numbering
@@ -431,7 +379,7 @@ namespace Elepla.Service.Services
                             var question = questionInExam.Question;
 
                             // Add question number and text
-                            document.Add(new Paragraph($"{questionNumber}. {question.Question}")
+                            document.Add(new Paragraph($"Câu {questionNumber}. {question.Question}")
                                 .SetFontSize(14)
                                 .SetBold());
 
@@ -500,7 +448,7 @@ namespace Elepla.Service.Services
 
                     var timeParagraph = new DocumentFormat.OpenXml.Wordprocessing.Paragraph(
                         new DocumentFormat.OpenXml.Wordprocessing.Run(
-                            new DocumentFormat.OpenXml.Wordprocessing.Text($"Thời gian: {exam.Time} phút")
+                            new DocumentFormat.OpenXml.Wordprocessing.Text($"Thời gian: {exam.Time}")
                         )
                     );
                     body.AppendChild(timeParagraph);
@@ -515,7 +463,7 @@ namespace Elepla.Service.Services
                         // Add question number and text
                         var questionParagraph = new DocumentFormat.OpenXml.Wordprocessing.Paragraph(
                             new DocumentFormat.OpenXml.Wordprocessing.Run(
-                                new DocumentFormat.OpenXml.Wordprocessing.Text($"{questionNumber}. {question.Question}")
+                                new DocumentFormat.OpenXml.Wordprocessing.Text($"Câu {questionNumber}. {question.Question}")
                             )
                             {
                                 RunProperties = new DocumentFormat.OpenXml.Wordprocessing.RunProperties { Bold = new DocumentFormat.OpenXml.Wordprocessing.Bold() }
@@ -567,7 +515,7 @@ namespace Elepla.Service.Services
             }
 
             // Path to your DejaVuSans.ttf font file
-            var fontPath = Path.Combine("font", "DejaVuSans.ttf");
+            var fontPath = Path.Combine("Resources", "Fonts", "DejaVuSans.ttf");
 
             // Using a memory stream instead of saving the file on disk
             using (var memoryStream = new MemoryStream())
@@ -587,7 +535,7 @@ namespace Elepla.Service.Services
                             .SetFontSize(18)
                             .SetBold()
                             .SetTextAlignment(iText.Layout.Properties.TextAlignment.CENTER));
-                        document.Add(new Paragraph($"Thời gian: {exam.Time} phút").SetFontSize(14));
+                        document.Add(new Paragraph($"Thời gian: {exam.Time}").SetFontSize(14));
                         document.Add(new Paragraph("\n"));
 
                         // Add questions and answers with numbering
@@ -597,7 +545,7 @@ namespace Elepla.Service.Services
                             var question = questionInExam.Question;
 
                             // Add question number and text
-                            document.Add(new Paragraph($"{questionNumber}. {question.Question}")
+                            document.Add(new Paragraph($"Câu {questionNumber}. {question.Question}")
                                 .SetFontSize(14)
                                 .SetBold());
 
@@ -627,42 +575,5 @@ namespace Elepla.Service.Services
                 };
             }
         }
-
-        public async Task<ResponseModel> DeleteQuestionsFromExamAsync(string examId, DeleteQuestionFromExamDTO model)
-        {
-            try
-            {
-                var questionsInExam = await _unitOfWork.QuestionInExamRepository.GetAsync(q => q.ExamId == examId && model.QuestionIds.Contains(q.QuestionId));
-
-                if (!questionsInExam.Any())
-                {
-                    return new ResponseModel
-                    {
-                        Success = false,
-                        Message = "No matching questions found in the specified exam."
-                    };
-                }
-
-                _unitOfWork.QuestionInExamRepository.DeleteRange(questionsInExam);
-                await _unitOfWork.SaveChangeAsync();
-
-                return new ResponseModel
-                {
-                    Success = true,
-                    Message = "Questions deleted from exam successfully."
-                };
-            }
-            catch (Exception ex)
-            {
-                return new ErrorResponseModel<object>
-                {
-                    Success = false,
-                    Message = "An error occurred while deleting questions from the exam.",
-                    Errors = new List<string> { ex.Message }
-                };
-            }
-        }
-
-
     }
 }

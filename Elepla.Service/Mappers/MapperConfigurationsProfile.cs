@@ -886,30 +886,47 @@ namespace Elepla.Service.Mappers
             #endregion
 
             #region Exam
-
-            CreateMap<Exam, ViewExamDTO>()
+			CreateMap<Exam, ViewListExamDTO>()
                 .ForMember(dest => dest.ExamId, opt => opt.MapFrom(src => src.ExamId))
                 .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
                 .ForMember(dest => dest.Time, opt => opt.MapFrom(src => src.Time))
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
-                .ForMember(dest => dest.Questions, opt => opt.MapFrom(src => src.QuestionInExams.Select(q => q.Question)))
+                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
+                .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom(src => src.CreatedBy))
+                .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.UpdatedAt))
+                .ForMember(dest => dest.UpdatedBy, opt => opt.MapFrom(src => src.UpdatedBy))
+                .ForMember(dest => dest.DeletedAt, opt => opt.MapFrom(src => src.DeletedAt))
+                .ForMember(dest => dest.DeletedBy, opt => opt.MapFrom(src => src.DeletedBy))
+                .ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => src.IsDeleted)).ReverseMap();
+
+            CreateMap<Exam, ViewDetailExamDTO>()
+                .ForMember(dest => dest.ExamId, opt => opt.MapFrom(src => src.ExamId))
+                .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
+                .ForMember(dest => dest.Time, opt => opt.MapFrom(src => src.Time))
+                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
+				.ForMember(dest => dest.Questions, opt => opt.MapFrom(src => src.QuestionInExams
+					.OrderBy(q => q.Index)
+					.Select(q => new QuestionInExamDTO
+					{
+						QuestionId = q.Question.QuestionId,
+						Question = q.Question.Question,
+						Type = q.Question.Type,
+                        Plum = q.Question.Plum,
+                        Index = q.Index,
+						Answers = q.Question.Answers.Select(a => new ViewListAnswerDTO
+						{
+							AnswerId = a.AnswerId,
+							AnswerText = a.AnswerText,
+							IsCorrect = a.IsCorrect
+						}).ToList()
+					}).ToList()))
+				.ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
+                .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom(src => src.CreatedBy))
+                .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.UpdatedAt))
+                .ForMember(dest => dest.UpdatedBy, opt => opt.MapFrom(src => src.UpdatedBy))
+                .ForMember(dest => dest.DeletedAt, opt => opt.MapFrom(src => src.DeletedAt))
+                .ForMember(dest => dest.DeletedBy, opt => opt.MapFrom(src => src.DeletedBy))
                 .ReverseMap();
-
-            CreateMap<QuestionBank, QuestionDetailDTO>()
-                .ForMember(dest => dest.QuestionId, opt => opt.MapFrom(src => src.QuestionId))
-                .ForMember(dest => dest.Question, opt => opt.MapFrom(src => src.Question))
-                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
-                .ForMember(dest => dest.Index, opt => opt.MapFrom(src => src.QuestionInExams.Select(q => q.Index)))
-                .ForMember(dest => dest.Answers, opt => opt.MapFrom(src => src.Answers))
-                .ReverseMap();
-
-            CreateMap<Answer, AnswerDTO>()
-				.ForMember(dest => dest.AnswerId, opt => opt.MapFrom(src => src.AnswerId))
-				.ForMember(dest => dest.AnswerText, opt => opt.MapFrom(src => src.AnswerText))
-				.ForMember(dest => dest.IsCorrect, opt => opt.MapFrom(src => src.IsCorrect.Equals("true", StringComparison.OrdinalIgnoreCase)))
-				.ReverseMap();
-
-
 
             CreateMap<CreateExamDTO, Exam>()
                 .ForMember(dest => dest.ExamId, opt => opt.MapFrom(src => Guid.NewGuid().ToString()))
@@ -920,16 +937,10 @@ namespace Elepla.Service.Mappers
 
             CreateMap<UpdateExamDTO, Exam>()
                 .ForMember(dest => dest.ExamId, opt => opt.MapFrom(src => src.ExamId))
-                .ForMember(dest => dest.Title, opt => opt.Condition(src => src.Title != null))
-                .ForMember(dest => dest.Time, opt => opt.Condition(src => src.Time != null))
+                .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
+                .ForMember(dest => dest.Time, opt => opt.MapFrom(src => src.Time))
                 .ForMember(dest => dest.QuestionInExams, opt => opt.Ignore());
-
-            CreateMap<DeleteQuestionFromExamDTO, Exam>()
-                .ForMember(dest => dest.QuestionInExams, opt => opt.Ignore());
-
             #endregion
-
-
         }
     }
 }

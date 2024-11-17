@@ -19,6 +19,5 @@ namespace Elepla.Service.Interfaces
         Task<ResponseModel> ExportExamToPdfAsync(string examId);
         Task<ResponseModel> ExportExamToWordNoColorAsync(string examId);
         Task<ResponseModel> ExportExamToPdfNoColorAsync(string examId);
-        Task<ResponseModel> DeleteQuestionsFromExamAsync(string examId, DeleteQuestionFromExamDTO model);
     }
 }

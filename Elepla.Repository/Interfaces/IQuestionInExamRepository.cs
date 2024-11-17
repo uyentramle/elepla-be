@@ -9,8 +9,9 @@ namespace Elepla.Repository.Interfaces
 {
     public interface IQuestionInExamRepository
     {
-        Task AddAsync(QuestionInExam entity);
-        Task<IEnumerable<QuestionInExam>> GetAsync(System.Linq.Expressions.Expression<System.Func<QuestionInExam, bool>> filter);
-        void DeleteRange(IEnumerable<QuestionInExam> entities);
+        Task<IEnumerable<QuestionInExam>> GetByExamIdAsync(string examId);
+        Task CreateRangeQuestionInExamAsync(IEnumerable<QuestionInExam> questionInExams);
+        void UpdateRangeQuestionInExamAsync(IEnumerable<QuestionInExam> questionInExams);
+        void DeleteRangeQuestionInExamAsync(IEnumerable<QuestionInExam> questionInExams);
     }
 }

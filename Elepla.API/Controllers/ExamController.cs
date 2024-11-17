@@ -1,6 +1,7 @@
 ﻿using Elepla.Service.Interfaces;
 using Elepla.Service.Models.ResponseModels;
 using Elepla.Service.Models.ViewModels.ExamViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
@@ -15,9 +16,9 @@ namespace Elepla.API.Controllers
             _examService = examService;
         }
 
-        #region Get Exams by User ID
+        #region Get Exams by User Id
         [HttpGet]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> GetExamsByUserIdAsync(string userId)
         {
             var response = await _examService.GetExamsByUserIdAsync(userId);
@@ -25,13 +26,13 @@ namespace Elepla.API.Controllers
             {
                 return Ok(response);
             }
-            return NotFound(response);
+            return BadRequest(response);
         }
         #endregion
 
-        #region Get Exam by ID
+        #region Get Exam by Id
         [HttpGet]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> GetExamByIdAsync(string examId)
         {
             var response = await _examService.GetExamByIdAsync(examId);
@@ -39,13 +40,13 @@ namespace Elepla.API.Controllers
             {
                 return Ok(response);
             }
-            return NotFound(response);
+            return BadRequest(response);
         }
         #endregion
 
         #region Create Exam
         [HttpPost]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> CreateExamAsync(CreateExamDTO model)
         {
             if (!ModelState.IsValid)
@@ -64,7 +65,7 @@ namespace Elepla.API.Controllers
 
         #region Update Exam
         [HttpPut]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> UpdateExamAsync(UpdateExamDTO model)
         {
             if (!ModelState.IsValid)
@@ -83,7 +84,7 @@ namespace Elepla.API.Controllers
 
         #region Delete Exam
         [HttpDelete]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> DeleteExamAsync(string examId)
         {
             var response = await _examService.DeleteExamAsync(examId);
@@ -95,11 +96,10 @@ namespace Elepla.API.Controllers
         }
         #endregion
 
-
         #region Export Exam to Word
-        //[Authorize]
         [HttpGet]
-        public async Task<IActionResult> ExportExamToWord(string examId)
+        [Authorize]
+        public async Task<IActionResult> ExportExamToWordAsync(string examId)
         {
             var response = await _examService.ExportExamToWordAsync(examId) as SuccessResponseModel<byte[]>;
 
@@ -121,9 +121,9 @@ namespace Elepla.API.Controllers
         #endregion
 
         #region Export Exam to PDF
-        //[Authorize]
         [HttpGet]
-        public async Task<IActionResult> ExportExamToPdf(string examId)
+        [Authorize]
+        public async Task<IActionResult> ExportExamToPdfAsync(string examId)
         {
             var response = await _examService.ExportExamToPdfAsync(examId) as SuccessResponseModel<byte[]>;
 
@@ -142,14 +142,12 @@ namespace Elepla.API.Controllers
 
             return File(pdfData, "application/pdf", $"Exam_{examId}.pdf");
         }
-
         #endregion
 
         #region Export Exam to Word without Color
-        //[Authorize]
-
         [HttpGet]
-        public async Task<IActionResult> ExportExamToWordNoColor(string examId)
+        [Authorize]
+        public async Task<IActionResult> ExportExamToWordNoColorAsync(string examId)
         {
             var response = await _examService.ExportExamToWordNoColorAsync(examId) as SuccessResponseModel<byte[]>;
 
@@ -170,10 +168,9 @@ namespace Elepla.API.Controllers
         #endregion
 
         #region Export Exam to PDF without Color
-        //[Authorize]
-
         [HttpGet]
-        public async Task<IActionResult> ExportExamToPdfNoColor(string examId)
+        [Authorize]
+        public async Task<IActionResult> ExportExamToPdfNoColorAsync(string examId)
         {
             var response = await _examService.ExportExamToPdfNoColorAsync(examId) as SuccessResponseModel<byte[]>;
 
@@ -192,28 +189,5 @@ namespace Elepla.API.Controllers
             return File(pdfData, "application/pdf", $"Exam_{examId}.pdf");
         }
         #endregion
-
-
-        #region Delete Question From Exam
-        //[Authorize]
-        [HttpDelete]
-        public async Task<IActionResult> DeleteQuestionsFromExam(string examId, [FromBody] DeleteQuestionFromExamDTO model)
-        {
-            if (string.IsNullOrEmpty(examId) || model.QuestionIds == null || !model.QuestionIds.Any())
-            {
-                return BadRequest("Exam ID and at least one Question ID are required.");
-            }
-
-            var response = await _examService.DeleteQuestionsFromExamAsync(examId, model);
-
-            if (response.Success)
-            {
-                return Ok(response);
-            }
-
-            return StatusCode(500, response);
-        }
-        #endregion
-
     }
 }

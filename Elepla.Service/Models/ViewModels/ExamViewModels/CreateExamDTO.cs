@@ -18,6 +18,6 @@ namespace Elepla.Service.Models.ViewModels.ExamViewModels
         [Required]
         public string UserId { get; set; }
 
-        public List<string> QuestionIds { get; set; } = new List<string>();
+        public List<string> QuestionIds { get; set; }
     }
 }

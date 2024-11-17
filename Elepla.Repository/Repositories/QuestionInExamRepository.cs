@@ -19,22 +19,25 @@ namespace Elepla.Repository.Repositories
             _dbContext = dbContext;
         }
 
-        // Add an entity
-        public async Task AddAsync(QuestionInExam entity)
+        public async Task<IEnumerable<QuestionInExam>> GetByExamIdAsync(string examId)
         {
-            await _dbContext.QuestionInExams.AddAsync(entity);
+            return await _dbContext.QuestionInExams.Where(q => q.ExamId == examId).OrderBy(a => a.Index).ToListAsync();
         }
 
-        // Get entities based on a filter
-        public async Task<IEnumerable<QuestionInExam>> GetAsync(System.Linq.Expressions.Expression<System.Func<QuestionInExam, bool>> filter)
+        public async Task CreateRangeQuestionInExamAsync(IEnumerable<QuestionInExam> questionInExams)
         {
-            return await _dbContext.QuestionInExams.Where(filter).ToListAsync();
+            await _dbContext.QuestionInExams.AddRangeAsync(questionInExams);
         }
 
-        // Delete a range of entities
-        public void DeleteRange(IEnumerable<QuestionInExam> entities)
+        public void UpdateRangeQuestionInExamAsync(IEnumerable<QuestionInExam> questionInExams)
         {
-            _dbContext.QuestionInExams.RemoveRange(entities);
+            _dbContext.QuestionInExams.UpdateRange(questionInExams);
+        }
+
+        // Delete a range of questionInExams
+        public void DeleteRangeQuestionInExamAsync(IEnumerable<QuestionInExam> questionInExams)
+        {
+            _dbContext.QuestionInExams.RemoveRange(questionInExams);
         }
     }
 }
