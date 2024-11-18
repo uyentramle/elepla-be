@@ -24,9 +24,10 @@ namespace Elepla.Domain.Entities
         public string? TeachingTools { get; set; }
         public string? Notes { get; set; }
         public bool IsDefault { get; set; }
+        public bool IsPublic { get; set; }
 
-		// Foreign Key
-		public string? CollectionId { get; set; }
+        // Foreign Key
+        public string? CollectionId { get; set; }
         public string LessonId { get; set; }
 
         // Navigation properties

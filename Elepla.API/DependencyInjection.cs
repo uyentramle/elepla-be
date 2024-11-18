@@ -202,7 +202,6 @@ namespace Elepla.API
 
             // Question In Exam
             services.AddScoped<IQuestionInExamRepository, QuestionInExamRepository>();
-            services.AddScoped<IQuestionInExamService, QuestionInExamService>();
 
             // Add database context
             string selectedConnectionString = null;

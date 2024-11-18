@@ -27,12 +27,6 @@ namespace Elepla.Service.Services
         // Get all user packages
         public async Task<ResponseModel> GetAllUserPackagesAsync(string? keyword, int pageIndex, int pageSize)
         {
-            // Validate pageSize to avoid divide-by-zero errors
-            if (pageSize <= 0)
-            {
-                pageSize = 10; // Set a default page size if it’s invalid
-            }
-
             var userPackages = await _unitOfWork.UserPackageRepository.GetAsync(
                 filter: up => !up.IsDeleted && (string.IsNullOrEmpty(keyword) || up.Package.PackageName.Contains(keyword)),
                 includeProperties: "Package,User",
@@ -145,6 +139,7 @@ namespace Elepla.Service.Services
 
                 var userPackage = new UserPackage
                 {
+                    UserPackageId = Guid.NewGuid().ToString(),
                     UserId = userId,
                     PackageId = freePackage.PackageId,
                     StartDate = DateTime.Now,
@@ -170,6 +165,27 @@ namespace Elepla.Service.Services
                     Errors = new List<string> { ex.Message }
                 };
             }
+        }
+
+        public async Task<ResponseModel> GetCurrentUserPackageAsync(string userId)
+        {
+            var userPackage = await _unitOfWork.UserPackageRepository.GetActiveUserPackageAsync(userId);
+
+            if (userPackage is null)
+            {
+                return new ResponseModel
+                {
+                    Success = false,
+                    Message = "User package not found."
+                };
+            }
+
+            return new SuccessResponseModel<object>
+            {
+                Success = true,
+                Message = "Current user package retrieved successfully.",
+                Data = userPackage.PackageName
+            };
         }
     }
 }
