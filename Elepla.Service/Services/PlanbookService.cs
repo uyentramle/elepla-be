@@ -33,7 +33,7 @@ namespace Elepla.Service.Services
 		public async Task<ResponseModel> GetAllPlanbooksAsync(int pageIndex, int pageSize)
 		{
 			var planbooks = await _unitOfWork.PlanbookRepository.GetAsync(
-							filter: r => r.IsDeleted == false,
+							filter: r => r.IsDeleted == false && r.IsPublic && !r.IsDefault,
 							pageIndex: pageIndex,
 							pageSize: pageSize
 							);
@@ -506,6 +506,7 @@ namespace Elepla.Service.Services
             // Map thông tin planbookDto và các hoạt động từ planbookDto mẫu
             var planbookDto = _mapper.Map<CreatePlanbookDTO>(templatePlanbook);
             planbookDto.IsDefault = false;
+            planbookDto.IsPublic = false;
             var activities = templatePlanbook.Activities.OrderBy(a => a.Index).ToList(); // Sắp xếp theo Index
             planbookDto.Activities = _mapper.Map<List<CreateActivityForPlanbookDTO>>(activities);
 
@@ -672,6 +673,7 @@ namespace Elepla.Service.Services
                     TeachingTools = aiResponses[4],
                     Notes = aiResponses[5],
                     IsDefault = false,
+                    IsPublic = false,
                     CollectionId = null,  // Khi call API này, FE sẽ tự truyền CollectionId
                     LessonId = lessonId,
                     Activities = new List<CreateActivityForPlanbookDTO>() // Các hoạt động sẽ được tạo sau
@@ -776,6 +778,7 @@ namespace Elepla.Service.Services
                     TeachingTools = planbook.TeachingTools,
                     Notes = planbook.Notes,
                     IsDefault = false,
+                    IsPublic = false,
                     CollectionId = model.CollectionId,
                     LessonId = planbook.LessonId,
                     Activities = new List<Activity>()

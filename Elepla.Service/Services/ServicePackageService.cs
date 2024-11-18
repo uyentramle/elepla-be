@@ -85,6 +85,10 @@ namespace Elepla.Service.Services
                     if (servicePackage.IsDeleted)
                     {
                         servicePackage.Description = model.Description;
+                        servicePackage.UseTemplate = model.UseTemplate;
+                        servicePackage.UseAI = model.UseAI;
+                        servicePackage.ExportWord = model.ExportWord;
+                        servicePackage.ExportPdf = model.ExportPdf;
                         servicePackage.Price = model.Price;
                         servicePackage.Discount = model.Discount;
                         servicePackage.StartDate = model.StartDate;

@@ -21,6 +21,7 @@ namespace Elepla.Service.Models.ViewModels.PlanbookViewModels
 		public string QualitiesObjective { get; set; }
 		public string TeachingTools { get; set; }
 		public string? Notes { get; set; }
+		public bool IsPublic { get; set; }
         //public string CollectionId { get; set; } // Không cho phép sửa CollectionId
         //public string LessonId { get; set; } // Không cho phép sửa LessonId
 

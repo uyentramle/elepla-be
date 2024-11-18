@@ -11,6 +11,10 @@ namespace Elepla.Service.Models.ViewModels.ServicePackageViewModels
         public string PackageId { get; set; }
         public string PackageName { get; set; }
         public string? Description { get; set; }
+        public bool UseTemplate { get; set; }
+        public bool UseAI { get; set; }
+        public bool ExportWord { get; set; }
+        public bool ExportPdf { get; set; }
         public decimal Price { get; set; }
         public decimal Discount { get; set; }
         public DateTime StartDate { get; set; }
