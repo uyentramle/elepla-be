@@ -11,8 +11,11 @@ namespace Elepla.Service.Interfaces
     public interface IUserPackageService
     {
         Task<ResponseModel> GetAllUserPackagesAsync(string? keyword, int pageIndex, int pageSize);
-        Task<ResponseModel> GetUserPackagesAsync(string userId);
-        Task<ResponseModel> GetUserPackageDetailsAsync(string userPackageId);
+        Task<ResponseModel> GetUserPackagesByUserIdAsync(string userId);
+        Task<ResponseModel> GetUserPackageByIdAsync(string userPackageId);
         Task<ResponseModel> AddFreePackageToUserAsync(string userId);
+        Task<ResponseModel> GetActiveUserPackageByUserIdAsync(string userId);
+        Task DeactivateActiveUserPackagesAsync(string userId);
+        Task ActivateUserPackageAsync(string userPackageId);
     }
 }

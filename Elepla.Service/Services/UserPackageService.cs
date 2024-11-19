@@ -4,6 +4,7 @@ using Elepla.Repository.Common;
 using Elepla.Repository.Interfaces;
 using Elepla.Service.Interfaces;
 using Elepla.Service.Models.ResponseModels;
+using Elepla.Service.Models.ViewModels.ServicePackageViewModels;
 using Elepla.Service.Models.ViewModels.UserPackageModels;
 using System;
 using System.Collections.Generic;
@@ -45,11 +46,11 @@ namespace Elepla.Service.Services
         }
 
         // Get all user packages for a specific user
-        public async Task<ResponseModel> GetUserPackagesAsync(string userId)
+        public async Task<ResponseModel> GetUserPackagesByUserIdAsync(string userId)
         {
             // Check if the user exists
             var user = await _unitOfWork.AccountRepository.GetByIdAsync(userId);
-            if (user == null)
+            if (user is null)
             {
                 return new ResponseModel
                 {
@@ -74,7 +75,7 @@ namespace Elepla.Service.Services
         }
 
         // Get details of a specific user package
-        public async Task<ResponseModel> GetUserPackageDetailsAsync(string userPackageId)
+        public async Task<ResponseModel> GetUserPackageByIdAsync(string userPackageId)
         {
             var userPackage = await _unitOfWork.UserPackageRepository.GetByIdAsync(
                                             id: userPackageId,
@@ -167,7 +168,7 @@ namespace Elepla.Service.Services
             }
         }
 
-        public async Task<ResponseModel> GetCurrentUserPackageAsync(string userId)
+        public async Task<ResponseModel> GetActiveUserPackageByUserIdAsync(string userId)
         {
             var userPackage = await _unitOfWork.UserPackageRepository.GetActiveUserPackageAsync(userId);
 
@@ -180,12 +181,41 @@ namespace Elepla.Service.Services
                 };
             }
 
+            var userPackageDto = _mapper.Map<ViewServicePackageDTO>(userPackage);
+
             return new SuccessResponseModel<object>
             {
                 Success = true,
                 Message = "Current user package retrieved successfully.",
-                Data = userPackage.PackageName
+                Data = userPackageDto
             };
+        }
+
+        public async Task DeactivateActiveUserPackagesAsync(string userId)
+        {
+            var activeUserPackages = await _unitOfWork.UserPackageRepository.GetAllAsync(up => up.UserId.Equals(userId) && up.IsActive);
+
+            if (activeUserPackages.Any())
+            {
+                foreach (var userPackage in activeUserPackages)
+                {
+                    userPackage.IsActive = false;
+                    _unitOfWork.UserPackageRepository.Update(userPackage);
+                }
+            }
+
+            await _unitOfWork.SaveChangeAsync();
+        }
+
+        public async Task ActivateUserPackageAsync(string userPackageId)
+        {
+            var userPackage = await _unitOfWork.UserPackageRepository.GetByIdAsync(userPackageId);
+            if (userPackage is not null)
+            {
+                userPackage.IsActive = true;
+                _unitOfWork.UserPackageRepository.Update(userPackage);
+                await _unitOfWork.SaveChangeAsync();
+            }
         }
     }
 }

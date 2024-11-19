@@ -13,6 +13,10 @@ namespace Elepla.Service.Models.ViewModels.UserPackageModels
         public string FullName { get; set; }
         public string PackageId { get; set; }
         public string PackageName { get; set; }
+        public bool UseTemplate { get; set; }
+        public bool UseAI { get; set; }
+        public bool ExportWord { get; set; }
+        public bool ExportPdf { get; set; }
         public decimal Price { get; set; }
         public decimal Discount { get; set; }
         public DateTime StartDate { get; set; }
