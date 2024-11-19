@@ -365,35 +365,31 @@ namespace Elepla.Service.Mappers
             #endregion
 
             #region Payment
-            CreateMap<Payment, UserPaymentHistoryDTO>()
+            CreateMap<Payment, ViewListPaymentDTO>()
 				.ForMember(dest => dest.PaymentId, opt => opt.MapFrom(src => src.PaymentId))
-				.ForMember(dest => dest.TotalAmount, opt => opt.MapFrom(src => src.TotalAmount))
+                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.TeacherId))
+                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.FullName))
+                .ForMember(dest => dest.PaymentMethod, opt => opt.MapFrom(src => src.PaymentMethod))
+                .ForMember(dest => dest.TotalAmount, opt => opt.MapFrom(src => src.TotalAmount))
 				.ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
 				.ForMember(dest => dest.PackageName, opt => opt.MapFrom(src => src.UserPackage.Package.PackageName))
-				.ForMember(dest => dest.PackageId, opt => opt.MapFrom(src => src.UserPackage.Package.PackageId))
 				.ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
 				.ReverseMap();
 
-            CreateMap<Payment, UserPaymentHistoryDTO>()
-				.ForMember(dest => dest.PaymentId, opt => opt.MapFrom(src => src.PaymentId))
-				.ForMember(dest => dest.TotalAmount, opt => opt.MapFrom(src => src.TotalAmount))
-				.ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
-				.ForMember(dest => dest.PackageName, opt => opt.MapFrom(src => src.UserPackage.Package.PackageName))
-				.ForMember(dest => dest.PackageId, opt => opt.MapFrom(src => src.UserPackage.Package.PackageId))
-				.ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
-				.ReverseMap();
-
-            CreateMap<Payment, AllUserPaymentHistoryDTO>()
-				.ForMember(dest => dest.PaymentId, opt => opt.MapFrom(src => src.PaymentId))
-				.ForMember(dest => dest.TotalAmount, opt => opt.MapFrom(src => src.TotalAmount))
-				.ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
-				.ForMember(dest => dest.TeacherId, opt => opt.MapFrom(src => src.TeacherId))
-				.ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.FullName))
-				.ForMember(dest => dest.PackageName, opt => opt.MapFrom(src => src.UserPackage.Package.PackageName))
-				.ForMember(dest => dest.PackageId, opt => opt.MapFrom(src => src.UserPackage.Package.PackageId))
-				.ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
-				.ReverseMap();
-
+			CreateMap<Payment, ViewDetailPaymentDTO>()
+                .ForMember(dest => dest.PaymentId, opt => opt.MapFrom(src => src.PaymentId))
+                .ForMember(dest => dest.PaymentMethod, opt => opt.MapFrom(src => src.PaymentMethod))
+                .ForMember(dest => dest.TotalAmount, opt => opt.MapFrom(src => src.TotalAmount))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.TeacherId))
+                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.FullName))
+                .ForMember(dest => dest.AddressText, opt => opt.MapFrom(src => src.AddressText))
+                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
+                .ForMember(dest => dest.PackageName, opt => opt.MapFrom(src => src.UserPackage.Package.PackageName))
+                .ForMember(dest => dest.PackageDescription, opt => opt.MapFrom(src => src.UserPackage.Package.Description))
+                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.UserPackage.Package.Price))
+                .ForMember(dest => dest.Discount, opt => opt.MapFrom(src => src.UserPackage.Package.Discount))
+                .ReverseMap();
             #endregion
 
             #region Subject
@@ -903,6 +899,10 @@ namespace Elepla.Service.Mappers
                 .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.User.LastName + " " + src.User.FirstName))
                 .ForMember(dest => dest.PackageId, opt => opt.MapFrom(src => src.PackageId))
                 .ForMember(dest => dest.PackageName, opt => opt.MapFrom(src => src.Package.PackageName))
+                .ForMember(dest => dest.UseTemplate, opt => opt.MapFrom(src => src.Package.UseTemplate))
+                .ForMember(dest => dest.UseAI, opt => opt.MapFrom(src => src.Package.UseAI))
+                .ForMember(dest => dest.ExportWord, opt => opt.MapFrom(src => src.Package.ExportWord))
+                .ForMember(dest => dest.ExportPdf, opt => opt.MapFrom(src => src.Package.ExportPdf))
                 .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Package.Price))
                 .ForMember(dest => dest.Discount, opt => opt.MapFrom(src => src.Package.Discount))
                 .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.StartDate))

@@ -15,6 +15,7 @@ namespace Elepla.API.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Manager")]
         public async Task<IActionResult> GetAllUserPackagesAsync(string? keyword, int pageIndex = 0, int pageSize = 10)
         {
             var response = await _userPackageService.GetAllUserPackagesAsync(keyword, pageIndex, pageSize);
@@ -27,9 +28,9 @@ namespace Elepla.API.Controllers
 
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> GetUserPackagesAsync(string userId)
+        public async Task<IActionResult> GetUserPackagesByUserIdAsync(string userId)
         {
-            var response = await _userPackageService.GetUserPackagesAsync(userId);
+            var response = await _userPackageService.GetUserPackagesByUserIdAsync(userId);
             if (response.Success)
             {
                 return Ok(response);
@@ -39,9 +40,21 @@ namespace Elepla.API.Controllers
 
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> GetUserPackageDetailsAsync(string userPackageId)
+        public async Task<IActionResult> GetUserPackageByIdAsync(string userPackageId)
         {
-            var response = await _userPackageService.GetUserPackageDetailsAsync(userPackageId);
+            var response = await _userPackageService.GetUserPackageByIdAsync(userPackageId);
+            if (response.Success)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
+        }
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetActiveUserPackageByUserIdAsync(string userId)
+        {
+            var response = await _userPackageService.GetActiveUserPackageByUserIdAsync(userId);
             if (response.Success)
             {
                 return Ok(response);

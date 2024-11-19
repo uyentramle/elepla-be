@@ -226,11 +226,11 @@ namespace Elepla.Repository.Data
 
         private static async Task InitializeServicePackage(IUnitOfWork unitOfWork)
         {
-            var servicePackages = new List<(string Name, decimal Price, decimal Discount, DateTime StartDate, DateTime EndDate, int MaxPlanbooks)>
+            var servicePackages = new List<(string Name, decimal Price, decimal Discount, DateTime StartDate, DateTime EndDate, int MaxPlanbooks, bool UseTemplate, bool UseAI, bool ExportWord, bool ExportPdf)>
             {
-                ("Gói miễn phí", 0, 0, new DateTime(2024, 9, 5), new DateTime(2025, 5, 31), 5),
-                ("Gói cơ bản", 10000, 0, new DateTime(2024, 9, 5), new DateTime(2025, 5, 31), 50),
-                ("Gói cao cấp", 30000, 0, new DateTime(2024, 9, 5), new DateTime(2025, 5, 31), 300)
+                ("Gói miễn phí", 0, 0, new DateTime(2024, 9, 5), new DateTime(2025, 5, 31), 5, false, false, false, false),
+                ("Gói cơ bản", 10000, 0, new DateTime(2024, 9, 5), new DateTime(2025, 5, 31), 50, true, false, true, true),
+                ("Gói cao cấp", 30000, 0, new DateTime(2024, 9, 5), new DateTime(2025, 5, 31), 300, true, false, true, true)
             };
 
             foreach (var servicePackageName in servicePackages)
@@ -247,6 +247,10 @@ namespace Elepla.Repository.Data
                         StartDate = servicePackageName.StartDate,
                         EndDate = servicePackageName.EndDate,
                         MaxPlanbooks = servicePackageName.MaxPlanbooks,
+                        UseTemplate = servicePackageName.UseTemplate,
+                        UseAI = servicePackageName.UseAI,
+                        ExportWord = servicePackageName.ExportWord,
+                        ExportPdf = servicePackageName.ExportPdf,
                         CreatedBy = "system",
                         IsDeleted = false
                     };
@@ -258,5 +262,4 @@ namespace Elepla.Repository.Data
             await unitOfWork.SaveChangeAsync();
         }
     }
-
 }

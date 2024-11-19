@@ -106,6 +106,7 @@ namespace Elepla.API
             services.AddScoped<ITokenService, TokenService>();
 			services.AddScoped<IUrlService, UrlService>();
             services.AddScoped<IOpenAIService, OpenAIService>();
+            services.AddScoped<IPayOSService, PayOSService>();
 
             // User
             services.AddScoped<IAccountRepository, AccountRepository>();
