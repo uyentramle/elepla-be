@@ -237,6 +237,7 @@ namespace Elepla.Service.Mappers
 				.ForMember(dest => dest.Question, opt => opt.MapFrom(src => src.Question))
 				.ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
 				.ForMember(dest => dest.Plum, opt => opt.MapFrom(src => src.Plum))
+				.ForMember(dest => dest.Answers, opt => opt.MapFrom(src => src.Answers))
 				.ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
 				.ForMember(dest => dest.CreatedBy, opt => opt.MapFrom(src => src.CreatedBy))
 				.ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.UpdatedAt))
