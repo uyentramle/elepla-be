@@ -349,7 +349,7 @@ namespace Elepla.Service.Services
             }
 
             // Path to your DejaVuSans.ttf font file
-            var fontPath = Path.Combine("Resources", "Fonts", "DejaVuSans.ttf");
+            var fontPath = Path.Combine(AppContext.BaseDirectory, "Resources", "Fonts", "DejaVuSans.ttf");
 
             // Using a memory stream instead of saving the file on disk
             using (var memoryStream = new MemoryStream())
@@ -515,7 +515,7 @@ namespace Elepla.Service.Services
             }
 
             // Path to your DejaVuSans.ttf font file
-            var fontPath = Path.Combine("Resources", "Fonts", "DejaVuSans.ttf");
+            var fontPath = Path.Combine(AppContext.BaseDirectory, "Resources", "Fonts", "DejaVuSans.ttf");
 
             // Using a memory stream instead of saving the file on disk
             using (var memoryStream = new MemoryStream())
