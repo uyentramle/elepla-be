@@ -1138,7 +1138,7 @@ namespace Elepla.Service.Services
                         var document = new iText.Layout.Document(pdf);
 
                         // Load the font
-                        var fontPath = Path.Combine("Resources", "Fonts", "SVN-Times New Roman 2.ttf");
+                        var fontPath = Path.Combine("Resources", "Fonts", "SVN-TimesNewRoman2.ttf");
                         if (!File.Exists(fontPath))
                             throw new FileNotFoundException($"Font file not found: {fontPath}");
                         var font = PdfFontFactory.CreateFont(fontPath, PdfEncodings.IDENTITY_H);
@@ -1317,7 +1317,7 @@ namespace Elepla.Service.Services
                 return new ErrorResponseModel<object>
                 {
                     Success = false,
-                    Message = "An error occurred while exporting the Planbook to Word.",
+                    Message = "An error occurred while exporting the Planbook to Pdf.",
                     Errors = new List<string> { ex.Message }
                 };
             }
