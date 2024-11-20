@@ -22,6 +22,7 @@ namespace Elepla.Service.Models.ViewModels.UserPackageModels
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public bool IsActive { get; set; }
+        public string PaymentStatus { get; set; }
         public DateTime CreatedAt { get; set; }
         public string CreatedBy { get; set; }
         public DateTime UpdatedAt { get; set; }

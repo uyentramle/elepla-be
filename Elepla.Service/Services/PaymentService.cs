@@ -298,12 +298,12 @@ namespace Elepla.Service.Services
                 // 2. Gọi PayOSService để tạo liên kết thanh toán
                 var paymentData = new PaymentData
                 (
-                    orderCode: long.Parse(paymentResult.PaymentId),                                 // Sử dụng PaymentId làm orderCode
-                    amount: (int)paymentResult.Amount,                                              // Chuyển Amount thành số nguyên
-                    description: "Thanh toán gói dịch vụ",                                          // Mô tả gói dịch vụ (tuỳ chỉnh)
-                    items: items,                                                                   // Danh sách các mặt hàng (tuỳ chỉnh)
-                    cancelUrl: "https://elepla.vercel.app/teacher/package?handler=paymentCallback", // URL hủy thanh toán
-                    returnUrl: "https://elepla.vercel.app/teacher/package?handler=paymentCallback"  // URL quay lại sau khi thanh toán thành công
+                    orderCode: long.Parse(paymentResult.PaymentId),              // Sử dụng PaymentId làm orderCode
+                    amount: (int)paymentResult.Amount,                           // Chuyển Amount thành số nguyên
+                    description: "Thanh toán gói dịch vụ",                       // Mô tả gói dịch vụ (tuỳ chỉnh)
+                    items: items,                                                // Danh sách các mặt hàng (tuỳ chỉnh)
+                    cancelUrl: "https://elepla.vercel.app/teacher/package",      // URL hủy thanh toán
+                    returnUrl: "https://elepla.vercel.app/teacher/package"       // URL quay lại sau khi thanh toán thành công
                 );
 
                 var paymentLink = await _payOSService.CreatePaymentLink(paymentData);

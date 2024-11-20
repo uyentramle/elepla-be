@@ -32,8 +32,8 @@ namespace Elepla.Service.Services
         {
             var userPackages = await _unitOfWork.UserPackageRepository.GetAsync(
                 filter: up => !up.IsDeleted && (string.IsNullOrEmpty(keyword) || up.Package.PackageName.Contains(keyword)),
-                includeProperties: "Package,User",
-                orderBy: up => up.OrderBy(p => p.CreatedAt),
+                orderBy: up => up.OrderByDescending(p => p.CreatedAt),
+                includeProperties: "Package,User,Payments",
                 pageIndex: pageIndex,
                 pageSize: pageSize);
 
@@ -64,7 +64,8 @@ namespace Elepla.Service.Services
             // Retrieve user packages
             var userPackages = await _unitOfWork.UserPackageRepository.GetAllAsync(
                 filter: up => up.UserId.Equals(userId) && !up.IsDeleted,
-                includeProperties: "Package,User");
+                orderBy: up => up.OrderByDescending(p => p.CreatedAt),
+                includeProperties: "Package,User,Payments");
 
             var userPackageDtos = _mapper.Map<List<ViewListUserPackageDTO>>(userPackages);
 
@@ -81,7 +82,7 @@ namespace Elepla.Service.Services
         {
             var userPackage = await _unitOfWork.UserPackageRepository.GetByIdAsync(
                                             id: userPackageId,
-                                            includeProperties: "Package,User");
+                                            includeProperties: "Package,User,Payments");
 
             if (userPackage is null || userPackage.IsDeleted)
             {
