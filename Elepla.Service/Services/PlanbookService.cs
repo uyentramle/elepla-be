@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml;
 using Elepla.Domain.Entities;
 using Elepla.Repository.Common;
 using Elepla.Repository.Interfaces;
@@ -6,175 +8,173 @@ using Elepla.Service.Interfaces;
 using Elepla.Service.Models.ResponseModels;
 using Elepla.Service.Models.ViewModels.ActivityViewModels;
 using Elepla.Service.Models.ViewModels.PlanbookViewModels;
-using Elepla.Service.Utils;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using iText.IO.Font;
+using iText.Kernel.Font;
+using iText.Kernel.Pdf;
+using Word = DocumentFormat.OpenXml.Wordprocessing;
+using DocumentFormat.OpenXml.Wordprocessing;
 
 namespace Elepla.Service.Services
 {
-	public class PlanbookService : IPlanbookService
-	{
-		private readonly IUnitOfWork _unitOfWork;
-		private readonly IMapper _mapper;
+    public class PlanbookService : IPlanbookService
+    {
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
         private readonly IOpenAIService _openAIService;
 
         public PlanbookService(IUnitOfWork unitOfWork, IMapper mapper, IOpenAIService openAIService)
-		{
-			_unitOfWork = unitOfWork;
-			_mapper = mapper;
+        {
+            _unitOfWork = unitOfWork;
+            _mapper = mapper;
             _openAIService = openAIService;
         }
 
-		#region Get All Planbooks
-		public async Task<ResponseModel> GetAllPlanbooksAsync(int pageIndex, int pageSize)
-		{
-			var planbooks = await _unitOfWork.PlanbookRepository.GetAsync(
-							filter: r => r.IsDeleted == false && r.IsPublic && !r.IsDefault,
-							pageIndex: pageIndex,
-							pageSize: pageSize
-							);
-			var mappers = _mapper.Map<Pagination<ViewListPlanbookDTO>>(planbooks);
-			foreach (var item in mappers.Items)
-			{
-				var lesson = await _unitOfWork.LessonRepository.GetByIdAsync(item.LessonId);
-				if (lesson != null)
-				{
-					item.LessonName = lesson.Name;
-				}
-			}
+        #region Get All Planbooks
+        public async Task<ResponseModel> GetAllPlanbooksAsync(int pageIndex, int pageSize)
+        {
+            var planbooks = await _unitOfWork.PlanbookRepository.GetAsync(
+                            filter: r => r.IsDeleted == false && r.IsPublic && !r.IsDefault,
+                            pageIndex: pageIndex,
+                            pageSize: pageSize
+                            );
+            var mappers = _mapper.Map<Pagination<ViewListPlanbookDTO>>(planbooks);
+            foreach (var item in mappers.Items)
+            {
+                var lesson = await _unitOfWork.LessonRepository.GetByIdAsync(item.LessonId);
+                if (lesson != null)
+                {
+                    item.LessonName = lesson.Name;
+                }
+            }
 
-			return new SuccessResponseModel<object>
-			{
-				Success = true,
-				Message = "Planbooks retrieved successfully.",
-				Data = mappers
-			};
-		}
-		#endregion
+            return new SuccessResponseModel<object>
+            {
+                Success = true,
+                Message = "Planbooks retrieved successfully.",
+                Data = mappers
+            };
+        }
+        #endregion
 
-		#region Get Planbook By Id
-		public async Task<ResponseModel> GetPlanbookByIdAsync(string planbookId)
-		{
-			var planbook = await _unitOfWork.PlanbookRepository.GetByIdAsync(planbookId);
-			if (planbook == null)
-			{
-				return new ResponseModel
-				{
-					Success = false,
-					Message = "Planbook not found."
-				};
-			}
+        #region Get Planbook By Id
+        public async Task<ResponseModel> GetPlanbookByIdAsync(string planbookId)
+        {
+            var planbook = await _unitOfWork.PlanbookRepository.GetByIdAsync(planbookId);
+            if (planbook == null)
+            {
+                return new ResponseModel
+                {
+                    Success = false,
+                    Message = "Planbook not found."
+                };
+            }
 
-			var mapper = _mapper.Map<ViewDetailPlanbookDTO>(planbook);
+            var mapper = _mapper.Map<ViewDetailPlanbookDTO>(planbook);
 
-			var collection = await _unitOfWork.PlanbookCollectionRepository.GetByIdAsync(planbook.CollectionId);
-			if (collection != null)
-			{
-				mapper.CollectionName = collection.CollectionName;
-			}
+            var collection = await _unitOfWork.PlanbookCollectionRepository.GetByIdAsync(planbook.CollectionId);
+            if (collection != null)
+            {
+                mapper.CollectionName = collection.CollectionName;
+            }
 
-			var lesson = await _unitOfWork.LessonRepository.GetByIdAsync(planbook.LessonId);
-			if (lesson != null)
-			{
-				mapper.LessonName = lesson.Name;
-			}
+            var lesson = await _unitOfWork.LessonRepository.GetByIdAsync(planbook.LessonId);
+            if (lesson != null)
+            {
+                mapper.LessonName = lesson.Name;
+            }
 
-			var activities = await _unitOfWork.ActivityRepository.GetByPlanbookIdAsync(planbookId);
-			mapper.Activities = _mapper.Map<List<ViewListActivityDTO>>(activities);
+            var activities = await _unitOfWork.ActivityRepository.GetByPlanbookIdAsync(planbookId);
+            mapper.Activities = _mapper.Map<List<ViewListActivityDTO>>(activities);
 
-			return new SuccessResponseModel<object>
-			{
-				Success = true,
-				Message = "Planbook retrieved successfully.",
-				Data = mapper
-			};
-		}
-		#endregion
+            return new SuccessResponseModel<object>
+            {
+                Success = true,
+                Message = "Planbook retrieved successfully.",
+                Data = mapper
+            };
+        }
+        #endregion
 
-		#region Get Planbook By Collection Id
-		public async Task<ResponseModel> GetPlanbookByCollectionIdAsync(string collectionId, int pageIndex, int pageSize)
-		{
-			var planbooks = await _unitOfWork.PlanbookRepository.GetAsync(
-							filter: r => r.CollectionId == collectionId && r.IsDeleted == false,
-							pageIndex: pageIndex,
-							pageSize: pageSize
-							);
-			var mappers = _mapper.Map<Pagination<ViewListPlanbookDTO>>(planbooks);
-			foreach (var item in mappers.Items)
-			{
-				var lesson = await _unitOfWork.LessonRepository.GetByIdAsync(item.LessonId);
-				if (lesson != null)
-				{
-					item.LessonName = lesson.Name;
-				}
-			}
+        #region Get Planbook By Collection Id
+        public async Task<ResponseModel> GetPlanbookByCollectionIdAsync(string collectionId, int pageIndex, int pageSize)
+        {
+            var planbooks = await _unitOfWork.PlanbookRepository.GetAsync(
+                            filter: r => r.CollectionId == collectionId && r.IsDeleted == false,
+                            pageIndex: pageIndex,
+                            pageSize: pageSize
+                            );
+            var mappers = _mapper.Map<Pagination<ViewListPlanbookDTO>>(planbooks);
+            foreach (var item in mappers.Items)
+            {
+                var lesson = await _unitOfWork.LessonRepository.GetByIdAsync(item.LessonId);
+                if (lesson != null)
+                {
+                    item.LessonName = lesson.Name;
+                }
+            }
 
-			return new SuccessResponseModel<object>
-			{
-				Success = true,
-				Message = "Planbooks retrieved successfully.",
-				Data = mappers
-			};
-		}
-		#endregion
+            return new SuccessResponseModel<object>
+            {
+                Success = true,
+                Message = "Planbooks retrieved successfully.",
+                Data = mappers
+            };
+        }
+        #endregion
 
-		#region Get Planbook By Lesson Id
-		public async Task<ResponseModel> GetPlanbookByLessonIdAsync(string lessonId, int pageIndex, int pageSize)
-		{
-			var planbooks = await _unitOfWork.PlanbookRepository.GetAsync(
-							filter: r => !r.IsDeleted && r.LessonId == lessonId,
-							pageIndex: pageIndex,
-							pageSize: pageSize
-							);
-			var mappers = _mapper.Map<Pagination<ViewListPlanbookDTO>>(planbooks);
-			foreach (var item in mappers.Items)
-			{
-				var lesson = await _unitOfWork.LessonRepository.GetByIdAsync(item.LessonId);
-				if (lesson != null)
-				{
-					item.LessonName = lesson.Name;
-				}
-			}
+        #region Get Planbook By Lesson Id
+        public async Task<ResponseModel> GetPlanbookByLessonIdAsync(string lessonId, int pageIndex, int pageSize)
+        {
+            var planbooks = await _unitOfWork.PlanbookRepository.GetAsync(
+                            filter: r => !r.IsDeleted && r.LessonId == lessonId,
+                            pageIndex: pageIndex,
+                            pageSize: pageSize
+                            );
+            var mappers = _mapper.Map<Pagination<ViewListPlanbookDTO>>(planbooks);
+            foreach (var item in mappers.Items)
+            {
+                var lesson = await _unitOfWork.LessonRepository.GetByIdAsync(item.LessonId);
+                if (lesson != null)
+                {
+                    item.LessonName = lesson.Name;
+                }
+            }
 
-			return new SuccessResponseModel<object>
-			{
-				Success = true,
-				Message = "Planbooks retrieved successfully.",
-				Data = mappers
-			};
-		}
-		#endregion
+            return new SuccessResponseModel<object>
+            {
+                Success = true,
+                Message = "Planbooks retrieved successfully.",
+                Data = mappers
+            };
+        }
+        #endregion
 
-		// ham nay chua lam xong
-		#region Get Planbook By User Id 
-		public async Task<ResponseModel> GetPlanbookByUserIdAsync(string userId, int pageIndex, int pageSize)
-		{
-			var planbooks = await _unitOfWork.PlanbookRepository.GetAsync(
-							//filter: r => r.UserId == userId && r.IsDeleted == false, 
-							pageIndex: pageIndex,
-							pageSize: pageSize
-							);
-			var mappers = _mapper.Map<Pagination<ViewListPlanbookDTO>>(planbooks);
-			foreach (var item in mappers.Items)
-			{
-				var lesson = await _unitOfWork.LessonRepository.GetByIdAsync(item.LessonId);
-				if (lesson != null)
-				{
-					item.LessonName = lesson.Name;
-				}
-			}
+        // ham nay chua lam xong
+        #region Get Planbook By User Id 
+        public async Task<ResponseModel> GetPlanbookByUserIdAsync(string userId, int pageIndex, int pageSize)
+        {
+            var planbooks = await _unitOfWork.PlanbookRepository.GetAsync(
+                            //filter: r => r.UserId == userId && r.IsDeleted == false, 
+                            pageIndex: pageIndex,
+                            pageSize: pageSize
+                            );
+            var mappers = _mapper.Map<Pagination<ViewListPlanbookDTO>>(planbooks);
+            foreach (var item in mappers.Items)
+            {
+                var lesson = await _unitOfWork.LessonRepository.GetByIdAsync(item.LessonId);
+                if (lesson != null)
+                {
+                    item.LessonName = lesson.Name;
+                }
+            }
 
-			return new SuccessResponseModel<object>
-			{
-				Success = true,
-				Message = "Planbooks retrieved successfully.",
-				Data = mappers
-			};
-		}
+            return new SuccessResponseModel<object>
+            {
+                Success = true,
+                Message = "Planbooks retrieved successfully.",
+                Data = mappers
+            };
+        }
         #endregion
 
         #region Create Planbook
@@ -222,7 +222,7 @@ namespace Elepla.Service.Services
                 var existingLesson = await _unitOfWork.LessonRepository.GetByIdAsync(model.LessonId);
 
                 if (existingLesson is null)
-				{
+                {
                     return new ResponseModel
                     {
                         Success = false,
@@ -274,9 +274,9 @@ namespace Elepla.Service.Services
                 if (model.Activities != null && model.Activities.Any())
                 {
                     var activities = _mapper.Map<List<Activity>>(model.Activities);
-					int index = 1; // tự động tạo index cho activity, không cần truyền index trong DTO
-                    
-					foreach (var activity in activities)
+                    int index = 1; // tự động tạo index cho activity, không cần truyền index trong DTO
+
+                    foreach (var activity in activities)
                     {
                         activity.PlanbookId = planbook.PlanbookId;
                         activity.Index = index++;
@@ -304,23 +304,23 @@ namespace Elepla.Service.Services
                 };
             }
         }
-		#endregion
+        #endregion
 
-		#region Update Planbook
-		public async Task<ResponseModel> UpdatePlanbookAsync(UpdatePlanbookDTO model)
-		{
-			try
-			{
+        #region Update Planbook
+        public async Task<ResponseModel> UpdatePlanbookAsync(UpdatePlanbookDTO model)
+        {
+            try
+            {
                 // Kiểm tra planbookDto có tồn tại không
                 var planbook = await _unitOfWork.PlanbookRepository.GetByIdAsync(model.PlanbookId);
-				if (planbook is null)
-				{
-					return new ResponseModel
-					{
-						Success = false,
-						Message = "Planbook not found."
-					};
-				}
+                if (planbook is null)
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "Planbook not found."
+                    };
+                }
 
                 // Cập nhật Planbook
                 _mapper.Map(model, planbook);
@@ -393,21 +393,21 @@ namespace Elepla.Service.Services
                 await _unitOfWork.SaveChangeAsync();
 
                 return new ResponseModel
-				{
-					Success = true,
-					Message = "Planbook updated successfully."
-				};
-			}
-			catch (Exception ex)
-			{
-				return new ErrorResponseModel<string>
-				{
-					Success = false,
-					Message = "An error occurred while updating the planbook.",
-					Errors = new List<string> { ex.Message }
-				};
-			}
-		}
+                {
+                    Success = true,
+                    Message = "Planbook updated successfully."
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ErrorResponseModel<string>
+                {
+                    Success = false,
+                    Message = "An error occurred while updating the planbook.",
+                    Errors = new List<string> { ex.Message }
+                };
+            }
+        }
         #endregion
 
         #region Delete Planbook
@@ -448,38 +448,38 @@ namespace Elepla.Service.Services
 
         #region Soft Remove Planbook
         public async Task<ResponseModel> SoftRemovePlanbookAsync(string planbookId)
-		{
-			try
-			{
-				var planbook = await _unitOfWork.PlanbookRepository.GetByIdAsync(planbookId);
-				if (planbook == null)
-				{
-					return new ResponseModel
-					{
-						Success = false,
-						Message = "Planbook not found."
-					};
-				}
+        {
+            try
+            {
+                var planbook = await _unitOfWork.PlanbookRepository.GetByIdAsync(planbookId);
+                if (planbook == null)
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "Planbook not found."
+                    };
+                }
 
-				_unitOfWork.PlanbookRepository.SoftRemove(planbook);
-				await _unitOfWork.SaveChangeAsync();
+                _unitOfWork.PlanbookRepository.SoftRemove(planbook);
+                await _unitOfWork.SaveChangeAsync();
 
-				return new ResponseModel
-				{
-					Success = true,
-					Message = "Planbook deleted successfully."
-				};
-			}
-			catch (Exception ex)
-			{
-				return new ErrorResponseModel<string>
-				{
-					Success = false,
-					Message = "An error occurred while deleting the planbook.",
-					Errors = new List<string> { ex.Message }
-				};
-			}
-		}
+                return new ResponseModel
+                {
+                    Success = true,
+                    Message = "Planbook deleted successfully."
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ErrorResponseModel<string>
+                {
+                    Success = false,
+                    Message = "An error occurred while deleting the planbook.",
+                    Errors = new List<string> { ex.Message }
+                };
+            }
+        }
         #endregion
 
         #region Create Planbook From Template
@@ -814,6 +814,510 @@ namespace Elepla.Service.Services
                 {
                     Success = false,
                     Message = "An error occurred while cloning the planbook.",
+                    Errors = new List<string> { ex.Message }
+                };
+            }
+        }
+        #endregion
+
+        #region Export Planbook to Word
+        public async Task<ResponseModel> ExportPlanbookToWordAsync(string planbookId)
+        {
+            try
+            {
+                var planbook = await _unitOfWork.PlanbookRepository.GetByIdAsync(id: planbookId, includeProperties: "Activities");
+                if (planbook is null)
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "Planbook not found."
+                    };
+                }
+
+                using (var memoryStream = new MemoryStream())
+                {
+                    using (var wordDocument = WordprocessingDocument.Create(memoryStream, WordprocessingDocumentType.Document, true))
+                    {
+                        var mainPart = wordDocument.AddMainDocumentPart();
+                        mainPart.Document = new Document();
+                        var body = mainPart.Document.AppendChild(new Body());
+
+                        // Add SchoolName and TeacherName in one row (Header)
+                        body.AppendChild(CreateTopTable(
+                            planbook.SchoolName?.ToUpper() ?? string.Empty,
+                            "TỔ ...",
+                            "HỌ VÀ TÊN GIÁO VIÊN",
+                            planbook.TeacherName?.ToUpper() ?? string.Empty,
+                            14 // Font size
+                        ));
+
+                        // Add Title and Other Details
+                        body.AppendChild(CreateParagraph($"", JustificationValues.Center, fontSize: 14));
+                        body.AppendChild(CreateParagraph($"TÊN BÀI DẠY: {planbook.Title?.ToUpper()}", JustificationValues.Center, bold: true, fontSize: 14));
+                        body.AppendChild(CreateParagraph($"Môn học: {planbook.Subject}; lớp: {planbook.ClassName}", JustificationValues.Center, fontSize: 14));
+                        body.AppendChild(CreateParagraph($"Thời gian thực hiện: ({planbook.DurationInPeriods} tiết)", JustificationValues.Center, fontSize: 14));
+                        body.AppendChild(CreateParagraph($"", JustificationValues.Center, fontSize: 14));
+
+                        // Add Objectives Section
+                        body.AppendChild(CreateParagraph("I. MỤC TIÊU", JustificationValues.Left, bold: true, fontSize: 14));
+                        body.AppendChild(CreateParagraph($"1. Về kiến thức:", JustificationValues.Left, bold: true, fontSize: 14));
+                        body.AppendChild(CreateParagraph(planbook.KnowledgeObjective ?? string.Empty, JustificationValues.Left, fontSize: 14));
+                        body.AppendChild(CreateParagraph($"2. Về năng lực:", JustificationValues.Left, bold: true, fontSize: 14));
+                        body.AppendChild(CreateParagraph(planbook.SkillsObjective ?? string.Empty, JustificationValues.Left, fontSize: 14));
+                        body.AppendChild(CreateParagraph($"3. Về phẩm chất:", JustificationValues.Left, bold: true, fontSize: 14));
+                        body.AppendChild(CreateParagraph(planbook.QualitiesObjective ?? string.Empty, JustificationValues.Left, fontSize: 14));
+
+                        // Add Teaching Tools Section
+                        body.AppendChild(CreateParagraph("II. THIẾT BỊ DẠY HỌC VÀ HỌC LIỆU", JustificationValues.Left, bold: true, fontSize: 14));
+                        body.AppendChild(CreateParagraph(planbook.TeachingTools ?? string.Empty, JustificationValues.Left, fontSize: 14));
+
+                        // Add Activities Section
+                        body.AppendChild(CreateParagraph("III. TIẾN TRÌNH DẠY HỌC", JustificationValues.Left, bold: true, fontSize: 14));
+                        foreach (var activity in planbook.Activities.OrderBy(a => a.Index))
+                        {
+                            body.AppendChild(CreateParagraph(activity.Title, JustificationValues.Left, bold: true, fontSize: 14));
+                            body.AppendChild(CreateParagraph($"a) Mục tiêu:", JustificationValues.Left, bold: true, fontSize: 14));
+                            body.AppendChild(CreateParagraph(activity.Objective ?? string.Empty, JustificationValues.Left, fontSize: 14));
+                            body.AppendChild(CreateParagraph($"b) Nội dung:", JustificationValues.Left, bold: true, fontSize: 14));
+                            body.AppendChild(CreateParagraph(activity.Content ?? string.Empty, JustificationValues.Left, fontSize: 14));
+                            body.AppendChild(CreateParagraph($"c) Sản phẩm:", JustificationValues.Left, bold: true, fontSize: 14));
+                            body.AppendChild(CreateParagraph(activity.Product ?? string.Empty, JustificationValues.Left, fontSize: 14));
+                            body.AppendChild(CreateParagraph($"d) Tổ chức thực hiện:", JustificationValues.Left, bold: true, fontSize: 14));
+                            body.AppendChild(CreateParagraph(activity.Implementation ?? string.Empty, JustificationValues.Left, fontSize: 14));
+                        }
+
+                        body.AppendChild(CreateParagraph("Ghi chú:", JustificationValues.Left, bold: true, fontSize: 14));
+                        body.AppendChild(CreateParagraph(planbook.Notes ?? string.Empty, JustificationValues.Left, fontSize: 14));
+
+                        // Add Footer Table
+                        body.AppendChild(CreateFooterTable(
+                            "Duyệt của lãnh đạo tổ",     // Left cell text
+                            "Người soạn",                // Label
+                            planbook.TeacherName ?? string.Empty, // Teacher name
+                            14                           // Font size
+                        ));
+
+                        mainPart.Document.Save();
+                    }
+
+                    return new ResponseModel
+                    {
+                        Success = true,
+                        Message = Convert.ToBase64String(memoryStream.ToArray()) // Return file content as Base64
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                return new ErrorResponseModel<object>
+                {
+                    Success = false,
+                    Message = "An error occurred while exporting the Planbook to Word.",
+                    Errors = new List<string> { ex.Message }
+                };
+            }
+        }
+
+        // Helper Method for Word Paragraphs
+        private Word.Paragraph CreateParagraph(string text, Word.JustificationValues justification, bool bold = false, int fontSize = 12)
+        {
+            var runProperties = new Word.RunProperties
+            {
+                RunFonts = new Word.RunFonts { Ascii = "Times New Roman", HighAnsi = "Times New Roman" },
+                FontSize = new Word.FontSize { Val = (fontSize * 2).ToString() },
+                Bold = bold ? new Word.Bold() : null
+            };
+
+            var paragraphProperties = new Word.ParagraphProperties
+            {
+                Justification = new Word.Justification { Val = justification }
+            };
+
+            var paragraph = new Word.Paragraph(paragraphProperties);
+
+            var lines = text.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
+            foreach (var line in lines)
+            {
+                var run = new Word.Run(runProperties.CloneNode(true));
+                run.AppendChild(new Word.Text(line) { Space = DocumentFormat.OpenXml.SpaceProcessingModeValues.Preserve });
+                paragraph.AppendChild(run);
+
+                if (line != lines.Last())
+                {
+                    paragraph.AppendChild(new Word.Break());
+                }
+            }
+
+            return paragraph;
+        }
+
+        // Helper Method for Word Table
+        private Word.Table CreateTopTable(string schoolName, string team, string teacherLabel, string teacherName, int fontSize)
+        {
+            var table = new Word.Table(
+                new Word.TableProperties(
+                    new Word.TableBorders(
+                        new Word.TopBorder { Val = Word.BorderValues.None },
+                        new Word.BottomBorder { Val = Word.BorderValues.None },
+                        new Word.LeftBorder { Val = Word.BorderValues.None },
+                        new Word.RightBorder { Val = Word.BorderValues.None },
+                        new Word.InsideHorizontalBorder { Val = Word.BorderValues.None },
+                        new Word.InsideVerticalBorder { Val = Word.BorderValues.None }
+                    ),
+                    new Word.TableWidth { Width = "100%", Type = Word.TableWidthUnitValues.Pct }
+                )
+            );
+
+            var tableRow = new Word.TableRow();
+
+            // Left Cell
+            var leftCell = new Word.TableCell(
+                new Word.Paragraph(
+                    new Word.Run(
+                        new Word.RunProperties(
+                            new Word.Bold(),
+                            new Word.RunFonts { Ascii = "Times New Roman", HighAnsi = "Times New Roman" },
+                            new Word.FontSize { Val = (fontSize * 2).ToString() }
+                        ),
+                        new Word.Text(schoolName) // School Name
+                    )
+                ),
+                new Word.Paragraph(
+                    new Word.Run(
+                        new Word.RunProperties(
+                            new Word.Bold(),
+                            new Word.RunFonts { Ascii = "Times New Roman", HighAnsi = "Times New Roman" },
+                            new Word.FontSize { Val = (fontSize * 2).ToString() }
+                        ),
+                        new Word.Text(team) // Team
+                    )
+                )
+            );
+            leftCell.Append(new Word.TableCellProperties(
+                new Word.TableCellWidth { Width = "50%", Type = Word.TableWidthUnitValues.Pct } // Chiếm 50% chiều rộng
+            ));
+            tableRow.Append(leftCell);
+
+            // Right Cell with no extra spacing
+            var rightCell = new Word.TableCell(
+                new Word.Paragraph(
+                    new Word.ParagraphProperties(
+                        new Word.Justification { Val = Word.JustificationValues.Right } // Căn phải đoạn văn
+                    ),
+                    new Word.Run(
+                        new Word.RunProperties(
+                            new Word.Bold(),
+                            new Word.RunFonts { Ascii = "Times New Roman", HighAnsi = "Times New Roman" },
+                            new Word.FontSize { Val = (fontSize * 2).ToString() }
+                        ),
+                        new Word.Text(teacherLabel) // "HỌ VÀ TÊN GIÁO VIÊN"
+                    )
+                ),
+                new Word.Paragraph(
+                    new Word.ParagraphProperties(
+                        new Word.Justification { Val = Word.JustificationValues.Right } // Căn phải đoạn văn
+                    ),
+                    new Word.Run(
+                        new Word.RunProperties(
+                            new Word.RunFonts { Ascii = "Times New Roman", HighAnsi = "Times New Roman" },
+                            new Word.FontSize { Val = (fontSize * 2).ToString() }
+                        ),
+                        new Word.Text(teacherName) // Teacher's Name
+                    )
+                )
+            );
+            rightCell.Append(new Word.TableCellProperties(
+                new Word.TableCellWidth { Width = "50%", Type = Word.TableWidthUnitValues.Pct }, // Chiếm 50% chiều rộng
+                        new Word.TableCellVerticalAlignment { Val = Word.TableVerticalAlignmentValues.Center } // Căn giữa theo chiều dọc
+            ));
+            tableRow.Append(rightCell);
+
+            table.Append(tableRow);
+            return table;
+        }
+
+        private Word.Table CreateFooterTable(string leftText, string teacherLabel, string teacherName, int fontSize)
+        {
+            var table = new Word.Table(
+                new Word.TableProperties(
+                    new Word.TableBorders(
+                        new Word.TopBorder { Val = Word.BorderValues.None },
+                        new Word.BottomBorder { Val = Word.BorderValues.None },
+                        new Word.LeftBorder { Val = Word.BorderValues.None },
+                        new Word.RightBorder { Val = Word.BorderValues.None },
+                        new Word.InsideHorizontalBorder { Val = Word.BorderValues.None },
+                        new Word.InsideVerticalBorder { Val = Word.BorderValues.None }
+                    ),
+                    new Word.TableWidth { Width = "100%", Type = Word.TableWidthUnitValues.Pct }
+                )
+            );
+            var tableRow = new Word.TableRow();
+
+            // Left Cell
+            var leftCell = new Word.TableCell(
+            new Word.Paragraph(
+                    new Word.Run(
+                        new Word.RunProperties(
+                            new Word.Bold(),
+                            new Word.RunFonts { Ascii = "Times New Roman", HighAnsi = "Times New Roman" },
+                            new Word.FontSize { Val = (fontSize * 2).ToString() }
+                        ),
+                        new Word.Text(leftText) // "Duyệt của lãnh đạo tổ"
+                    )
+                )
+            );
+            leftCell.AppendChild(new Word.TableCellProperties(
+                new Word.TableCellWidth { Type = Word.TableWidthUnitValues.Pct, Width = "50%" },
+                new Word.TableCellMargin(
+                    new Word.TopMargin { Width = "200", Type = Word.TableWidthUnitValues.Dxa },
+                    new Word.LeftMargin { Width = "200", Type = Word.TableWidthUnitValues.Dxa }
+                )
+            ));
+            tableRow.Append(leftCell);
+
+            // Right Cell with spacing between "Người soạn" and Teacher Name
+            var rightCell = new Word.TableCell(
+                new Word.Paragraph(
+                    new Word.ParagraphProperties(new Word.Justification { Val = Word.JustificationValues.Right }),
+                    new Word.Run(
+                        new Word.RunProperties(
+                            new Word.Bold(),
+                            new Word.RunFonts { Ascii = "Times New Roman", HighAnsi = "Times New Roman" },
+                            new Word.FontSize { Val = (fontSize * 2).ToString() }
+                        ),
+                        new Word.Text(teacherLabel) // "Người soạn"
+                    )
+                ),
+                new Word.Paragraph(new Word.Run(new Word.Break())),
+                new Word.Paragraph(
+                    new Word.ParagraphProperties(new Word.Justification { Val = Word.JustificationValues.Right }),
+                    new Word.Run(
+                        new Word.RunProperties(
+                            new Word.Bold(),
+                            new Word.RunFonts { Ascii = "Times New Roman", HighAnsi = "Times New Roman" },
+                            new Word.FontSize { Val = (fontSize * 2).ToString() }
+                        ),
+                        new Word.Text(teacherName) // Teacher's Name
+                    )
+                )
+            );
+            rightCell.AppendChild(new Word.TableCellProperties(
+                new Word.TableCellWidth { Type = Word.TableWidthUnitValues.Pct, Width = "50%" },
+                new Word.TableCellMargin(
+                    new Word.TopMargin { Width = "200", Type = Word.TableWidthUnitValues.Dxa },
+                    new Word.RightMargin { Width = "2200", Type = Word.TableWidthUnitValues.Dxa }
+                )
+            ));
+            tableRow.Append(rightCell);
+            table.Append(tableRow);
+            return table;
+        }
+        #endregion
+
+        #region Export Planbook to Pdf
+        public async Task<ResponseModel> ExportPlanbookToPdfAsync(string planbookId)
+        {
+            try
+            {
+                var planbook = await _unitOfWork.PlanbookRepository.GetByIdAsync(id: planbookId, includeProperties: "Activities");
+                if (planbook is null)
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "Planbook not found."
+                    };
+                }
+
+                using (var memoryStream = new MemoryStream())
+                {
+                    var writer = new PdfWriter(memoryStream);
+                    using (var pdf = new PdfDocument(writer))
+                    {
+                        var document = new iText.Layout.Document(pdf);
+
+                        // Load the font
+                        var fontPath = Path.Combine("Resources", "Fonts", "SVN-Times New Roman 2.ttf");
+                        if (!File.Exists(fontPath))
+                            throw new FileNotFoundException($"Font file not found: {fontPath}");
+                        var font = PdfFontFactory.CreateFont(fontPath, PdfEncodings.IDENTITY_H);
+
+                        // Header Table
+                        var headerTable = new iText.Layout.Element.Table(2).UseAllAvailableWidth();
+                        headerTable.SetMarginBottom(10); // Adjust top margin for overall spacing
+                        headerTable.AddCell(new iText.Layout.Element.Cell()
+                            .Add(new iText.Layout.Element.Paragraph(planbook.SchoolName?.ToUpper())
+                                .SetFont(font)
+                                .SetBold()
+                                .SetFontSize(14))
+                            .Add(new iText.Layout.Element.Paragraph($"TỔ ...") //{planbook.Team?.ToUpper()}
+                                .SetFont(font)
+                                .SetBold()
+                                .SetFontSize(14))
+                            .SetBorder(iText.Layout.Borders.Border.NO_BORDER)
+                            .SetTextAlignment(iText.Layout.Properties.TextAlignment.LEFT));
+                        headerTable.AddCell(new iText.Layout.Element.Cell()
+                            .Add(new iText.Layout.Element.Paragraph("HỌ VÀ TÊN GIÁO VIÊN")
+                                .SetFont(font)
+                                .SetBold()
+                                .SetFontSize(14))
+                            .Add(new iText.Layout.Element.Paragraph(planbook.TeacherName?.ToUpper())
+                                .SetFont(font)
+                                .SetFontSize(14))
+                            .SetBorder(iText.Layout.Borders.Border.NO_BORDER)
+                            .SetTextAlignment(iText.Layout.Properties.TextAlignment.RIGHT));
+                        document.Add(headerTable);
+
+                        // Title and Other Details
+                        document.Add(new iText.Layout.Element.Paragraph($"TÊN BÀI DẠY: {planbook.Title?.ToUpper()}")
+                            .SetFont(font)
+                            .SetBold()
+                            .SetFontSize(14)
+                            .SetTextAlignment(iText.Layout.Properties.TextAlignment.CENTER));
+                        document.Add(new iText.Layout.Element.Paragraph($"Môn học: {planbook.Subject}; lớp: {planbook.ClassName}")
+                            .SetFont(font)
+                            .SetFontSize(14)
+                            .SetTextAlignment(iText.Layout.Properties.TextAlignment.CENTER));
+                        document.Add(new iText.Layout.Element.Paragraph($"Thời gian thực hiện: ({planbook.DurationInPeriods} tiết)")
+                            .SetFont(font)
+                            .SetFontSize(14)
+                            .SetTextAlignment(iText.Layout.Properties.TextAlignment.CENTER));
+
+                        // Objectives Section
+                        document.Add(new iText.Layout.Element.Paragraph("I. MỤC TIÊU")
+                            .SetFont(font)
+                            .SetBold()
+                            .SetFontSize(14));
+                        document.Add(new iText.Layout.Element.Paragraph($"1. Về kiến thức:")
+                            .SetFont(font)
+                            .SetBold()
+                            .SetFontSize(14));
+                        document.Add(new iText.Layout.Element.Paragraph(planbook.KnowledgeObjective ?? string.Empty)
+                            .SetFont(font)
+                            .SetFontSize(14));
+                        document.Add(new iText.Layout.Element.Paragraph($"2. Về năng lực:")
+                            .SetFont(font)
+                            .SetBold()
+                            .SetFontSize(14));
+                        document.Add(new iText.Layout.Element.Paragraph(planbook.SkillsObjective ?? string.Empty)
+                            .SetFont(font)
+                            .SetFontSize(14));
+                        document.Add(new iText.Layout.Element.Paragraph($"3. Về phẩm chất:")
+                            .SetFont(font)
+                            .SetBold()
+                            .SetFontSize(14));
+                        document.Add(new iText.Layout.Element.Paragraph(planbook.QualitiesObjective ?? string.Empty)
+                            .SetFont(font)
+                            .SetFontSize(14));
+
+                        // Teaching Tools Section
+                        document.Add(new iText.Layout.Element.Paragraph("II. THIẾT BỊ DẠY HỌC VÀ HỌC LIỆU")
+                            .SetFont(font)
+                            .SetBold()
+                            .SetFontSize(14));
+                        document.Add(new iText.Layout.Element.Paragraph(planbook.TeachingTools ?? string.Empty)
+                            .SetFont(font)
+                            .SetFontSize(14));
+
+                        // Activities Section
+                        document.Add(new iText.Layout.Element.Paragraph("III. TIẾN TRÌNH DẠY HỌC")
+                            .SetFont(font)
+                            .SetBold()
+                            .SetFontSize(14));
+                        foreach (var activity in planbook.Activities.OrderBy(a => a.Index))
+                        {
+                            document.Add(new iText.Layout.Element.Paragraph(activity.Title)
+                                .SetFont(font)
+                                .SetBold()
+                                .SetFontSize(14));
+                            document.Add(new iText.Layout.Element.Paragraph($"a) Mục tiêu:")
+                                .SetFont(font)
+                                .SetBold()
+                                .SetFontSize(14));
+                            document.Add(new iText.Layout.Element.Paragraph(activity.Objective ?? string.Empty)
+                                .SetFont(font)
+                                .SetFontSize(14));
+                            document.Add(new iText.Layout.Element.Paragraph($"b) Nội dung:")
+                                .SetFont(font)
+                                .SetBold()
+                                .SetFontSize(14));
+                            document.Add(new iText.Layout.Element.Paragraph(activity.Content ?? string.Empty)
+                                .SetFont(font)
+                                .SetFontSize(14));
+                            document.Add(new iText.Layout.Element.Paragraph($"c) Sản phẩm:")
+                                .SetFont(font)
+                                .SetBold()
+                                .SetFontSize(14));
+                            document.Add(new iText.Layout.Element.Paragraph(activity.Product ?? string.Empty)
+                                .SetFont(font)
+                                .SetFontSize(14));
+                            document.Add(new iText.Layout.Element.Paragraph($"d) Tổ chức thực hiện:")
+                                .SetFont(font)
+                                .SetBold()
+                                .SetFontSize(14));
+                            document.Add(new iText.Layout.Element.Paragraph(activity.Implementation ?? string.Empty)
+                                .SetFont(font)
+                                .SetFontSize(14));
+                        }
+                        document.Add(new iText.Layout.Element.Paragraph("Ghi chú:")
+                           .SetFont(font)
+                           .SetBold()
+                           .SetFontSize(14));
+                        document.Add(new iText.Layout.Element.Paragraph(planbook.Notes ?? string.Empty)
+                            .SetFont(font)
+                            .SetFontSize(14));
+
+                        // Footer Table
+                        var footerTable = new iText.Layout.Element.Table(2).UseAllAvailableWidth();
+                        footerTable.SetMarginTop(20); // Adjust top margin for overall spacing
+
+                        // Left Cell
+                        footerTable.AddCell(
+                            new iText.Layout.Element.Cell()
+                                .Add(new iText.Layout.Element.Paragraph("Duyệt của lãnh đạo tổ")
+                                    .SetFont(font)
+                                    .SetBold()
+                                    .SetFontSize(14))
+                                .SetBorder(iText.Layout.Borders.Border.NO_BORDER)
+                                .SetTextAlignment(iText.Layout.Properties.TextAlignment.LEFT)
+                        );
+
+                        // Right Cell
+                        footerTable.AddCell(
+                            new iText.Layout.Element.Cell()
+                                .Add(new iText.Layout.Element.Paragraph("Người soạn")
+                                    .SetFont(font)
+                                    .SetBold()
+                                    .SetFontSize(14))
+                                .Add(new iText.Layout.Element.Paragraph("\n") // Add empty line
+                                    .SetFont(font)
+                                    .SetFontSize(14))
+                                .Add(new iText.Layout.Element.Paragraph(planbook.TeacherName)
+                                    .SetFont(font)
+                                    .SetBold()
+                                    .SetFontSize(14))
+                                .SetBorder(iText.Layout.Borders.Border.NO_BORDER)
+                                .SetTextAlignment(iText.Layout.Properties.TextAlignment.RIGHT)
+                        );
+
+                        // Add Footer Table to Document
+                        document.Add(footerTable);
+                    }
+
+                    return new ResponseModel
+                    {
+                        Success = true,
+                        Message = Convert.ToBase64String(memoryStream.ToArray()) // Return file content as Base64
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                return new ErrorResponseModel<object>
+                {
+                    Success = false,
+                    Message = "An error occurred while exporting the Planbook to Word.",
                     Errors = new List<string> { ex.Message }
                 };
             }
