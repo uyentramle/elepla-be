@@ -13,6 +13,7 @@ using iText.Kernel.Font;
 using iText.Kernel.Pdf;
 using Word = DocumentFormat.OpenXml.Wordprocessing;
 using DocumentFormat.OpenXml.Wordprocessing;
+using Microsoft.AspNetCore.Hosting;
 
 namespace Elepla.Service.Services
 {
@@ -21,12 +22,14 @@ namespace Elepla.Service.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IOpenAIService _openAIService;
+        private readonly IWebHostEnvironment _environment;
 
-        public PlanbookService(IUnitOfWork unitOfWork, IMapper mapper, IOpenAIService openAIService)
+        public PlanbookService(IUnitOfWork unitOfWork, IMapper mapper, IOpenAIService openAIService, IWebHostEnvironment environment)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _openAIService = openAIService;
+            _environment = environment;
         }
 
         #region Get All Planbooks
@@ -1138,7 +1141,7 @@ namespace Elepla.Service.Services
                         var document = new iText.Layout.Document(pdf);
 
                         // Load the font
-                        var fontPath = Path.Combine("Elepla.API", "Resources", "Fonts", "SVNTimesNewRoman2.ttf");
+                        var fontPath = Path.Combine(_environment.ContentRootPath, "Resources", "Fonts", "SVNTimesNewRoman2.ttf");
                         if (!File.Exists(fontPath))
                             throw new FileNotFoundException($"Font file not found: {fontPath}");
                         var font = PdfFontFactory.CreateFont(fontPath, PdfEncodings.IDENTITY_H);

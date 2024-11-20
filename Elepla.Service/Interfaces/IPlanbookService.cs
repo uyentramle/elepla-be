@@ -12,8 +12,6 @@ namespace Elepla.Service.Interfaces
     {
 		Task<ResponseModel> GetAllPlanbooksAsync(int pageIndex, int pageSize);
 		Task<ResponseModel> GetPlanbookByIdAsync(string planbookId);
-        Task<ResponseModel> ExportPlanbookToWordAsync(string planbookId);
-        Task<ResponseModel> ExportPlanbookToPdfAsync(string planbookId);
 		Task<ResponseModel> GetPlanbookByCollectionIdAsync(string collectionId, int pageIndex, int pageSize);
 		Task<ResponseModel> GetPlanbookByLessonIdAsync(string lessonId, int pageIndex, int pageSize);
 		Task<ResponseModel> CreatePlanbookAsync(CreatePlanbookDTO model);
@@ -24,6 +22,6 @@ namespace Elepla.Service.Interfaces
 		Task<ResponseModel> GetPlanbookUsingAIAsync(string lessonId);
 		Task<ResponseModel> ClonePlanbookAsync(ClonePlanbookDTO model);
 		Task<ResponseModel> ExportPlanbookToWordAsync(string planbookId);
-        Task<ResponseModel> ExportPlanbookToPdfAsync(string planbookId);
+		Task<ResponseModel> ExportPlanbookToPdfAsync(string planbookId);
     }
 }
