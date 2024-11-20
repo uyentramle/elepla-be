@@ -18,11 +18,13 @@ namespace Elepla.Service.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly ITimeService _timeService;
 
-        public UserPackageService(IUnitOfWork unitOfWork, IMapper mapper)
+        public UserPackageService(IUnitOfWork unitOfWork, IMapper mapper, ITimeService timeService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _timeService = timeService;
         }
 
         // Get all user packages
@@ -143,7 +145,7 @@ namespace Elepla.Service.Services
                     UserPackageId = Guid.NewGuid().ToString(),
                     UserId = userId,
                     PackageId = freePackage.PackageId,
-                    StartDate = DateTime.Now,
+                    StartDate = _timeService.GetCurrentTime(),
                     EndDate = freePackage.EndDate,
                     IsActive = true
                 };

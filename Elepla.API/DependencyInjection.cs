@@ -94,6 +94,7 @@ namespace Elepla.API
 
         public static IServiceCollection AddInfrastructuresService(this IServiceCollection services, string[] databaseConnection)
         {
+            // Add services to the container
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<ITimeService, TimeService>();
             services.AddScoped<IClaimsService, ClaimsService>();
