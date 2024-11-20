@@ -1138,7 +1138,7 @@ namespace Elepla.Service.Services
                         var document = new iText.Layout.Document(pdf);
 
                         // Load the font
-                        var fontPath = Path.Combine("Elepla.API", "Resources", "Fonts", "SVNTimesNewRoman2.ttf");
+                        var fontPath = Path.Combine(".", "Elepla.API", "Resources", "Fonts", "SVNTimesNewRoman2.ttf");
                         if (!File.Exists(fontPath))
                             throw new FileNotFoundException($"Font file not found: {fontPath}");
                         var font = PdfFontFactory.CreateFont(fontPath, PdfEncodings.IDENTITY_H);
