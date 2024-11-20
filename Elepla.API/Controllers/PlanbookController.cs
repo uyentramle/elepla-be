@@ -1,5 +1,4 @@
 ﻿using Elepla.Service.Interfaces;
-using Elepla.Service.Services;
 using Elepla.Service.Models.ViewModels.PlanbookViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -11,7 +10,7 @@ namespace Elepla.API.Controllers
 	{
 		private readonly IPlanbookService _planbookService;
 
-        public PlanbookController(IPlanbookService planbookService)
+		public PlanbookController(IPlanbookService planbookService)
 		{
 			_planbookService = planbookService;
 		}
@@ -29,7 +28,6 @@ namespace Elepla.API.Controllers
 			var response = await _planbookService.GetPlanbookByIdAsync(planbookId);
 			return Ok(response);
 		}
-
 
 		[HttpGet]
 		[Authorize]
@@ -92,13 +90,13 @@ namespace Elepla.API.Controllers
             return BadRequest(response);
         }
 
-        [HttpDelete]
-		[Authorize]
-		public async Task<IActionResult> SoftRemovePlanbookAsync(string planbookId)
-		{
-			var response = await _planbookService.SoftRemovePlanbookAsync(planbookId);
-			return Ok(response);
-		}
+        //[HttpDelete]
+		//[Authorize]
+		//public async Task<IActionResult> SoftRemovePlanbookAsync(string planbookId)
+		//{
+		//	var response = await _planbookService.SoftRemovePlanbookAsync(planbookId);
+		//	return Ok(response);
+		//}
 
         [HttpPost]
 		[Authorize]
@@ -176,7 +174,6 @@ namespace Elepla.API.Controllers
                 });
             }
         }
-
 
         [HttpGet]
         [Authorize]

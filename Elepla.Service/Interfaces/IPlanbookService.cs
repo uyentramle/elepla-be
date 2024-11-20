@@ -23,5 +23,7 @@ namespace Elepla.Service.Interfaces
         Task<ResponseModel> GetPlanbookFromTemplateAsync(string lessonId);
 		Task<ResponseModel> GetPlanbookUsingAIAsync(string lessonId);
 		Task<ResponseModel> ClonePlanbookAsync(ClonePlanbookDTO model);
+		Task<ResponseModel> ExportPlanbookToWordAsync(string planbookId);
+        Task<ResponseModel> ExportPlanbookToPdfAsync(string planbookId);
     }
 }

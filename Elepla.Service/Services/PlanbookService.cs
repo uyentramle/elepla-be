@@ -1,22 +1,18 @@
 ﻿using AutoMapper;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml;
+using Elepla.Domain.Entities;
 using Elepla.Repository.Common;
 using Elepla.Repository.Interfaces;
 using Elepla.Service.Interfaces;
 using Elepla.Service.Models.ResponseModels;
 using Elepla.Service.Models.ViewModels.ActivityViewModels;
 using Elepla.Service.Models.ViewModels.PlanbookViewModels;
-using DocumentFormat.OpenXml.Wordprocessing;
 using iText.IO.Font;
 using iText.Kernel.Font;
 using iText.Kernel.Pdf;
-using Elepla.Domain.Entities;
 using Word = DocumentFormat.OpenXml.Wordprocessing;
-using Spreadsheet = DocumentFormat.OpenXml.Spreadsheet;
-using iText.IO.Font.Constants;
-using DocumentFormat.OpenXml.Spreadsheet;
-using DocumentFormat.OpenXml.ExtendedProperties;
+using DocumentFormat.OpenXml.Wordprocessing;
 
 namespace Elepla.Service.Services
 {
@@ -829,8 +825,8 @@ namespace Elepla.Service.Services
         {
             try
             {
-                var planbook = await _unitOfWork.PlanbookRepository.GetByIdAsync(planbookId, includeProperties: "Activities");
-                if (planbook == null)
+                var planbook = await _unitOfWork.PlanbookRepository.GetByIdAsync(id: planbookId, includeProperties: "Activities");
+                if (planbook is null)
                 {
                     return new ResponseModel
                     {
@@ -850,6 +846,7 @@ namespace Elepla.Service.Services
                         // Add SchoolName and TeacherName in one row (Header)
                         body.AppendChild(CreateTopTable(
                             planbook.SchoolName?.ToUpper() ?? string.Empty,
+                            "TỔ ...",
                             "HỌ VÀ TÊN GIÁO VIÊN",
                             planbook.TeacherName?.ToUpper() ?? string.Empty,
                             14 // Font size
@@ -857,18 +854,18 @@ namespace Elepla.Service.Services
 
                         // Add Title and Other Details
                         body.AppendChild(CreateParagraph($"", JustificationValues.Center, fontSize: 14));
-                        body.AppendChild(CreateParagraph($"BÀI: {planbook.Title?.ToUpper()}", JustificationValues.Center, bold: true, fontSize: 14));
+                        body.AppendChild(CreateParagraph($"TÊN BÀI DẠY: {planbook.Title?.ToUpper()}", JustificationValues.Center, bold: true, fontSize: 14));
                         body.AppendChild(CreateParagraph($"Môn học: {planbook.Subject}; lớp: {planbook.ClassName}", JustificationValues.Center, fontSize: 14));
-                        body.AppendChild(CreateParagraph($"Thời gian thực hiện: {planbook.DurationInPeriods} tiết", JustificationValues.Center, fontSize: 14));
+                        body.AppendChild(CreateParagraph($"Thời gian thực hiện: ({planbook.DurationInPeriods} tiết)", JustificationValues.Center, fontSize: 14));
                         body.AppendChild(CreateParagraph($"", JustificationValues.Center, fontSize: 14));
 
                         // Add Objectives Section
                         body.AppendChild(CreateParagraph("I. MỤC TIÊU", JustificationValues.Left, bold: true, fontSize: 14));
-                        body.AppendChild(CreateParagraph($"1. Kiến Thức:", JustificationValues.Left, bold: true, fontSize: 14));
+                        body.AppendChild(CreateParagraph($"1. Về kiến thức:", JustificationValues.Left, bold: true, fontSize: 14));
                         body.AppendChild(CreateParagraph(planbook.KnowledgeObjective ?? string.Empty, JustificationValues.Left, fontSize: 14));
-                        body.AppendChild(CreateParagraph($"2. Năng lực:", JustificationValues.Left, bold: true, fontSize: 14));
+                        body.AppendChild(CreateParagraph($"2. Về năng lực:", JustificationValues.Left, bold: true, fontSize: 14));
                         body.AppendChild(CreateParagraph(planbook.SkillsObjective ?? string.Empty, JustificationValues.Left, fontSize: 14));
-                        body.AppendChild(CreateParagraph($"3. Phẩm chất:", JustificationValues.Left, bold: true, fontSize: 14));
+                        body.AppendChild(CreateParagraph($"3. Về phẩm chất:", JustificationValues.Left, bold: true, fontSize: 14));
                         body.AppendChild(CreateParagraph(planbook.QualitiesObjective ?? string.Empty, JustificationValues.Left, fontSize: 14));
 
                         // Add Teaching Tools Section
@@ -876,10 +873,10 @@ namespace Elepla.Service.Services
                         body.AppendChild(CreateParagraph(planbook.TeachingTools ?? string.Empty, JustificationValues.Left, fontSize: 14));
 
                         // Add Activities Section
-                        body.AppendChild(CreateParagraph("III. HOẠT ĐỘNG DẠY HỌC", JustificationValues.Left, bold: true, fontSize: 14));
+                        body.AppendChild(CreateParagraph("III. TIẾN TRÌNH DẠY HỌC", JustificationValues.Left, bold: true, fontSize: 14));
                         foreach (var activity in planbook.Activities.OrderBy(a => a.Index))
                         {
-                            body.AppendChild(CreateParagraph(activity.Title?.ToUpper(), JustificationValues.Left, bold: true, fontSize: 14));
+                            body.AppendChild(CreateParagraph(activity.Title, JustificationValues.Left, bold: true, fontSize: 14));
                             body.AppendChild(CreateParagraph($"a) Mục tiêu:", JustificationValues.Left, bold: true, fontSize: 14));
                             body.AppendChild(CreateParagraph(activity.Objective ?? string.Empty, JustificationValues.Left, fontSize: 14));
                             body.AppendChild(CreateParagraph($"b) Nội dung:", JustificationValues.Left, bold: true, fontSize: 14));
@@ -888,8 +885,10 @@ namespace Elepla.Service.Services
                             body.AppendChild(CreateParagraph(activity.Product ?? string.Empty, JustificationValues.Left, fontSize: 14));
                             body.AppendChild(CreateParagraph($"d) Tổ chức thực hiện:", JustificationValues.Left, bold: true, fontSize: 14));
                             body.AppendChild(CreateParagraph(activity.Implementation ?? string.Empty, JustificationValues.Left, fontSize: 14));
-                            body.AppendChild(CreateParagraph($"", JustificationValues.Left, fontSize: 14));
                         }
+
+                        body.AppendChild(CreateParagraph("Ghi chú:", JustificationValues.Left, bold: true, fontSize: 14));
+                        body.AppendChild(CreateParagraph(planbook.Notes ?? string.Empty, JustificationValues.Left, fontSize: 14));
 
                         // Add Footer Table
                         body.AppendChild(CreateFooterTable(
@@ -954,7 +953,7 @@ namespace Elepla.Service.Services
         }
 
         // Helper Method for Word Table
-        private Word.Table CreateTopTable(string leftText, string teacherLabel, string teacherName, int fontSize)
+        private Word.Table CreateTopTable(string schoolName, string team, string teacherLabel, string teacherName, int fontSize)
         {
             var table = new Word.Table(
                 new Word.TableProperties(
@@ -981,15 +980,31 @@ namespace Elepla.Service.Services
                             new Word.RunFonts { Ascii = "Times New Roman", HighAnsi = "Times New Roman" },
                             new Word.FontSize { Val = (fontSize * 2).ToString() }
                         ),
-                        new Word.Text(leftText) // School Name
+                        new Word.Text(schoolName) // School Name
+                    )
+                ),
+                new Word.Paragraph(
+                    new Word.Run(
+                        new Word.RunProperties(
+                            new Word.Bold(),
+                            new Word.RunFonts { Ascii = "Times New Roman", HighAnsi = "Times New Roman" },
+                            new Word.FontSize { Val = (fontSize * 2).ToString() }
+                        ),
+                        new Word.Text(team) // Team
                     )
                 )
             );
+            leftCell.Append(new Word.TableCellProperties(
+                new Word.TableCellWidth { Width = "50%", Type = Word.TableWidthUnitValues.Pct } // Chiếm 50% chiều rộng
+            ));
             tableRow.Append(leftCell);
 
             // Right Cell with no extra spacing
             var rightCell = new Word.TableCell(
                 new Word.Paragraph(
+                    new Word.ParagraphProperties(
+                        new Word.Justification { Val = Word.JustificationValues.Right } // Căn phải đoạn văn
+                    ),
                     new Word.Run(
                         new Word.RunProperties(
                             new Word.Bold(),
@@ -1000,6 +1015,9 @@ namespace Elepla.Service.Services
                     )
                 ),
                 new Word.Paragraph(
+                    new Word.ParagraphProperties(
+                        new Word.Justification { Val = Word.JustificationValues.Right } // Căn phải đoạn văn
+                    ),
                     new Word.Run(
                         new Word.RunProperties(
                             new Word.RunFonts { Ascii = "Times New Roman", HighAnsi = "Times New Roman" },
@@ -1009,6 +1027,10 @@ namespace Elepla.Service.Services
                     )
                 )
             );
+            rightCell.Append(new Word.TableCellProperties(
+                new Word.TableCellWidth { Width = "50%", Type = Word.TableWidthUnitValues.Pct }, // Chiếm 50% chiều rộng
+                        new Word.TableCellVerticalAlignment { Val = Word.TableVerticalAlignmentValues.Center } // Căn giữa theo chiều dọc
+            ));
             tableRow.Append(rightCell);
 
             table.Append(tableRow);
@@ -1030,12 +1052,11 @@ namespace Elepla.Service.Services
                     new Word.TableWidth { Width = "100%", Type = Word.TableWidthUnitValues.Pct }
                 )
             );
-
             var tableRow = new Word.TableRow();
 
             // Left Cell
             var leftCell = new Word.TableCell(
-                new Word.Paragraph(
+            new Word.Paragraph(
                     new Word.Run(
                         new Word.RunProperties(
                             new Word.Bold(),
@@ -1058,6 +1079,7 @@ namespace Elepla.Service.Services
             // Right Cell with spacing between "Người soạn" and Teacher Name
             var rightCell = new Word.TableCell(
                 new Word.Paragraph(
+                    new Word.ParagraphProperties(new Word.Justification { Val = Word.JustificationValues.Right }),
                     new Word.Run(
                         new Word.RunProperties(
                             new Word.Bold(),
@@ -1067,9 +1089,9 @@ namespace Elepla.Service.Services
                         new Word.Text(teacherLabel) // "Người soạn"
                     )
                 ),
-                new Word.Paragraph(new Word.Run(new Word.Break())), // Spacing
                 new Word.Paragraph(new Word.Run(new Word.Break())),
                 new Word.Paragraph(
+                    new Word.ParagraphProperties(new Word.Justification { Val = Word.JustificationValues.Right }),
                     new Word.Run(
                         new Word.RunProperties(
                             new Word.Bold(),
@@ -1088,20 +1110,18 @@ namespace Elepla.Service.Services
                 )
             ));
             tableRow.Append(rightCell);
-
             table.Append(tableRow);
             return table;
         }
         #endregion
-
 
         #region Export Planbook to Pdf
         public async Task<ResponseModel> ExportPlanbookToPdfAsync(string planbookId)
         {
             try
             {
-                var planbook = await _unitOfWork.PlanbookRepository.GetByIdAsync(planbookId, includeProperties: "Activities");
-                if (planbook == null)
+                var planbook = await _unitOfWork.PlanbookRepository.GetByIdAsync(id: planbookId, includeProperties: "Activities");
+                if (planbook is null)
                 {
                     return new ResponseModel
                     {
@@ -1118,7 +1138,7 @@ namespace Elepla.Service.Services
                         var document = new iText.Layout.Document(pdf);
 
                         // Load the font
-                        var fontPath = Path.Combine("Resources", "Fonts", "SVN-Times New Roman 2.ttf");
+                        var fontPath = Path.Combine("Elepla.API", "Resources", "Fonts", "SVNTimesNewRoman2.ttf");
                         if (!File.Exists(fontPath))
                             throw new FileNotFoundException($"Font file not found: {fontPath}");
                         var font = PdfFontFactory.CreateFont(fontPath, PdfEncodings.IDENTITY_H);
@@ -1128,6 +1148,10 @@ namespace Elepla.Service.Services
                         headerTable.SetMarginBottom(10); // Adjust top margin for overall spacing
                         headerTable.AddCell(new iText.Layout.Element.Cell()
                             .Add(new iText.Layout.Element.Paragraph(planbook.SchoolName?.ToUpper())
+                                .SetFont(font)
+                                .SetBold()
+                                .SetFontSize(14))
+                            .Add(new iText.Layout.Element.Paragraph($"TỔ ...") //{planbook.Team?.ToUpper()}
                                 .SetFont(font)
                                 .SetBold()
                                 .SetFontSize(14))
@@ -1146,7 +1170,7 @@ namespace Elepla.Service.Services
                         document.Add(headerTable);
 
                         // Title and Other Details
-                        document.Add(new iText.Layout.Element.Paragraph($"BÀI: {planbook.Title?.ToUpper()}")
+                        document.Add(new iText.Layout.Element.Paragraph($"TÊN BÀI DẠY: {planbook.Title?.ToUpper()}")
                             .SetFont(font)
                             .SetBold()
                             .SetFontSize(14)
@@ -1155,7 +1179,7 @@ namespace Elepla.Service.Services
                             .SetFont(font)
                             .SetFontSize(14)
                             .SetTextAlignment(iText.Layout.Properties.TextAlignment.CENTER));
-                        document.Add(new iText.Layout.Element.Paragraph($"Thời gian thực hiện: {planbook.DurationInPeriods} tiết")
+                        document.Add(new iText.Layout.Element.Paragraph($"Thời gian thực hiện: ({planbook.DurationInPeriods} tiết)")
                             .SetFont(font)
                             .SetFontSize(14)
                             .SetTextAlignment(iText.Layout.Properties.TextAlignment.CENTER));
@@ -1165,21 +1189,21 @@ namespace Elepla.Service.Services
                             .SetFont(font)
                             .SetBold()
                             .SetFontSize(14));
-                        document.Add(new iText.Layout.Element.Paragraph($"1. Kiến Thức:")
+                        document.Add(new iText.Layout.Element.Paragraph($"1. Về kiến thức:")
                             .SetFont(font)
                             .SetBold()
                             .SetFontSize(14));
                         document.Add(new iText.Layout.Element.Paragraph(planbook.KnowledgeObjective ?? string.Empty)
                             .SetFont(font)
                             .SetFontSize(14));
-                        document.Add(new iText.Layout.Element.Paragraph($"2. Năng lực:")
+                        document.Add(new iText.Layout.Element.Paragraph($"2. Về năng lực:")
                             .SetFont(font)
                             .SetBold()
                             .SetFontSize(14));
                         document.Add(new iText.Layout.Element.Paragraph(planbook.SkillsObjective ?? string.Empty)
                             .SetFont(font)
                             .SetFontSize(14));
-                        document.Add(new iText.Layout.Element.Paragraph($"3. Phẩm chất:")
+                        document.Add(new iText.Layout.Element.Paragraph($"3. Về phẩm chất:")
                             .SetFont(font)
                             .SetBold()
                             .SetFontSize(14));
@@ -1197,13 +1221,13 @@ namespace Elepla.Service.Services
                             .SetFontSize(14));
 
                         // Activities Section
-                        document.Add(new iText.Layout.Element.Paragraph("III. HOẠT ĐỘNG DẠY HỌC")
+                        document.Add(new iText.Layout.Element.Paragraph("III. TIẾN TRÌNH DẠY HỌC")
                             .SetFont(font)
                             .SetBold()
                             .SetFontSize(14));
                         foreach (var activity in planbook.Activities.OrderBy(a => a.Index))
                         {
-                            document.Add(new iText.Layout.Element.Paragraph(activity.Title?.ToUpper())
+                            document.Add(new iText.Layout.Element.Paragraph(activity.Title)
                                 .SetFont(font)
                                 .SetBold()
                                 .SetFontSize(14));
@@ -1236,10 +1260,17 @@ namespace Elepla.Service.Services
                                 .SetFont(font)
                                 .SetFontSize(14));
                         }
+                        document.Add(new iText.Layout.Element.Paragraph("Ghi chú:")
+                           .SetFont(font)
+                           .SetBold()
+                           .SetFontSize(14));
+                        document.Add(new iText.Layout.Element.Paragraph(planbook.Notes ?? string.Empty)
+                            .SetFont(font)
+                            .SetFontSize(14));
 
                         // Footer Table
                         var footerTable = new iText.Layout.Element.Table(2).UseAllAvailableWidth();
-                        footerTable.SetMarginTop(30); // Adjust top margin for overall spacing
+                        footerTable.SetMarginTop(20); // Adjust top margin for overall spacing
 
                         // Left Cell
                         footerTable.AddCell(
@@ -1259,12 +1290,6 @@ namespace Elepla.Service.Services
                                     .SetFont(font)
                                     .SetBold()
                                     .SetFontSize(14))
-                                .Add(new iText.Layout.Element.Paragraph("\n")
-                                    .SetFont(font)
-                                    .SetFontSize(14))
-                                .Add(new iText.Layout.Element.Paragraph("\n")
-                                    .SetFont(font)
-                                    .SetFontSize(14))
                                 .Add(new iText.Layout.Element.Paragraph("\n") // Add empty line
                                     .SetFont(font)
                                     .SetFontSize(14))
@@ -1278,7 +1303,6 @@ namespace Elepla.Service.Services
 
                         // Add Footer Table to Document
                         document.Add(footerTable);
-
                     }
 
                     return new ResponseModel
@@ -1293,13 +1317,11 @@ namespace Elepla.Service.Services
                 return new ErrorResponseModel<object>
                 {
                     Success = false,
-                    Message = "An error occurred while exporting the Planbook to Word.",
+                    Message = "An error occurred while exporting the Planbook to Pdf.",
                     Errors = new List<string> { ex.Message }
                 };
             }
-
-            #endregion
-
         }
+        #endregion
     }
 }

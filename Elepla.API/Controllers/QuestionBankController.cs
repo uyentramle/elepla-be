@@ -10,6 +10,7 @@ namespace Elepla.API.Controllers
 	public class QuestionBankController : BaseController
 	{
 		private readonly IQuestionBankService _questionBankService;
+
 		public QuestionBankController(IQuestionBankService questionBankService)
 		{
 			_questionBankService = questionBankService;
