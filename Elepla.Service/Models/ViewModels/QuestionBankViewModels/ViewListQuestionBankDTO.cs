@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Elepla.Service.Models.ViewModels.AnswerViewModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,6 +13,7 @@ namespace Elepla.Service.Models.ViewModels.QuestionBankViewModels
 		public string Question { get; set; }
 		public string Type { get; set; }
 		public string Plum { get; set; }
+		public List<ViewListAnswerDTO> Answers { get; set; }
 
 		public DateTime CreatedAt { get; set; }
 		public string CreatedBy { get; set; }

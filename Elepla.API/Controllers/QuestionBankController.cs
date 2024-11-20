@@ -30,6 +30,20 @@ namespace Elepla.API.Controllers
 			return Ok(response);
 		}
 
+		[HttpGet]
+		public async Task<IActionResult> GetQuestionByChapterIdAsync(string chapterId, int pageIndex = 0, int pageSize = 10)
+		{
+			var response = await _questionBankService.GetQuestionsByChapterIdAsync(chapterId, pageIndex, pageSize);
+			return Ok(response);
+		}
+
+		[HttpGet]
+		public async Task<IActionResult> GetQuestionByLessonIdAsync(string lessonId, int pageIndex = 0, int pageSize = 10)
+		{
+			var response = await _questionBankService.GetQuestionsByLessonIdAsync(lessonId, pageIndex, pageSize);
+			return Ok(response);
+		}
+
 		[HttpPost]
 		[Authorize]
 		public async Task<IActionResult> CreateQuestionAsync(CreateQuestionDTO model)
