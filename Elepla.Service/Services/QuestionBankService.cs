@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using DocumentFormat.OpenXml.Office.SpreadSheetML.Y2023.MsForms;
 using Elepla.Domain.Entities;
 using Elepla.Repository.Common;
 using Elepla.Repository.Interfaces;
@@ -11,7 +12,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
 
 namespace Elepla.Service.Services
 {
@@ -33,11 +33,13 @@ namespace Elepla.Service.Services
 				&& (string.IsNullOrEmpty(keyword)
 				|| r.Question.Contains(keyword)),
 				orderBy: r => r.OrderBy(r => r.Question),
+				includeProperties: "Answers", 
 				pageIndex: pageIndex,
 				pageSize: pageSize
 				);
 			var questionDtos = _mapper.Map<Pagination<ViewListQuestionBankDTO>>(questions);
 
+			
 			foreach (var questionDto in questionDtos.Items)
 			{
 				questionDto.Answers = questionDto.Answers.Select(a => new ViewListAnswerDTO
@@ -114,6 +116,7 @@ namespace Elepla.Service.Services
 							&& r.ChapterId == chapterId,
 							pageIndex: pageIndex,
 							pageSize: pageSize,
+							includeProperties: "Answers",
 							orderBy: r => r.OrderBy(r => r.Question)
 							);
 			var questionDtos = _mapper.Map<Pagination<ViewListQuestionBankDTO>>(questions);
@@ -162,6 +165,7 @@ namespace Elepla.Service.Services
 							&& r.LessonId == lessonId,
 							pageIndex: pageIndex,
 							pageSize: pageSize,
+							includeProperties: "Answers",
 							orderBy: r => r.OrderBy(r => r.Question)
 							);
 			var questionDtos = _mapper.Map<Pagination<ViewListQuestionBankDTO>>(questions);
