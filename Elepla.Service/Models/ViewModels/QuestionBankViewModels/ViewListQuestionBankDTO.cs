@@ -13,6 +13,8 @@ namespace Elepla.Service.Models.ViewModels.QuestionBankViewModels
 		public string Question { get; set; }
 		public string Type { get; set; }
 		public string Plum { get; set; }
+		public string ChapterId { get; set; }
+		public string LessonId { get; set; }
 		public List<ViewListAnswerDTO> Answers { get; set; }
 
 		public DateTime CreatedAt { get; set; }
