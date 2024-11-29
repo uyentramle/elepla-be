@@ -210,5 +210,13 @@ namespace Elepla.API.Controllers
                 });
             }
         }
+
+        [HttpGet]
+        [Authorize(Roles = "AcademicStaff")]
+        public async Task<IActionResult> GetAllPlanbookTemplatesAsync(int pageIndex = 0, int pageSize = 10)
+        {
+            var responnse = await _planbookService.GetAllPlanbookTemplatesAsync(pageIndex, pageSize);
+            return Ok(responnse);
+        }
     }
 }

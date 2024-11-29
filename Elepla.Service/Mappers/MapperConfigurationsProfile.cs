@@ -664,10 +664,27 @@ namespace Elepla.Service.Mappers
 				//.ForMember(dest => dest.LessonId, opt => opt.MapFrom(src => src.LessonId))
 				.ForMember(dest => dest.Activities, opt => opt.Ignore())
 				.ReverseMap();
-			#endregion
 
-			#region PlanbookActivity
-			CreateMap<Activity, ViewListActivityDTO>()
+			CreateMap<Planbook, ViewListPlanbookTemplateDTO>()
+				.ForMember(dest => dest.PlanbookId, opt => opt.MapFrom(src => src.PlanbookId))
+                .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
+                .ForMember(dest => dest.Subject, opt => opt.MapFrom(src => src.Lesson.Chapter.SubjectInCurriculum.Subject.Name))
+                .ForMember(dest => dest.Grade, opt => opt.MapFrom(src => src.Lesson.Chapter.SubjectInCurriculum.Grade.Name))
+                .ForMember(dest => dest.Curriculum, opt => opt.MapFrom(src => src.Lesson.Chapter.SubjectInCurriculum.Curriculum.Name))
+                .ForMember(dest => dest.Chapter, opt => opt.MapFrom(src => src.Lesson.Chapter.Name))
+                .ForMember(dest => dest.Lesson, opt => opt.MapFrom(src => src.Lesson.Name))
+                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
+                .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom(src => src.CreatedBy))
+                .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.UpdatedAt))
+                .ForMember(dest => dest.UpdatedBy, opt => opt.MapFrom(src => src.UpdatedBy))
+                .ForMember(dest => dest.DeletedAt, opt => opt.MapFrom(src => src.DeletedAt))
+                .ForMember(dest => dest.DeletedBy, opt => opt.MapFrom(src => src.DeletedBy))
+                .ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => src.IsDeleted))
+                .ReverseMap();
+            #endregion
+
+            #region PlanbookActivity
+            CreateMap<Activity, ViewListActivityDTO>()
 				.ForMember(dest => dest.ActivityId, opt => opt.MapFrom(src => src.ActivityId))
 				.ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
 				.ForMember(dest => dest.Objective, opt => opt.MapFrom(src => src.Objective))
