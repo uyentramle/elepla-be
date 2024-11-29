@@ -1323,5 +1323,61 @@ namespace Elepla.Service.Services
             }
         }
         #endregion
+
+        #region Manage Planbook Templates
+        public async Task<ResponseModel> GetAllPlanbookTemplatesAsync(int pageIndex, int pageSize)
+        {
+            try
+            {
+                var planbookTemplates = await _unitOfWork.PlanbookRepository.GetAsync(
+                                                                        filter: p => p.IsDefault,
+                                                                        orderBy: p => p.OrderBy(p => p.Title),
+                                                                        includeProperties: "Lesson.Chapter.SubjectInCurriculum.Subject,Lesson.Chapter.SubjectInCurriculum.Curriculum,Lesson.Chapter.SubjectInCurriculum.Grade",
+                                                                        pageIndex: pageIndex,
+                                                                        pageSize: pageSize);
+
+                var planbookTemplateDtos = _mapper.Map<Pagination<ViewListPlanbookTemplateDTO>>(planbookTemplates);
+
+                //// Lặp qua từng item để gắn giá trị Subject đã xử lý
+                //foreach (var planbook in planbookTemplates.Items)
+                //{
+                //    // Lấy thông tin Subject, Grade, Curriculum từ thực thể
+                //    var subjectName = planbook.Lesson?.Chapter?.SubjectInCurriculum?.Subject?.Name ?? string.Empty;
+                //    var gradeName = planbook.Lesson?.Chapter?.SubjectInCurriculum?.Grade?.Name ?? string.Empty;
+                //    var curriculumName = planbook.Lesson?.Chapter?.SubjectInCurriculum?.Curriculum?.Name ?? string.Empty;
+
+                //    // Lấy 2 từ đầu tiên từ Curriculum
+                //    var curriculumWords = !string.IsNullOrWhiteSpace(curriculumName)
+                //        ? curriculumName.Split(' ').Take(2)
+                //        : new string[] { };
+
+                //    // Tìm DTO tương ứng
+                //    var dto = planbookTemplateDtos.Items.FirstOrDefault(p => p.PlanbookId == planbook.PlanbookId);
+                //    if (dto != null)
+                //    {
+                //        // Gắn giá trị vào Subject trong DTO
+                //        dto.Subject = $"{subjectName} - {gradeName} - {string.Join(" ", curriculumWords)}";
+                //    }
+                //}
+
+                return new SuccessResponseModel<object>
+                {
+                    Success = true,
+                    Message = "Planbook Templates retrieved successfully.",
+                    Data = planbookTemplateDtos
+                };
+
+            }
+            catch (Exception ex)
+            {
+                return new ErrorResponseModel<object>
+                {
+                    Success = false,
+                    Message = "An error occurred while getting all Planbook Templates.",
+                    Errors = new List<string> { ex.Message }
+                };
+            }
+        }
+        #endregion
     }
 }

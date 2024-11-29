@@ -21,7 +21,7 @@ namespace Elepla.Service.Models.ViewModels.PlanbookViewModels
 		public string? Notes { get; set; }
         public bool IsDefault { get; set; }
         public bool IsPublic { get; set; }
-        public string CollectionId { get; set; }
+        public string? CollectionId { get; set; }
 		public string LessonId { get; set; }
 
 		public List<CreateActivityForPlanbookDTO>? Activities { get; set; }
