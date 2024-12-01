@@ -229,40 +229,43 @@ namespace Elepla.Service.Services
                         Message = "Lesson not found."
                     };
                 }
-
-                // Kiểm tra collection có tồn tại không
-                var existingCollection = await _unitOfWork.PlanbookCollectionRepository.GetByIdAsync(model.CollectionId);
-
-                if (existingCollection is null)
+                
+                if (model.CollectionId is not null)
                 {
-                    return new ResponseModel
+                    // Kiểm tra collection có tồn tại không
+                    var existingCollection = await _unitOfWork.PlanbookCollectionRepository.GetByIdAsync(model.CollectionId);
+
+                    if (existingCollection is null)
                     {
-                        Success = false,
-                        Message = "Collection not found."
-                    };
-                }
+                        return new ResponseModel
+                        {
+                            Success = false,
+                            Message = "Collection not found."
+                        };
+                    }
 
-                // Lấy gói dịch vụ của người dùng đang sử dụng
-                var userPackage = await _unitOfWork.UserPackageRepository.GetActiveUserPackageAsync(existingCollection.TeacherId);
+                    // Lấy gói dịch vụ của người dùng đang sử dụng
+                    var userPackage = await _unitOfWork.UserPackageRepository.GetActiveUserPackageAsync(existingCollection.TeacherId);
 
-                if (userPackage is null)
-                {
-                    return new ResponseModel
+                    if (userPackage is null)
                     {
-                        Success = false,
-                        Message = "User package not found."
-                    };
-                }
+                        return new ResponseModel
+                        {
+                            Success = false,
+                            Message = "User package not found."
+                        };
+                    }
 
-                var createdPlanbookCount = await _unitOfWork.PlanbookRepository.CountPlanbookByUserId(existingCollection.TeacherId);
+                    var createdPlanbookCount = await _unitOfWork.PlanbookRepository.CountPlanbookByUserId(existingCollection.TeacherId);
 
-                if (createdPlanbookCount >= userPackage.MaxPlanbooks)
-                {
-                    return new ResponseModel
+                    if (createdPlanbookCount >= userPackage.MaxPlanbooks)
                     {
-                        Success = false,
-                        Message = "You have reached the maximum number of planbooks allowed by your package."
-                    };
+                        return new ResponseModel
+                        {
+                            Success = false,
+                            Message = "You have reached the maximum number of planbooks allowed by your package."
+                        };
+                    }
                 }
 
                 // Tạo planbookDto
