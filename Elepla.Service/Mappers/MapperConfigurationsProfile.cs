@@ -506,47 +506,49 @@ namespace Elepla.Service.Mappers
 				.ForMember(dest => dest.GradeId, opt => opt.MapFrom(src => src.GradeId))
 				.ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
 				.ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description)).ReverseMap();
-			#endregion
+            #endregion
 
-			#region TeachingSchedule
-			// Mapping TeachingSchedule to ViewTeachingScheduleDTO
-			CreateMap<TeachingSchedule, ViewTeachingScheduleDTO>()
-				.ForMember(dest => dest.ScheduleId, opt => opt.MapFrom(src => src.ScheduleId))
-				.ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.Date))
-				.ForMember(dest => dest.StartTime, opt => opt.MapFrom(src => src.StartTime))
-				.ForMember(dest => dest.EndTime, opt => opt.MapFrom(src => src.EndTime))
-				.ForMember(dest => dest.ClassName, opt => opt.MapFrom(src => src.ClassName))
-				.ForMember(dest => dest.TeacherName, opt => opt.MapFrom(src => src.Teacher.FirstName + " " + src.Teacher.LastName))
-				.ForMember(dest => dest.PlanbookTitle, opt => opt.MapFrom(src => src.Planbook.Title))
-				.ReverseMap();
+            #region TeachingSchedule
+            CreateMap<TeachingSchedule, ViewTeachingScheduleDTO>()
+                .ForMember(dest => dest.ScheduleId, opt => opt.MapFrom(src => src.ScheduleId))
+                .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.Date))
+                .ForMember(dest => dest.StartTime, opt => opt.MapFrom(src => src.StartTime))
+                .ForMember(dest => dest.EndTime, opt => opt.MapFrom(src => src.EndTime))
+                .ForMember(dest => dest.ClassName, opt => opt.MapFrom(src => src.ClassName))
+                .ForMember(dest => dest.TeacherName, opt => opt.MapFrom(src => src.Teacher.FirstName + " " + src.Teacher.LastName)) 
+                .ForMember(dest => dest.PlanbookTitle, opt => opt.MapFrom(src => src.Planbook.Title))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ReverseMap();
 
-			// Mapping CreateTeachingScheduleDTO to TeachingSchedule
-			CreateMap<CreateTeachingScheduleDTO, TeachingSchedule>()
-				.ForMember(dest => dest.ScheduleId, opt => opt.MapFrom(src => Guid.NewGuid().ToString()))
-				.ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.Date))
-				.ForMember(dest => dest.StartTime, opt => opt.MapFrom(src => src.StartTime))
-				.ForMember(dest => dest.EndTime, opt => opt.MapFrom(src => src.EndTime))
-				.ForMember(dest => dest.ClassName, opt => opt.MapFrom(src => src.ClassName))
-				.ForMember(dest => dest.TeacherId, opt => opt.MapFrom(src => src.TeacherId))
-				.ForMember(dest => dest.PlanbookId, opt => opt.MapFrom(src => src.PlanbookId))
-				.ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => DateTime.UtcNow))
-				.ReverseMap();
 
-			// Mapping UpdateTeachingScheduleDTO to TeachingSchedule
-			CreateMap<UpdateTeachingScheduleDTO, TeachingSchedule>()
-				.ForMember(dest => dest.ScheduleId, opt => opt.MapFrom(src => src.ScheduleId))
-				.ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.Date))
-				.ForMember(dest => dest.StartTime, opt => opt.MapFrom(src => src.StartTime))
-				.ForMember(dest => dest.EndTime, opt => opt.MapFrom(src => src.EndTime))
-				.ForMember(dest => dest.ClassName, opt => opt.MapFrom(src => src.ClassName))
-				.ForMember(dest => dest.TeacherId, opt => opt.MapFrom(src => src.TeacherId))
-				.ForMember(dest => dest.PlanbookId, opt => opt.MapFrom(src => src.PlanbookId))
-				.ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => DateTime.UtcNow))
-				.ReverseMap();
-			#endregion
+            CreateMap<CreateTeachingScheduleDTO, TeachingSchedule>()
+                .ForMember(dest => dest.ScheduleId, opt => opt.MapFrom(src => Guid.NewGuid().ToString())) 
+                .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.Date))
+                .ForMember(dest => dest.StartTime, opt => opt.MapFrom(src => src.StartTime))
+                .ForMember(dest => dest.EndTime, opt => opt.MapFrom(src => src.EndTime))
+                .ForMember(dest => dest.ClassName, opt => opt.MapFrom(src => src.ClassName))
+                .ForMember(dest => dest.TeacherId, opt => opt.MapFrom(src => src.TeacherId)) 
+                .ForMember(dest => dest.PlanbookId, opt => opt.MapFrom(src => src.PlanbookId)) 
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => DateTime.UtcNow)) 
+                .ReverseMap();
 
-			#region Planbook
-			CreateMap<Planbook, ViewListPlanbookDTO>()
+
+            CreateMap<UpdateTeachingScheduleDTO, TeachingSchedule>()
+                .ForMember(dest => dest.ScheduleId, opt => opt.MapFrom(src => src.ScheduleId))
+                .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.Date))
+                .ForMember(dest => dest.StartTime, opt => opt.MapFrom(src => src.StartTime))
+                .ForMember(dest => dest.EndTime, opt => opt.MapFrom(src => src.EndTime))
+                .ForMember(dest => dest.ClassName, opt => opt.MapFrom(src => src.ClassName))
+                .ForMember(dest => dest.TeacherId, opt => opt.MapFrom(src => src.TeacherId)) 
+                .ForMember(dest => dest.PlanbookId, opt => opt.MapFrom(src => src.PlanbookId))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description)) 
+                .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => DateTime.UtcNow)) 
+                .ReverseMap();
+            #endregion
+
+            #region Planbook
+            CreateMap<Planbook, ViewListPlanbookDTO>()
 				.ForMember(dest => dest.PlanbookId, opt => opt.MapFrom(src => src.PlanbookId))
 				.ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
 				.ForMember(dest => dest.SchoolName, opt => opt.MapFrom(src => src.SchoolName))
