@@ -43,10 +43,7 @@ namespace Elepla.Service.Services
 
         public async Task<ResponseModel> GetTeachingScheduleByIdAsync(string scheduleId)
         {
-            var schedule = await _unitOfWork.TeachingScheduleRepository.GetByIdAsync(
-                scheduleId,
-                includeProperties: "Teacher,Planbook" 
-            );
+            var schedule = await _unitOfWork.TeachingScheduleRepository.GetByIdAsync(scheduleId, includeProperties: "Teacher,Planbook");
 
             if (schedule == null)
             {
@@ -71,6 +68,7 @@ namespace Elepla.Service.Services
         {
             try
             {
+                // Map the model to the TeachingSchedule entity
                 var schedule = _mapper.Map<TeachingSchedule>(model);
                 schedule.ScheduleId = Guid.NewGuid().ToString(); 
 
@@ -117,6 +115,7 @@ namespace Elepla.Service.Services
                     };
                 }
 
+                // Map the updated model to the schedule entity
                 _mapper.Map(model, schedule);
 
                 _unitOfWork.TeachingScheduleRepository.Update(schedule);
