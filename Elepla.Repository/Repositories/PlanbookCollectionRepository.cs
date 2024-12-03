@@ -20,5 +20,10 @@ namespace Elepla.Repository.Repositories
 		{
 			return await _dbContext.PlanbookCollections.AnyAsync(c => c.TeacherId == teacherId && c.IsSaved);
 		}
+
+		public async Task<bool> CheckCollectionByName(string name)
+		{
+            return await _dbContext.PlanbookCollections.AnyAsync(c => c.CollectionName.Equals(name));
+        }
 	}
 }

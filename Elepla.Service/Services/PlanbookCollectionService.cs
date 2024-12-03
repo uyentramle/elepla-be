@@ -1,4 +1,4 @@
-using AutoMapper;
+﻿using AutoMapper;
 using Elepla.Domain.Entities;
 using Elepla.Repository.Common;
 using Elepla.Repository.Interfaces;
@@ -94,7 +94,7 @@ namespace Elepla.Service.Services
 			try
 			{
 				var collections = await _unitOfWork.PlanbookCollectionRepository.GetAsync(
-									filter: r => r.TeacherId == teacherId && r.IsDeleted == false && r.IsSaved,
+									filter: r => r.TeacherId == teacherId && r.IsDeleted == false && !r.IsSaved,
 									pageIndex: pageIndex,
 									pageSize: pageSize
 								 );
@@ -122,7 +122,7 @@ namespace Elepla.Service.Services
 				{
 					Message = "Created Planbook Collections retrieved successfully",
 					Success = true,
-					Data = collections
+					Data = mapper
 				};
 			}
 			catch (Exception ex)
@@ -170,7 +170,7 @@ namespace Elepla.Service.Services
 				{
 					Message = "Saved Planbook Collections retrieved successfully",
 					Success = true,
-					Data = collections
+					Data = mapper
 				};
 			}
 			catch (Exception ex)
@@ -220,7 +220,17 @@ namespace Elepla.Service.Services
 		{
 			try
 			{
-				var collection = _mapper.Map<PlanbookCollection>(model);
+				var collectionExists = await _unitOfWork.PlanbookCollectionRepository.CheckCollectionByName(model.CollectionName);
+                if (collectionExists)
+				{
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "Planbook Collection already exists"
+                    };
+                }
+
+                var collection = _mapper.Map<PlanbookCollection>(model);
 				await _unitOfWork.PlanbookCollectionRepository.AddAsync(collection);
 				await _unitOfWork.SaveChangeAsync();
 
