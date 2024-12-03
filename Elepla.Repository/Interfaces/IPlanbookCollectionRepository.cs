@@ -10,7 +10,6 @@ namespace Elepla.Repository.Interfaces
     public interface IPlanbookCollectionRepository : IGenericRepository<PlanbookCollection>
     {
 		Task<bool> CheckPlanbookCollectionIsSavedExistByTeacherId(string teacherId);
-        Task<bool> CheckCollectionByName(string name);
-
+        Task<bool> CheckCollectionByName(string collectionName, string teacherId);
     }
 }

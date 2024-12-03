@@ -220,7 +220,7 @@ namespace Elepla.Service.Services
 		{
 			try
 			{
-				var collectionExists = await _unitOfWork.PlanbookCollectionRepository.CheckCollectionByName(model.CollectionName);
+				var collectionExists = await _unitOfWork.PlanbookCollectionRepository.CheckCollectionByName(model.CollectionName, model.TeacherId);
                 if (collectionExists)
 				{
                     return new ResponseModel
