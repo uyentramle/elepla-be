@@ -373,7 +373,15 @@ namespace Elepla.Service.Services
 					};
 				}
 
-				_unitOfWork.PlanbookCollectionRepository.SoftRemove(collection);
+				var planbooks = await _unitOfWork.PlanbookRepository.GetAllAsync(filter: p => p.CollectionId.Equals(collectionId));
+
+                // Xóa các Planbook liên quan
+                foreach (var planbook in planbooks)
+                {
+                    _unitOfWork.PlanbookRepository.Delete(planbook);
+                }
+
+                _unitOfWork.PlanbookCollectionRepository.Delete(collection);
 				await _unitOfWork.SaveChangeAsync();
 
 				return new ResponseModel
@@ -384,10 +392,12 @@ namespace Elepla.Service.Services
 			}
 			catch (Exception ex)
 			{
-				return new ResponseModel
+				return new ErrorResponseModel<object>
 				{
-					Message = ex.Message,
-					Success = false
+					Errors = ex.InnerException?.Message != null
+								? new List<string> { ex.InnerException.Message }
+								: new List<string> { ex.Message }
+
 				};
 			}
 		}
