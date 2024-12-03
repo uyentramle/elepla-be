@@ -284,42 +284,53 @@ namespace Elepla.Service.Services
 					};
 				}
 
-				//if (model.PlanbookIds == null || !model.PlanbookIds.Any())
-				//{
-				//	collection.Planbooks.Clear();
-				//}
-				//else
-				//{
-				//	// Retrieve existing planbooks based on provided PlanbookIds
-				//	var existingPlanbooks = await _unitOfWork.PlanbookRepository
-				//						.GetAllAsync(pb => model.PlanbookIds.Contains(pb.PlanbookId));
+				var collectionExists = await _unitOfWork.PlanbookCollectionRepository.CheckCollectionByName(model.CollectionName, model.TeacherId);
 
-				//	// Get list of current Planbook IDs in the collection to avoid duplication
-				//	var currentPlanbookIds = collection.Planbooks.Select(pb => pb.PlanbookId).ToHashSet();
+				if (collectionExists)
+				{
+                    return new ResponseModel
+                    {
+                        Message = "Planbook Collection already exists",
+                        Success = false
+                    };
+                }
 
-				//	foreach (var planbook in existingPlanbooks)
-				//	{
-				//		// Only add if the planbook is created by the user when IsSaved is false
-				//		if (!collection.IsSaved && planbook.CreatedBy != model.TeacherId)
-				//		{
-				//			continue;
-				//		}
+                //if (model.PlanbookIds == null || !model.PlanbookIds.Any())
+                //{
+                //	collection.Planbooks.Clear();
+                //}
+                //else
+                //{
+                //	// Retrieve existing planbooks based on provided PlanbookIds
+                //	var existingPlanbooks = await _unitOfWork.PlanbookRepository
+                //						.GetAllAsync(pb => model.PlanbookIds.Contains(pb.PlanbookId));
 
-				//		// Only add new planbooks that are not already in the collection
-				//		if (!currentPlanbookIds.Contains(planbook.PlanbookId))
-				//		{
-				//			collection.Planbooks.Add(planbook);
-				//		}
-				//	}
+                //	// Get list of current Planbook IDs in the collection to avoid duplication
+                //	var currentPlanbookIds = collection.Planbooks.Select(pb => pb.PlanbookId).ToHashSet();
 
-				//	// Remove any planbooks from the collection that are no longer in the provided PlanbookIds
-				//	collection.Planbooks = collection.Planbooks
-				//						.Where(pb => model.PlanbookIds.Contains(pb.PlanbookId))
-				//						.ToList();
-				//}
+                //	foreach (var planbook in existingPlanbooks)
+                //	{
+                //		// Only add if the planbook is created by the user when IsSaved is false
+                //		if (!collection.IsSaved && planbook.CreatedBy != model.TeacherId)
+                //		{
+                //			continue;
+                //		}
 
-				// Map any additional properties to the collection
-				_mapper.Map(model, collection);
+                //		// Only add new planbooks that are not already in the collection
+                //		if (!currentPlanbookIds.Contains(planbook.PlanbookId))
+                //		{
+                //			collection.Planbooks.Add(planbook);
+                //		}
+                //	}
+
+                //	// Remove any planbooks from the collection that are no longer in the provided PlanbookIds
+                //	collection.Planbooks = collection.Planbooks
+                //						.Where(pb => model.PlanbookIds.Contains(pb.PlanbookId))
+                //						.ToList();
+                //}
+
+                // Map any additional properties to the collection
+                _mapper.Map(model, collection);
 				_unitOfWork.PlanbookCollectionRepository.Update(collection);
 				await _unitOfWork.SaveChangeAsync();
 
