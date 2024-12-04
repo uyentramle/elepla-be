@@ -606,7 +606,7 @@ namespace Elepla.Service.Mappers
 				.ForMember(dest => dest.TeacherName, opt => opt.MapFrom(src => src.TeacherName))
 				.ForMember(dest => dest.Subject, opt => opt.MapFrom(src => src.Subject))
 				.ForMember(dest => dest.ClassName, opt => opt.MapFrom(src => src.ClassName))
-				.ForMember(dest => dest.DurationInPeriods, opt => opt.MapFrom(src => src.DurationInPeriods + " tiết"))
+				.ForMember(dest => dest.DurationInPeriods, opt => opt.MapFrom(src => src.DurationInPeriods))
 				.ForMember(dest => dest.KnowledgeObjective, opt => opt.MapFrom(src => src.KnowledgeObjective))
 				.ForMember(dest => dest.SkillsObjective, opt => opt.MapFrom(src => src.SkillsObjective))
 				.ForMember(dest => dest.QualitiesObjective, opt => opt.MapFrom(src => src.QualitiesObjective))

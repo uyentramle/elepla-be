@@ -69,7 +69,7 @@ namespace Elepla.Service.Services
                 };
             }
 
-            var mapper = _mapper.Map<ViewDetailPlanbookDTO>(planbook);
+            var mapper = _mapper.Map<ViewDetailsPlanbookDTO>(planbook);
 
             var collection = await _unitOfWork.PlanbookCollectionRepository.GetByIdAsync(planbook.CollectionId);
             if (collection != null)
