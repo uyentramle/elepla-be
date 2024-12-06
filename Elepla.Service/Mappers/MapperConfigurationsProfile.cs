@@ -562,10 +562,10 @@ namespace Elepla.Service.Mappers
 				//.ForMember(dest => dest.QualitiesObjective, opt => opt.MapFrom(src => src.QualitiesObjective))
 				//.ForMember(dest => dest.TeachingTools, opt => opt.MapFrom(src => src.TeachingTools))
 				//.ForMember(dest => dest.Notes, opt => opt.MapFrom(src => src.Notes))
-				.ForMember(dest => dest.CollectionId, opt => opt.MapFrom(src => src.CollectionId))
+				//.ForMember(dest => dest.CollectionId, opt => opt.MapFrom(src => src.CollectionId))
 				.ForMember(dest => dest.LessonId, opt => opt.MapFrom(src => src.LessonId))
-
-				.ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
+				.ForMember(dest => dest.LessonName, opt => opt.MapFrom(src => src.Lesson.Name))
+                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
 				.ForMember(dest => dest.CreatedBy, opt => opt.MapFrom(src => src.CreatedBy))
 				.ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.UpdatedAt))
 				.ForMember(dest => dest.UpdatedBy, opt => opt.MapFrom(src => src.UpdatedBy))
@@ -587,7 +587,7 @@ namespace Elepla.Service.Mappers
 				.ForMember(dest => dest.QualitiesObjective, opt => opt.MapFrom(src => src.QualitiesObjective))
 				.ForMember(dest => dest.TeachingTools, opt => opt.MapFrom(src => src.TeachingTools))
 				.ForMember(dest => dest.Notes, opt => opt.MapFrom(src => src.Notes))
-				.ForMember(dest => dest.CollectionId, opt => opt.MapFrom(src => src.CollectionId))
+				//.ForMember(dest => dest.CollectionId, opt => opt.MapFrom(src => src.CollectionId))
 				.ForMember(dest => dest.LessonId, opt => opt.MapFrom(src => src.LessonId))
 
 				.ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
@@ -614,8 +614,8 @@ namespace Elepla.Service.Mappers
 				.ForMember(dest => dest.Notes, opt => opt.MapFrom(src => src.Notes))
 				.ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault))
 				.ForMember(dest => dest.IsPublic, opt => opt.MapFrom(src => src.IsPublic))
-				.ForMember(dest => dest.CollectionId, opt => opt.MapFrom(src => src.CollectionId))
-				.ForMember(dest => dest.CollectionName, opt => opt.MapFrom(src => src.PlanbookCollection.CollectionName))
+				//.ForMember(dest => dest.CollectionId, opt => opt.MapFrom(src => src.CollectionId))
+				//.ForMember(dest => dest.CollectionName, opt => opt.MapFrom(src => src.PlanbookCollection.CollectionName))
 				.ForMember(dest => dest.LessonId, opt => opt.MapFrom(src => src.LessonId))
 				.ForMember(dest => dest.LessonName, opt => opt.MapFrom(src => src.Lesson.Name))
 				.ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
@@ -642,7 +642,7 @@ namespace Elepla.Service.Mappers
 				.ForMember(dest => dest.Notes, opt => opt.MapFrom(src => src.Notes))
 				.ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault))
 				.ForMember(dest => dest.IsPublic, opt => opt.MapFrom(src => src.IsPublic))
-				.ForMember(dest => dest.CollectionId, opt => opt.MapFrom(src => src.CollectionId))
+				//.ForMember(dest => dest.CollectionId, opt => opt.MapFrom(src => src.CollectionId))
 				.ForMember(dest => dest.LessonId, opt => opt.MapFrom(src => src.LessonId))
 				.ForMember(dest => dest.Activities, opt => opt.Ignore())
 				.ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => false))
@@ -786,7 +786,7 @@ namespace Elepla.Service.Mappers
 
 			CreateMap<SavePlanbookDTO, PlanbookCollection>()
 				.ForMember(dest => dest.CollectionId, opt => opt.MapFrom(src => src.CollectionId))
-				.ForMember(dest => dest.TeacherId, opt => opt.MapFrom(src => src.TeacherId))
+				//.ForMember(dest => dest.TeacherId, opt => opt.MapFrom(src => src.TeacherId))
 				.ForMember(dest => dest.IsSaved, opt => opt.MapFrom(src => true))
 				.ReverseMap();
 			#endregion

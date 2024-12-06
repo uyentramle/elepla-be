@@ -23,8 +23,8 @@ namespace Elepla.Service.Models.ViewModels.PlanbookViewModels
         //public string TeachingTools { get; set; }
         //public string? Notes { get; set; }
 
-        public string CollectionId { get; set; }
-		public string CollectionName { get; set; }
+		//public string CollectionId { get; set; }
+		//public string CollectionName { get; set; }
 		public string LessonId { get; set; }
 		public string LessonName { get; set; }
 

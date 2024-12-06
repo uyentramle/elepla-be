@@ -179,6 +179,9 @@ namespace Elepla.API
             services.AddScoped<IPlanbookCollectionRepository, PlanbookCollectionRepository>();
             services.AddScoped<IPlanbookCollectionService, PlanbookCollectionService>();
 
+            // Planbook In Collection
+            services.AddScoped<IPlanbookInCollectionRepository, PlanbookInCollectionRepository>();
+
             // Planbook
             services.AddScoped<IPlanbookRepository, PlanbookRepository>();
             services.AddScoped<IPlanbookService, PlanbookService>();

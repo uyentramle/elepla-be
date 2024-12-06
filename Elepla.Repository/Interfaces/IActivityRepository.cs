@@ -16,6 +16,6 @@ namespace Elepla.Repository.Interfaces
         Task<Activity> UpdateActivityAsync(Activity activity);
 		void UpdateRangeActivityAsync(IEnumerable<Activity> activities);
         Task<bool> DeleteActivityAsync(Activity activity);
-		void DeleteRangeActivityAsync(IEnumerable<Activity> activities);
+		void DeleteRangeActivity(IEnumerable<Activity> activities);
     }
 }

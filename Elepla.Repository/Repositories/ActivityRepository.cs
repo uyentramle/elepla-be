@@ -61,7 +61,7 @@ namespace Elepla.Repository.Repositories
 			return true;
 		}
 
-        public void DeleteRangeActivityAsync(IEnumerable<Activity> activities)
+        public void DeleteRangeActivity(IEnumerable<Activity> activities)
         {
             _dbContext.Activities.RemoveRange(activities);
         }

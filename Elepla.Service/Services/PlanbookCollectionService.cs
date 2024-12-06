@@ -49,16 +49,31 @@ namespace Elepla.Service.Services
 				//	}
 
 				var collectionIds = mapper.Items.Select(c => c.CollectionId).ToList();
-				var planbooks = await _unitOfWork.PlanbookRepository.GetAsync(
-									filter: r => collectionIds.Contains(r.CollectionId) && r.IsDeleted == false
-								 );
+                //var planbooks = await _unitOfWork.PlanbookRepository.GetAsync(
+                //					filter: r => collectionIds.Contains(r.CollectionId) && r.IsDeleted == false
+                //				 );
 
-				var planbookCountsByCollection = planbooks.Items
-												.GroupBy(p => p.CollectionId)
-												.ToDictionary(g => g.Key, g => g.Count());
+                //var planbookCountsByCollection = planbooks.Items
+                //								.GroupBy(p => p.CollectionId)
+                //								.ToDictionary(g => g.Key, g => g.Count());
 
-				// Assign planbook counts to the respective collections
-				foreach (var collection in mapper.Items)
+                // Lấy tất cả các PlanbookInCollection liên quan đến các CollectionId
+                var planbookInCollections = await _unitOfWork.PlanbookInCollectionRepository.GetAllByCollectionId(collectionIds);
+
+                // Lấy tất cả các Planbook từ các PlanbookInCollection
+                var planbookIds = planbookInCollections.Select(pic => pic.PlanbookId).ToList();
+
+                var planbooks = await _unitOfWork.PlanbookRepository.GetAsync(
+                        filter: r => planbookIds.Contains(r.PlanbookId) && r.IsDeleted == false
+                );
+
+                // Đếm số lượng Planbook cho từng Collection
+                var planbookCountsByCollection = planbooks.Items
+                    .GroupBy(p => planbookInCollections.First(pic => pic.PlanbookId == p.PlanbookId).CollectionId)
+                    .ToDictionary(g => g.Key, g => g.Count());
+
+                // Assign planbook counts to the respective collections
+                foreach (var collection in mapper.Items)
 				{
 					if (planbookCountsByCollection.TryGetValue(collection.CollectionId, out var planbookCount))
 					{
@@ -102,15 +117,23 @@ namespace Elepla.Service.Services
 				var mapper = _mapper.Map<Pagination<ViewListPlanbookCollectionDTO>>(collections);
 
 				var collectionIds = mapper.Items.Select(c => c.CollectionId).ToList();
-				var planbooks = await _unitOfWork.PlanbookRepository.GetAsync(
-								filter: r => collectionIds.Contains(r.CollectionId) && r.IsDeleted == false
-				);
+                //var planbooks = await _unitOfWork.PlanbookRepository.GetAsync(
+                //				filter: r => collectionIds.Contains(r.CollectionId) && r.IsDeleted == false
+                //);
 
-				var planbookCountsByCollection = planbooks.Items
-												.GroupBy(p => p.CollectionId)
+                //var planbookCountsByCollection = planbooks.Items
+                //								.GroupBy(p => p.CollectionId)
+                //								.ToDictionary(g => g.Key, g => g.Count());
+
+                // Lấy tất cả các PlanbookInCollection liên quan đến các CollectionId
+                var planbookInCollections = await _unitOfWork.PlanbookInCollectionRepository.GetAllByCollectionId(collectionIds);
+
+                // Đếm số lượng Planbook cho từng Collection từ PlanbookInCollections
+                var planbookCountsByCollection = planbookInCollections
+												.GroupBy(pic => pic.CollectionId)
 												.ToDictionary(g => g.Key, g => g.Count());
 
-				foreach (var collection in mapper.Items)
+                foreach (var collection in mapper.Items)
 				{
 					collection.PlanbookCount = planbookCountsByCollection
 												.TryGetValue(collection.CollectionId, out var count)
@@ -150,21 +173,29 @@ namespace Elepla.Service.Services
 				var mapper = _mapper.Map<Pagination<ViewListPlanbookCollectionDTO>>(collections);
 
 				var collectionIds = mapper.Items.Select(c => c.CollectionId).ToList();
-				var planbooks = await _unitOfWork.PlanbookRepository.GetAsync(
-								filter: r => collectionIds.Contains(r.CollectionId) && r.IsDeleted == false
-				);
+                //var planbooks = await _unitOfWork.PlanbookRepository.GetAsync(
+                //				filter: r => collectionIds.Contains(r.CollectionId) && r.IsDeleted == false
+                //);
 
-				var planbookCountsByCollection = planbooks.Items
-												.GroupBy(p => p.CollectionId)
-												.ToDictionary(g => g.Key, g => g.Count());
+                //var planbookCountsByCollection = planbooks.Items
+                //								.GroupBy(p => p.CollectionId)
+                //								.ToDictionary(g => g.Key, g => g.Count());
 
-				foreach (var collection in mapper.Items)
-				{
-					collection.PlanbookCount = planbookCountsByCollection
-												.TryGetValue(collection.CollectionId, out var count)
-												? count
-												: 0;
-				}
+                // Lấy tất cả các PlanbookInCollection liên quan đến các CollectionId
+                var planbookInCollections = await _unitOfWork.PlanbookInCollectionRepository.GetAllByCollectionId(collectionIds);
+
+                // Đếm số lượng Planbook cho từng Collection từ PlanbookInCollections
+                var planbookCountsByCollection = planbookInCollections
+                                                .GroupBy(pic => pic.CollectionId)
+                                                .ToDictionary(g => g.Key, g => g.Count());
+
+                foreach (var collection in mapper.Items)
+                {
+                    collection.PlanbookCount = planbookCountsByCollection
+                                                .TryGetValue(collection.CollectionId, out var count)
+                                                ? count
+                                                : 0;
+                }
 
 				return new SuccessResponseModel<object>
 				{
@@ -199,11 +230,23 @@ namespace Elepla.Service.Services
 
 			var mapper = _mapper.Map<ViewDetailPlanbookCollectionDTO>(collection);
 
-			var planbooks = await _unitOfWork.PlanbookRepository.GetAsync(
-								filter: r => r.CollectionId == collectionId
-										&& r.IsDeleted == false
-										);
-			mapper.Planbooks = _mapper.Map<List<ViewListPlanbookDTO>>(planbooks.Items);
+            //var planbooks = await _unitOfWork.PlanbookRepository.GetAsync(
+            //					filter: r => r.CollectionId == collectionId
+            //							&& r.IsDeleted == false
+            //							);
+
+            // Lấy tất cả các PlanbookInCollection liên quan đến collectionId
+            var planbookInCollections = await _unitOfWork.PlanbookInCollectionRepository.GetAllByCollectionId(collectionId);
+
+            // Lấy danh sách các PlanbookIds từ PlanbookInCollections
+            var planbookIds = planbookInCollections.Select(pic => pic.PlanbookId).ToList();
+
+            // Lấy các Planbook dựa trên danh sách PlanbookIds
+            var planbooks = await _unitOfWork.PlanbookRepository.GetAsync(
+                                filter: r => planbookIds.Contains(r.PlanbookId) && r.IsDeleted == false
+                             );
+
+            mapper.Planbooks = _mapper.Map<List<ViewListPlanbookDTO>>(planbooks.Items);
 			mapper.PlanbookCount = planbooks.Items.Count;
 
 			return new SuccessResponseModel<object>
@@ -384,7 +427,17 @@ namespace Elepla.Service.Services
 					};
 				}
 
-				var planbooks = await _unitOfWork.PlanbookRepository.GetAllAsync(filter: p => p.CollectionId.Equals(collectionId));
+                // Lấy tất cả các PlanbookInCollection liên quan đến Collection
+                var planbookInCollections = await _unitOfWork.PlanbookInCollectionRepository.GetAllByCollectionId(collectionId);
+
+
+				// Lấy tất cả các Planbook liên quan đến Collection
+				var planbooks = await _unitOfWork.PlanbookRepository.GetAllAsync(
+						filter: p => p.PlanbookInCollections.Any(pic => pic.CollectionId.Equals(collectionId)),
+						includeProperties: "PlanbookInCollections");
+
+                // Xóa các PlanbookInCollection liên quan
+                _unitOfWork.PlanbookInCollectionRepository.DeleteRange(planbookInCollections);
 
                 // Xóa các Planbook liên quan
                 foreach (var planbook in planbooks)
@@ -415,74 +468,74 @@ namespace Elepla.Service.Services
 		#endregion
 
 		#region Save another planbook to collection
-		public async Task<ResponseModel> SavePlanbookAsync(SavePlanbookDTO model)
-		{
-			try
-			{
-				var planbook = await _unitOfWork.PlanbookRepository.GetByIdAsync(model.PlanbookId);
-				if (planbook == null)
-				{
-					return new ResponseModel
-					{
-						Success = false,
-						Message = "Planbook not found."
-					};
-				}
-				if (planbook.IsDeleted)
-				{
-					return new ResponseModel
-					{
-						Success = false,
-						Message = "Can't save deleted planbook."
-					};
-				}
+		//public async Task<ResponseModel> SavePlanbookAsync(SavePlanbookDTO model)
+		//{
+		//	try
+		//	{
+		//		var planbook = await _unitOfWork.PlanbookRepository.GetByIdAsync(model.PlanbookId);
+		//		if (planbook == null)
+		//		{
+		//			return new ResponseModel
+		//			{
+		//				Success = false,
+		//				Message = "Planbook not found."
+		//			};
+		//		}
+		//		if (planbook.IsDeleted)
+		//		{
+		//			return new ResponseModel
+		//			{
+		//				Success = false,
+		//				Message = "Can't save deleted planbook."
+		//			};
+		//		}
 
-				var collection = await _unitOfWork.PlanbookCollectionRepository.GetByIdAsync(model.CollectionId);
+		//		var collection = await _unitOfWork.PlanbookCollectionRepository.GetByIdAsync(model.CollectionId);
 
-				if (collection == null)
-				{
-					var existSavedCollection = await _unitOfWork.PlanbookCollectionRepository
-						.CheckPlanbookCollectionIsSavedExistByTeacherId(model.TeacherId);
+		//		if (collection == null)
+		//		{
+		//			var existSavedCollection = await _unitOfWork.PlanbookCollectionRepository
+		//				.CheckPlanbookCollectionIsSavedExistByTeacherId(model.TeacherId);
 
-					if (!existSavedCollection)
-					{
-						var newCollection = _mapper.Map<PlanbookCollection>(model);
-						newCollection.CollectionId = Guid.NewGuid().ToString();
-						await _unitOfWork.PlanbookCollectionRepository.AddAsync(newCollection);
-						await _unitOfWork.SaveChangeAsync();
+		//			if (!existSavedCollection)
+		//			{
+		//				var newCollection = _mapper.Map<PlanbookCollection>(model);
+		//				newCollection.CollectionId = Guid.NewGuid().ToString();
+		//				await _unitOfWork.PlanbookCollectionRepository.AddAsync(newCollection);
+		//				await _unitOfWork.SaveChangeAsync();
 
-						newCollection.Planbooks.Add(planbook);
-						await _unitOfWork.SaveChangeAsync();
-					}
-				}
-				else
-				{
-					if (collection.Planbooks.Any(pb => pb.PlanbookId == model.PlanbookId))
-					{
-						collection.Planbooks.Remove(planbook);
-					}
-					else
-					{
-						collection.Planbooks.Add(planbook);
-					}
-					await _unitOfWork.SaveChangeAsync();
-				}
+		//				newCollection.Planbooks.Add(planbook);
+		//				await _unitOfWork.SaveChangeAsync();
+		//			}
+		//		}
+		//		else
+		//		{
+		//			if (collection.Planbooks.Any(pb => pb.PlanbookId == model.PlanbookId))
+		//			{
+		//				collection.Planbooks.Remove(planbook);
+		//			}
+		//			else
+		//			{
+		//				collection.Planbooks.Add(planbook);
+		//			}
+		//			await _unitOfWork.SaveChangeAsync();
+		//		}
 
-				return new ResponseModel
-				{
-					Success = true,
-					Message = "Planbook saved/unsaved successfully."
-				};
-			}
-			catch (Exception ex)
-			{
-				return new ResponseModel
-				{
-					Success = false,
-					Message = "An error occurred while saving the planbook: " + ex.Message
-				};
-			}
-		}
+		//		return new ResponseModel
+		//		{
+		//			Success = true,
+		//			Message = "Planbook saved/unsaved successfully."
+		//		};
+		//	}
+		//	catch (Exception ex)
+		//	{
+		//		return new ResponseModel
+		//		{
+		//			Success = false,
+		//			Message = "An error occurred while saving the planbook: " + ex.Message
+		//		};
+		//	}
+		//}
 		#endregion
 	}
 }

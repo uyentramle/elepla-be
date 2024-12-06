@@ -1,4 +1,5 @@
 ﻿using Elepla.Service.Interfaces;
+using Elepla.Service.Models.ViewModels.PlanbookCollectionViewModels;
 using Elepla.Service.Models.ViewModels.PlanbookViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -132,6 +133,23 @@ namespace Elepla.API.Controllers
             }
 
             var response = await _planbookService.ClonePlanbookAsync(model);
+            if (response != null)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
+        }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> SavePlanbookAsync(SavePlanbookDTO model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var response = await _planbookService.SavePlanbookAsync(model);
             if (response != null)
             {
                 return Ok(response);

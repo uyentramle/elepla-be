@@ -27,6 +27,7 @@ namespace Elepla.Repository.Interfaces
         IChapterRepository ChapterRepository { get; }
         ILessonRepository LessonRepository { get; }
         IPlanbookCollectionRepository PlanbookCollectionRepository { get; }
+        IPlanbookInCollectionRepository PlanbookInCollectionRepository { get; }
         IPlanbookRepository PlanbookRepository { get; }
         IActivityRepository ActivityRepository { get; }
 		IPlanBookShareRepository PlanBookShareRepository { get; }

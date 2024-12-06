@@ -13,6 +13,7 @@ using iText.Kernel.Font;
 using iText.Kernel.Pdf;
 using Word = DocumentFormat.OpenXml.Wordprocessing;
 using DocumentFormat.OpenXml.Wordprocessing;
+using Elepla.Service.Models.ViewModels.PlanbookCollectionViewModels;
 
 namespace Elepla.Service.Services
 {
@@ -71,11 +72,11 @@ namespace Elepla.Service.Services
 
             var mapper = _mapper.Map<ViewDetailsPlanbookDTO>(planbook);
 
-            var collection = await _unitOfWork.PlanbookCollectionRepository.GetByIdAsync(planbook.CollectionId);
-            if (collection != null)
-            {
-                mapper.CollectionName = collection.CollectionName;
-            }
+            //var collection = await _unitOfWork.PlanbookCollectionRepository.GetByIdAsync(planbook.CollectionId);
+            //if (collection != null)
+            //{
+            //    mapper.CollectionName = collection.CollectionName;
+            //}
 
             var lesson = await _unitOfWork.LessonRepository.GetByIdAsync(planbook.LessonId);
             if (lesson != null)
@@ -98,20 +99,27 @@ namespace Elepla.Service.Services
         #region Get Planbook By Collection Id
         public async Task<ResponseModel> GetPlanbookByCollectionIdAsync(string collectionId, int pageIndex, int pageSize)
         {
+            //var planbooks = await _unitOfWork.PlanbookRepository.GetAsync(
+            //                filter: r => r.CollectionId == collectionId && r.IsDeleted == false,
+            //                pageIndex: pageIndex,
+            //                pageSize: pageSize
+            //                );
+            //var mappers = _mapper.Map<Pagination<ViewListPlanbookDTO>>(planbooks);
+            //foreach (var item in mappers.Items)
+            //{
+            //    var lesson = await _unitOfWork.LessonRepository.GetByIdAsync(item.LessonId);
+            //    if (lesson != null)
+            //    {
+            //        item.LessonName = lesson.Name;
+            //    }
+            //}
             var planbooks = await _unitOfWork.PlanbookRepository.GetAsync(
-                            filter: r => r.CollectionId == collectionId && r.IsDeleted == false,
-                            pageIndex: pageIndex,
-                            pageSize: pageSize
-                            );
+                    filter: r => r.PlanbookInCollections.Any(pc => pc.CollectionId == collectionId) && !r.IsDeleted,
+                    includeProperties: "Lesson,PlanbookInCollections.PlanbookCollection",
+                    pageIndex: pageIndex,
+                    pageSize: pageSize);
+
             var mappers = _mapper.Map<Pagination<ViewListPlanbookDTO>>(planbooks);
-            foreach (var item in mappers.Items)
-            {
-                var lesson = await _unitOfWork.LessonRepository.GetByIdAsync(item.LessonId);
-                if (lesson != null)
-                {
-                    item.LessonName = lesson.Name;
-                }
-            }
 
             return new SuccessResponseModel<object>
             {
@@ -274,6 +282,19 @@ namespace Elepla.Service.Services
                 await _unitOfWork.PlanbookRepository.AddAsync(planbook);
                 //await _unitOfWork.SaveChangeAsync();
 
+                // Nếu có CollectionId thì tạo bản ghi trong PlanbookInCollection
+                if (model.CollectionId is not null)
+                {
+                    var planbookInCollection = new PlanbookInCollection
+                    {
+                        PlanbookInCollectionId = Guid.NewGuid().ToString(),
+                        PlanbookId = planbook.PlanbookId,
+                        CollectionId = model.CollectionId
+                    };
+
+                    await _unitOfWork.PlanbookInCollectionRepository.AddAsync(planbookInCollection);
+                }
+
                 if (model.Activities != null && model.Activities.Any())
                 {
                     var activities = _mapper.Map<List<Activity>>(model.Activities);
@@ -378,7 +399,7 @@ namespace Elepla.Service.Services
                     // Xóa các hoạt động không còn trong danh sách
                     if (activitiesToDelete.Any())
                     {
-                        _unitOfWork.ActivityRepository.DeleteRangeActivityAsync(activitiesToDelete);
+                        _unitOfWork.ActivityRepository.DeleteRangeActivity(activitiesToDelete);
                     }
 
                     // Cập nhật và thêm mới các hoạt động
@@ -419,13 +440,22 @@ namespace Elepla.Service.Services
             try
             {
                 var planbook = await _unitOfWork.PlanbookRepository.GetByIdAsync(planbookId);
-                if (planbook == null)
+                if (planbook is null)
                 {
                     return new ResponseModel
                     {
                         Success = false,
                         Message = "Planbook not found."
                     };
+                }
+
+                // Kiểm tra nếu có liên kết trong bảng PlanbookInCollection, xóa các bản ghi liên quan
+                var planbookInCollections = await _unitOfWork.PlanbookInCollectionRepository.GetAllByPlanbookId(planbookId);
+
+                if (planbookInCollections.Any())
+                {
+                    // Xóa các liên kết trong bảng PlanbookInCollection
+                    _unitOfWork.PlanbookInCollectionRepository.DeleteRange(planbookInCollections);
                 }
 
                 _unitOfWork.PlanbookRepository.Delete(planbook);
@@ -685,19 +715,19 @@ namespace Elepla.Service.Services
                 // Tiến hành tạo các hoạt động cho bài học
                 var activityPrompts = new List<string>
                 {
-                    "Hoạt động 1: Xác định vấn đề",
-                    "Hoạt động 2: Hình thành kiến thức mới",
-                    "Hoạt động 3: Luyện tập",
-                    "Hoạt động 4: Vận dụng"
+                    "Xác định vấn đề",
+                    "Hình thành kiến thức mới",
+                    "Luyện tập",
+                    "Vận dụng"
                 };
 
                 // Tạo một list các task để gửi các prompt cho AI và lấy kết quả cho các hoạt động
                 var activityTasks = activityPrompts.Select(async activityPrompt =>
                 {
-                    var objective = await _openAIService.GeneratePlanbookFieldAsync($"Hãy tạo mục tiêu cho {activityPrompt} trong bài học {lesson.Name}");
-                    var content = await _openAIService.GeneratePlanbookFieldAsync($"Hãy tạo nội dung chi tiết cho {activityPrompt} trong bài học {lesson.Name}");
-                    var product = await _openAIService.GeneratePlanbookFieldAsync($"Hãy tạo sản phẩm cho {activityPrompt} trong bài học {lesson.Name}");
-                    var implementation = await _openAIService.GeneratePlanbookFieldAsync($"Hãy tạo hướng dẫn tổ chức thực hiện cho {activityPrompt} trong bài học {lesson.Name}");
+                    var objective = await _openAIService.GeneratePlanbookFieldAsync($"Hãy tạo mục tiêu cho hoạt động {activityPrompt} trong bài học {lesson.Name}");
+                    var content = await _openAIService.GeneratePlanbookFieldAsync($"Hãy tạo nội dung chi tiết cho hoạt động {activityPrompt} trong bài học {lesson.Name}");
+                    var product = await _openAIService.GeneratePlanbookFieldAsync($"Hãy tạo sản phẩm cho hoạt động {activityPrompt} trong bài học {lesson.Name}");
+                    var implementation = await _openAIService.GeneratePlanbookFieldAsync($"Hãy tạo hướng dẫn tổ chức thực hiện cho hoạt động {activityPrompt} trong bài học {lesson.Name}");
 
                     return new CreateActivityForPlanbookDTO
                     {
@@ -751,18 +781,36 @@ namespace Elepla.Service.Services
                 }
 
                 // Kiểm tra collection có tồn tại không
-                if (!string.IsNullOrEmpty(model.CollectionId))
+                var existingCollection = await _unitOfWork.PlanbookCollectionRepository.GetByIdAsync(model.CollectionId);
+                if (existingCollection is null)
                 {
-                    var existingCollection = await _unitOfWork.PlanbookCollectionRepository.GetByIdAsync(model.CollectionId);
-
-                    if (existingCollection is null)
+                    return new ResponseModel
                     {
-                        return new ResponseModel
-                        {
-                            Success = false,
-                            Message = "Collection not found."
-                        };
-                    }
+                        Success = false,
+                        Message = "Collection not found."
+                    };
+                }
+
+                // Lấy gói dịch vụ của người dùng đang sử dụng
+                var userPackage = await _unitOfWork.UserPackageRepository.GetActiveUserPackageAsync(existingCollection.TeacherId);
+                if (userPackage is null)
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "User package not found."
+                    };
+                }
+
+                // Kiểm tra số lượng planbook đã tạo của người dùng
+                var createdPlanbookCount = await _unitOfWork.PlanbookRepository.CountPlanbookByUserId(existingCollection.TeacherId);
+                if (createdPlanbookCount >= userPackage.MaxPlanbooks)
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "You have reached the maximum number of planbooks allowed by your package."
+                    };
                 }
 
                 // Clone Planbook
@@ -782,7 +830,6 @@ namespace Elepla.Service.Services
                     Notes = planbook.Notes,
                     IsDefault = false,
                     IsPublic = false,
-                    CollectionId = model.CollectionId,
                     LessonId = planbook.LessonId,
                     Activities = new List<Activity>()
                 };
@@ -801,8 +848,17 @@ namespace Elepla.Service.Services
                     Index = a.Index
                 }).ToList();
 
+                // Tạo liên kết trong bảng PlanbookInCollection
+                var planbookInCollection = new PlanbookInCollection
+                {
+                    PlanbookInCollectionId = Guid.NewGuid().ToString(),
+                    PlanbookId = clonePlanbook.PlanbookId,
+                    CollectionId = model.CollectionId
+                };
+
                 await _unitOfWork.PlanbookRepository.AddAsync(clonePlanbook);
                 await _unitOfWork.ActivityRepository.CreateRangeActivityAsync(cloneActivities);
+                await _unitOfWork.PlanbookInCollectionRepository.AddAsync(planbookInCollection);
                 await _unitOfWork.SaveChangeAsync();
 
                 return new ResponseModel
@@ -817,6 +873,71 @@ namespace Elepla.Service.Services
                 {
                     Success = false,
                     Message = "An error occurred while cloning the planbook.",
+                    Errors = new List<string> { ex.Message }
+                };
+            }
+        }
+        #endregion
+
+        #region Save Planbook
+        public async Task<ResponseModel> SavePlanbookAsync(SavePlanbookDTO model)
+        {
+            try
+            {
+                var collection = await _unitOfWork.PlanbookCollectionRepository.GetByIdAsync(model.CollectionId);
+                if (collection is null)
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "Collection not found."
+                    };
+                }
+
+                var planbook = await _unitOfWork.PlanbookRepository.GetByIdAsync(model.PlanbookId);
+                if (planbook is null)
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "Planbook not found."
+                    };
+                }
+
+                // Kiểm tra xem planbook đã được lưu trong collection chưa
+                var existingPlanbookInCollection = await _unitOfWork.PlanbookInCollectionRepository.GetByCollectionIdAndPlanbookId(model.PlanbookId, model.CollectionId);
+                if (existingPlanbookInCollection != null)
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "Planbook already saved in the collection."
+                    };
+                }
+
+                // Tạo liên kết trong bảng PlanbookInCollection
+                var planbookInCollection = new PlanbookInCollection
+                {
+                    PlanbookInCollectionId = Guid.NewGuid().ToString(),
+                    PlanbookId = model.PlanbookId,
+                    CollectionId = model.CollectionId
+                };
+
+                await _unitOfWork.PlanbookInCollectionRepository.AddAsync(planbookInCollection);
+                await _unitOfWork.SaveChangeAsync();
+
+                return new ResponseModel
+                {
+                    Success = true,
+                    Message = "Planbook saved successfully."
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ErrorResponseModel<string>
+                {
+                    Success = false,
+                    Message = "An error occurred while saving the planbook.",
                     Errors = new List<string> { ex.Message }
                 };
             }
@@ -848,7 +969,7 @@ namespace Elepla.Service.Services
 
                         // Add SchoolName and TeacherName in one row (Header)
                         body.AppendChild(CreateTopTable(
-                            planbook.SchoolName?.ToUpper() ?? string.Empty,
+                            "TRƯỜNG " + planbook.SchoolName?.ToUpper() ?? string.Empty,
                             "TỔ ...",
                             "HỌ VÀ TÊN GIÁO VIÊN",
                             planbook.TeacherName?.ToUpper() ?? string.Empty,
@@ -1150,7 +1271,7 @@ namespace Elepla.Service.Services
                         var headerTable = new iText.Layout.Element.Table(2).UseAllAvailableWidth();
                         headerTable.SetMarginBottom(10); // Adjust top margin for overall spacing
                         headerTable.AddCell(new iText.Layout.Element.Cell()
-                            .Add(new iText.Layout.Element.Paragraph(planbook.SchoolName?.ToUpper())
+                            .Add(new iText.Layout.Element.Paragraph("TRƯỜNG " + planbook.SchoolName?.ToUpper())
                                 .SetFont(font)
                                 .SetBold()
                                 .SetFontSize(14))

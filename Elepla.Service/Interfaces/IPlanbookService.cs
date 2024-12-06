@@ -1,4 +1,5 @@
 ﻿using Elepla.Service.Models.ResponseModels;
+using Elepla.Service.Models.ViewModels.PlanbookCollectionViewModels;
 using Elepla.Service.Models.ViewModels.PlanbookViewModels;
 using System;
 using System.Collections.Generic;
@@ -21,7 +22,8 @@ namespace Elepla.Service.Interfaces
         Task<ResponseModel> GetPlanbookFromTemplateAsync(string lessonId);
 		Task<ResponseModel> GetPlanbookUsingAIAsync(string lessonId);
 		Task<ResponseModel> ClonePlanbookAsync(ClonePlanbookDTO model);
-		Task<ResponseModel> ExportPlanbookToWordAsync(string planbookId);
+		Task<ResponseModel> SavePlanbookAsync(SavePlanbookDTO model);
+        Task<ResponseModel> ExportPlanbookToWordAsync(string planbookId);
         Task<ResponseModel> ExportPlanbookToPdfAsync(string planbookId);
 		Task<ResponseModel> GetAllPlanbookTemplatesAsync(int pageIndex, int pageSize);
     }

@@ -17,6 +17,6 @@ namespace Elepla.Service.Interfaces
 		Task<ResponseModel> CreatePlanbookCollectionAsync(CreatePlanbookCollectionDTO model);
 		Task<ResponseModel> UpdatePlanbookCollectionAsync(UpdatePlanbookCollectionDTO model);
 		Task<ResponseModel> DeletePlanbookCollectionAsync(string collectionId, string teacherId);
-		Task<ResponseModel> SavePlanbookAsync(SavePlanbookDTO model);
+		//Task<ResponseModel> SavePlanbookAsync(SavePlanbookDTO model);
 	}
 }

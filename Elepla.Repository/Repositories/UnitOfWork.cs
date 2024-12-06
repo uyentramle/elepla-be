@@ -30,6 +30,7 @@ namespace Elepla.Repository.Repositories
         private readonly IChapterRepository _chapterRepository;
         private readonly ILessonRepository _lessonRepository;
         private readonly IPlanbookCollectionRepository _planbookCollectionRepository;
+        private readonly IPlanbookInCollectionRepository _planbookInCollectionRepository;
         private readonly IPlanbookRepository _planbookRepository;
         private readonly IActivityRepository _activityRepository;
         private readonly IPlanBookShareRepository _planBookShareRepository;
@@ -58,6 +59,7 @@ namespace Elepla.Repository.Repositories
             IChapterRepository chapterRepository,
             ILessonRepository lessonRepository,
             IPlanbookCollectionRepository planbookCollectionRepository,
+            IPlanbookInCollectionRepository planbookInCollectionRepository,
             IPlanbookRepository planbookRepository,
             IActivityRepository activityRepository,
             IPlanBookShareRepository planBookShareRepository,
@@ -86,6 +88,7 @@ namespace Elepla.Repository.Repositories
             _chapterRepository = chapterRepository;
             _lessonRepository = lessonRepository;
             _planbookCollectionRepository = planbookCollectionRepository;
+            _planbookInCollectionRepository = planbookInCollectionRepository;
             _planbookRepository = planbookRepository;
             _activityRepository = activityRepository;
             _planBookShareRepository = planBookShareRepository;
@@ -132,6 +135,8 @@ namespace Elepla.Repository.Repositories
         public ILessonRepository LessonRepository => _lessonRepository;
 
         public IPlanbookCollectionRepository PlanbookCollectionRepository => _planbookCollectionRepository;
+
+        public IPlanbookInCollectionRepository PlanbookInCollectionRepository => _planbookInCollectionRepository;
 
         public IPlanbookRepository PlanbookRepository => _planbookRepository;
 

@@ -71,12 +71,12 @@ namespace Elepla.API.Controllers
 			return Ok(response);
 		}
 
-		[HttpPost]
-		[Authorize]
-		public async Task<IActionResult> SavePlanbook(SavePlanbookDTO model)
-		{
-			var response = await _planbookCollectionService.SavePlanbookAsync(model);
-			return Ok(response);
-		}
+		//[HttpPost]
+		//[Authorize]
+		//public async Task<IActionResult> SavePlanbook(SavePlanbookDTO model)
+		//{
+		//	var response = await _planbookCollectionService.SavePlanbookAsync(model);
+		//	return Ok(response);
+		//}
 	}
 }
