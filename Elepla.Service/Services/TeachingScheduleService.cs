@@ -64,6 +64,27 @@ namespace Elepla.Service.Services
             };
         }
 
+        public async Task<ResponseModel> GetTeachingSchedulesByUserIdAsync(string userId, int pageIndex, int pageSize)
+        {
+            var schedules = await _unitOfWork.TeachingScheduleRepository.GetAsync(
+                                filter: s => s.TeacherId == userId && !s.IsDeleted,
+                                orderBy: s => s.OrderBy(s => s.Date),
+                                includeProperties: "Teacher,Planbook",
+                                pageIndex: pageIndex,
+                                pageSize: pageSize
+            );
+
+            var scheduleDtos = _mapper.Map<Pagination<ViewTeachingScheduleDTO>>(schedules);
+
+            return new SuccessResponseModel<object>
+            {
+                Success = true,
+                Message = "Teaching schedules for the user retrieved successfully.",
+                Data = scheduleDtos
+            };
+        }
+
+
         public async Task<ResponseModel> AddTeachingScheduleAsync(CreateTeachingScheduleDTO model)
         {
             try

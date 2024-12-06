@@ -42,6 +42,20 @@ namespace Elepla.API.Controllers
         }
         #endregion
 
+        #region Get Teaching Schedules by UserId
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetTeachingSchedulesByUserIdAsync(string userId, int pageIndex = 0, int pageSize = 10)
+        {
+            var response = await _teachingScheduleService.GetTeachingSchedulesByUserIdAsync(userId, pageIndex, pageSize);
+            if (response.Success)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
+        }
+        #endregion
+
         #region Add New Teaching Schedule
         [HttpPost]
         [Authorize]
