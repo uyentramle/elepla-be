@@ -157,6 +157,23 @@ namespace Elepla.API.Controllers
             return BadRequest(response);
         }
 
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> UnsavePlanbookAsync(SavePlanbookDTO model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var response = await _planbookService.UnsavePlanbookAsync(model);
+            if (response != null)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
+        }
+
         [HttpGet]
         [Authorize]
         public async Task<IActionResult> ExportPlanbookToWord(string planbookId)

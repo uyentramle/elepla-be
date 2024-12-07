@@ -14,6 +14,7 @@ namespace Elepla.Repository.Interfaces
         Task<IEnumerable<PlanbookInCollection>> GetAllByCollectionId(string collectionId);
         Task<IEnumerable<PlanbookInCollection>> GetAllByCollectionId(IEnumerable<string> collectionIds);
         Task AddAsync(PlanbookInCollection planbookInCollection);
+        void Delete(PlanbookInCollection planbookInCollection);
         void DeleteRange(IEnumerable<PlanbookInCollection> planbookInCollections);
     }
 }

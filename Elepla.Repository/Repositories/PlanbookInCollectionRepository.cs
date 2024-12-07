@@ -46,6 +46,11 @@ namespace Elepla.Repository.Repositories
             await _dbContext.PlanbookInCollections.AddAsync(planbookInCollection);
         }
 
+        public void Delete(PlanbookInCollection planbookInCollection)
+        {
+            _dbContext.PlanbookInCollections.Remove(planbookInCollection);
+        }
+
         public void DeleteRange(IEnumerable<PlanbookInCollection> planbookInCollections)
         {
             _dbContext.PlanbookInCollections.RemoveRange(planbookInCollections);

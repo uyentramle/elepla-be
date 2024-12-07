@@ -677,6 +677,8 @@ namespace Elepla.Service.Services
                 var chapter = lesson.Chapter;
                 var subject = chapter.SubjectInCurriculum.Subject.Name + " - " + chapter.SubjectInCurriculum.Grade.Name + " - " + chapter.SubjectInCurriculum.Curriculum.Name;
 
+                var rule = "Bỏ chữ in đậm, in nghiêng, chỉ trả về nội dung văn bản bình thường. Chỉ cần trả về nội dụng kết quả không cần lặp lại yêu cầu.";
+
                 // Tạo các prompt cho AI để lấy các thông tin cho kế hoạch giảng dạy
                 var prompts = new List<string>
                 {
@@ -689,7 +691,7 @@ namespace Elepla.Service.Services
                 };
 
                 // Gửi các prompt cho OpenAI Service để lấy các thông tin cho kế hoạch giảng dạy
-                var aiResponses = await Task.WhenAll(prompts.Select(prompt => _openAIService.GeneratePlanbookFieldAsync(prompt)));
+                var aiResponses = await Task.WhenAll(prompts.Select(prompt => _openAIService.GeneratePlanbookFieldAsync(rule + prompt)));
 
                 // Map AI response cho các trường thông tin của planbookDto
                 var planbookDto = new CreatePlanbookDTO
@@ -724,10 +726,10 @@ namespace Elepla.Service.Services
                 // Tạo một list các task để gửi các prompt cho AI và lấy kết quả cho các hoạt động
                 var activityTasks = activityPrompts.Select(async activityPrompt =>
                 {
-                    var objective = await _openAIService.GeneratePlanbookFieldAsync($"Hãy tạo mục tiêu cho hoạt động {activityPrompt} trong bài học {lesson.Name}");
-                    var content = await _openAIService.GeneratePlanbookFieldAsync($"Hãy tạo nội dung chi tiết cho hoạt động {activityPrompt} trong bài học {lesson.Name}");
-                    var product = await _openAIService.GeneratePlanbookFieldAsync($"Hãy tạo sản phẩm cho hoạt động {activityPrompt} trong bài học {lesson.Name}");
-                    var implementation = await _openAIService.GeneratePlanbookFieldAsync($"Hãy tạo hướng dẫn tổ chức thực hiện cho hoạt động {activityPrompt} trong bài học {lesson.Name}");
+                    var objective = await _openAIService.GeneratePlanbookFieldAsync(rule + $"Hãy tạo mục tiêu cho hoạt động {activityPrompt} trong bài học {lesson.Name}");
+                    var content = await _openAIService.GeneratePlanbookFieldAsync(rule + $"Hãy tạo nội dung chi tiết cho hoạt động {activityPrompt} trong bài học {lesson.Name}");
+                    var product = await _openAIService.GeneratePlanbookFieldAsync(rule + $"Hãy tạo sản phẩm cho hoạt động {activityPrompt} trong bài học {lesson.Name}");
+                    var implementation = await _openAIService.GeneratePlanbookFieldAsync(rule + $"Hãy tạo hướng dẫn tổ chức thực hiện cho hoạt động {activityPrompt} trong bài học {lesson.Name}");
 
                     return new CreateActivityForPlanbookDTO
                     {
@@ -905,7 +907,7 @@ namespace Elepla.Service.Services
                 }
 
                 // Kiểm tra xem planbook đã được lưu trong collection chưa
-                var existingPlanbookInCollection = await _unitOfWork.PlanbookInCollectionRepository.GetByCollectionIdAndPlanbookId(model.PlanbookId, model.CollectionId);
+                var existingPlanbookInCollection = await _unitOfWork.PlanbookInCollectionRepository.GetByCollectionIdAndPlanbookId(model.CollectionId, model.PlanbookId);
                 if (existingPlanbookInCollection != null)
                 {
                     return new ResponseModel
@@ -938,6 +940,40 @@ namespace Elepla.Service.Services
                 {
                     Success = false,
                     Message = "An error occurred while saving the planbook.",
+                    Errors = new List<string> { ex.Message }
+                };
+            }
+        }
+
+        public async Task<ResponseModel> UnsavePlanbookAsync(SavePlanbookDTO model)
+        {
+            try
+            {
+                var planbookInCollection = await _unitOfWork.PlanbookInCollectionRepository.GetByCollectionIdAndPlanbookId(model.CollectionId, model.PlanbookId);
+                if (planbookInCollection is null)
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "Planbook not found in the collection."
+                    };
+                }
+
+                _unitOfWork.PlanbookInCollectionRepository.Delete(planbookInCollection);
+                await _unitOfWork.SaveChangeAsync();
+
+                return new ResponseModel
+                {
+                    Success = true,
+                    Message = "Planbook unsaved successfully."
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ErrorResponseModel<string>
+                {
+                    Success = false,
+                    Message = "An error occurred while unsaving the planbook.",
                     Errors = new List<string> { ex.Message }
                 };
             }
