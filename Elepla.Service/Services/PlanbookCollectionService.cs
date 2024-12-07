@@ -430,19 +430,23 @@ namespace Elepla.Service.Services
                 // Lấy tất cả các PlanbookInCollection liên quan đến Collection
                 var planbookInCollections = await _unitOfWork.PlanbookInCollectionRepository.GetAllByCollectionId(collectionId);
 
-
-				// Lấy tất cả các Planbook liên quan đến Collection
-				var planbooks = await _unitOfWork.PlanbookRepository.GetAllAsync(
-						filter: p => p.PlanbookInCollections.Any(pic => pic.CollectionId.Equals(collectionId)),
-						includeProperties: "PlanbookInCollections");
-
                 // Xóa các PlanbookInCollection liên quan
                 _unitOfWork.PlanbookInCollectionRepository.DeleteRange(planbookInCollections);
 
-                // Xóa các Planbook liên quan
-                foreach (var planbook in planbooks)
-                {
-                    _unitOfWork.PlanbookRepository.Delete(planbook);
+                // Nếu không phải là collection save thì xóa các Planbook liên quan
+                if (!collection.IsSaved)
+				{
+                    // Lấy tất cả các Planbook liên quan đến Collection
+                    var planbooks = await _unitOfWork.PlanbookRepository.GetAllAsync(
+                            filter: p => p.PlanbookInCollections.Any(pic => pic.CollectionId.Equals(collectionId)),
+                            includeProperties: "PlanbookInCollections");
+
+
+                    // Xóa các Planbook liên quan
+                    foreach (var planbook in planbooks)
+                    {
+                        _unitOfWork.PlanbookRepository.Delete(planbook);
+                    }
                 }
 
                 _unitOfWork.PlanbookCollectionRepository.Delete(collection);
