@@ -35,6 +35,7 @@ namespace Elepla.Service.Services
         {
             var planbooks = await _unitOfWork.PlanbookRepository.GetAsync(
                             filter: r => r.IsDeleted == false && r.IsPublic && !r.IsDefault,
+                            includeProperties: "Lesson.Chapter.SubjectInCurriculum.Subject,Lesson.Chapter.SubjectInCurriculum.Curriculum,Lesson.Chapter.SubjectInCurriculum.Grade",
                             pageIndex: pageIndex,
                             pageSize: pageSize
                             );
@@ -677,7 +678,7 @@ namespace Elepla.Service.Services
                 var chapter = lesson.Chapter;
                 var subject = chapter.SubjectInCurriculum.Subject.Name + " - " + chapter.SubjectInCurriculum.Grade.Name + " - " + chapter.SubjectInCurriculum.Curriculum.Name;
 
-                var rule = "Bỏ chữ in đậm, in nghiêng, chỉ trả về nội dung văn bản bình thường. Chỉ cần trả về nội dụng kết quả không cần lặp lại yêu cầu.";
+                var rule = "Bỏ chữ in đậm, in nghiêng, chỉ trả về chữ văn bản bình thường, bỏ khoảng trống giữa các dòng. Chỉ cần trả về kết quả không cần lặp lại yêu cầu.";
 
                 // Tạo các prompt cho AI để lấy các thông tin cho kế hoạch giảng dạy
                 var prompts = new List<string>

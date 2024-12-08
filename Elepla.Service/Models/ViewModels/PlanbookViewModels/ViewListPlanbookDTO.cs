@@ -14,7 +14,9 @@ namespace Elepla.Service.Models.ViewModels.PlanbookViewModels
 		public string SchoolName { get; set; }
 		public string TeacherName { get; set; }
 		public string Subject { get; set; }
-		public string ClassName { get; set; }
+        public string Curriculum { get; set; }
+		public string Grade { get; set; }
+        public string ClassName { get; set; }
 		public bool IsPublic { get; set; }
         //public int DurationInPeriods { get; set; }
         //public string KnowledgeObjective { get; set; }
@@ -22,13 +24,12 @@ namespace Elepla.Service.Models.ViewModels.PlanbookViewModels
         //public string QualitiesObjective { get; set; }
         //public string TeachingTools { get; set; }
         //public string? Notes { get; set; }
-
 		//public string CollectionId { get; set; }
 		//public string CollectionName { get; set; }
 		public string LessonId { get; set; }
 		public string LessonName { get; set; }
-
-		public DateTime CreatedAt { get; set; }
+		public string ChapterName { get; set; }
+        public DateTime CreatedAt { get; set; }
 		public string CreatedBy { get; set; }
 		public DateTime? UpdatedAt { get; set; }
 		public string UpdatedBy { get; set; }
