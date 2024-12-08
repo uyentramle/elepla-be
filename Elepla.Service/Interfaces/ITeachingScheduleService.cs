@@ -14,6 +14,8 @@ namespace Elepla.Service.Interfaces
 
         Task<ResponseModel> GetTeachingScheduleByIdAsync(string scheduleId);
 
+        Task<ResponseModel> GetTeachingSchedulesByUserIdAsync(string userId, int pageIndex, int pageSize);
+
         Task<ResponseModel> AddTeachingScheduleAsync(CreateTeachingScheduleDTO model);
 
         Task<ResponseModel> UpdateTeachingScheduleAsync(UpdateTeachingScheduleDTO model);

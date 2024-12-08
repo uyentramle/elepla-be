@@ -34,6 +34,7 @@ namespace Elepla.Repository.Data
         public DbSet<QuestionBank> QuestionBanks { get; set; }
         public DbSet<Answer> Answers { get; set; }
 		public DbSet<PlanbookCollection> PlanbookCollections { get; set; }
+        public DbSet<PlanbookInCollection> PlanbookInCollections { get; set; }
         public DbSet<Planbook> Planbooks { get; set; }
         public DbSet<Activity> Activities { get; set; }
         public DbSet<TeachingSchedule> TeachingSchedules { get; set; }
@@ -65,6 +66,7 @@ namespace Elepla.Repository.Data
             modelBuilder.ApplyConfiguration(new QuestionBankConfiguration());
 			modelBuilder.ApplyConfiguration(new AnswerConfiguration());
 			modelBuilder.ApplyConfiguration(new PlanbookCollectionConfiguration());
+            modelBuilder.ApplyConfiguration(new PlanbookInCollectionConfiguration());
             modelBuilder.ApplyConfiguration(new PlanbookConfiguration());
             modelBuilder.ApplyConfiguration(new ActivityConfiguration());
             modelBuilder.ApplyConfiguration(new TeachingScheduleConfiguration());

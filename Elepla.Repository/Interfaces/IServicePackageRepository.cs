@@ -9,6 +9,6 @@ namespace Elepla.Repository.Interfaces
 {
     public interface IServicePackageRepository : IGenericRepository<ServicePackage>
     {
-
+        Task<ServicePackage?> ServicePackageExistsAsync(string servicePackageName);
     }
 }

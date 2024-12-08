@@ -17,9 +17,14 @@ namespace Elepla.Service.Models.ViewModels.AccountViewModels
         public string GoogleEmail { get; set; }
         public string FacebookEmail { get; set; }
         public string Gender { get; set; }
+        public string Teach { get; set; }
         public bool Status { get; set; }
         public DateTime LastLogin { get; set; }
         public string Role { get; set; }
+        public string AddressLine { get; set; }
+        public string City { get; set; }
+        public string District { get; set; }
+        public string Ward { get; set; }
         public string Address { get; set; }
         public string SchoolName { get; set; }
         public string Avatar { get; set; }

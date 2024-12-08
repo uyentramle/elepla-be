@@ -18,10 +18,25 @@ namespace Elepla.Repository.FluentAPIs
             builder.Property(x => x.SchoolName).HasMaxLength(50);
             builder.Property(x => x.TeacherName).HasMaxLength(100);
             builder.Property(x => x.ClassName).HasMaxLength(20);
-            builder.HasOne(x => x.PlanbookCollection)
-                .WithMany(x => x.Planbooks)
-                .HasForeignKey(x => x.CollectionId)
-                .OnDelete(DeleteBehavior.Restrict); // Sẽ không xóa PlanbookCollection khi xóa Planbook
+            builder.Property(x => x.KnowledgeObjective)
+                   .HasMaxLength(int.MaxValue)  // Không giới hạn chiều dài
+                   .IsRequired(false); // Trường này có thể null
+            builder.Property(x => x.SkillsObjective)
+                   .HasMaxLength(int.MaxValue)  
+                   .IsRequired(false); 
+            builder.Property(x => x.QualitiesObjective)
+                   .HasMaxLength(int.MaxValue)  
+                   .IsRequired(false); 
+            builder.Property(x => x.TeachingTools)
+                   .HasMaxLength(int.MaxValue)  
+                   .IsRequired(false);
+            builder.Property(x => x.Notes)
+                   .HasMaxLength(int.MaxValue)
+                   .IsRequired(false); 
+            //builder.HasOne(x => x.PlanbookCollection)
+            //    .WithMany(x => x.Planbooks)
+            //    .HasForeignKey(x => x.CollectionId)
+            //    .OnDelete(DeleteBehavior.Restrict); // Sẽ không xóa PlanbookCollection khi xóa Planbook
             builder.HasOne(x => x.Lesson)
                 .WithMany(x => x.Planbooks)
                 .HasForeignKey(x => x.LessonId)

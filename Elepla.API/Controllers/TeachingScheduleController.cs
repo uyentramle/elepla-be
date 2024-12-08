@@ -1,5 +1,6 @@
 ﻿using Elepla.Service.Interfaces;
 using Elepla.Service.Models.ViewModels.TeachingScheduleModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Elepla.API.Controllers
@@ -15,7 +16,7 @@ namespace Elepla.API.Controllers
 
         #region Get All Teaching Schedules
         [HttpGet]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> GetAllTeachingSchedulesAsync(string? keyword, int pageIndex = 0, int pageSize = 10)
         {
             var response = await _teachingScheduleService.GetAllTeachingSchedulesAsync(keyword, pageIndex, pageSize);
@@ -29,7 +30,7 @@ namespace Elepla.API.Controllers
 
         #region Get Teaching Schedule by ID
         [HttpGet]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> GetTeachingScheduleByIdAsync(string scheduleId)
         {
             var response = await _teachingScheduleService.GetTeachingScheduleByIdAsync(scheduleId);
@@ -41,9 +42,23 @@ namespace Elepla.API.Controllers
         }
         #endregion
 
+        #region Get Teaching Schedules by UserId
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetTeachingSchedulesByUserIdAsync(string userId, int pageIndex = 0, int pageSize = 10)
+        {
+            var response = await _teachingScheduleService.GetTeachingSchedulesByUserIdAsync(userId, pageIndex, pageSize);
+            if (response.Success)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
+        }
+        #endregion
+
         #region Add New Teaching Schedule
         [HttpPost]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> AddTeachingScheduleAsync(CreateTeachingScheduleDTO model)
         {
             if (!ModelState.IsValid)
@@ -62,7 +77,7 @@ namespace Elepla.API.Controllers
 
         #region Update Teaching Schedule
         [HttpPut]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> UpdateTeachingScheduleAsync(UpdateTeachingScheduleDTO model)
         {
             if (!ModelState.IsValid)
@@ -81,7 +96,7 @@ namespace Elepla.API.Controllers
 
         #region Delete Teaching Schedule
         [HttpDelete]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> DeleteTeachingScheduleAsync(string scheduleId)
         {
             var response = await _teachingScheduleService.DeleteTeachingScheduleAsync(scheduleId);

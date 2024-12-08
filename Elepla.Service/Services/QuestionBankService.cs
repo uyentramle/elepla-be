@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using DocumentFormat.OpenXml.Office.SpreadSheetML.Y2023.MsForms;
 using Elepla.Domain.Entities;
 using Elepla.Repository.Common;
 using Elepla.Repository.Interfaces;
@@ -32,10 +33,22 @@ namespace Elepla.Service.Services
 				&& (string.IsNullOrEmpty(keyword)
 				|| r.Question.Contains(keyword)),
 				orderBy: r => r.OrderBy(r => r.Question),
+				includeProperties: "Answers", 
 				pageIndex: pageIndex,
 				pageSize: pageSize
 				);
 			var questionDtos = _mapper.Map<Pagination<ViewListQuestionBankDTO>>(questions);
+
+			
+			foreach (var questionDto in questionDtos.Items)
+			{
+				questionDto.Answers = questionDto.Answers.Select(a => new ViewListAnswerDTO
+				{
+					AnswerId = a.AnswerId,
+					AnswerText = a.AnswerText,
+					IsCorrect = a.IsCorrect.ToString()
+				}).ToList();
+			}
 
 			return new SuccessResponseModel<object>
 			{
@@ -74,6 +87,104 @@ namespace Elepla.Service.Services
 				Success = true,
 				Message = "Question retrieved successfully.",
 				Data = questionDto
+			};
+		}
+
+		public async Task<ResponseModel> GetQuestionsByChapterIdAsync(string chapterId, int pageIndex, int pageSize)
+		{
+			if (string.IsNullOrEmpty(chapterId))
+			{
+				return new ResponseModel
+				{
+					Success = false,
+					Message = "ChapterId is required."
+				};
+			}
+
+			var chapter = await _unitOfWork.ChapterRepository.GetByIdAsync(chapterId);
+			if (chapter == null)
+			{
+				return new ResponseModel
+				{
+					Success = false,
+					Message = "Chapter not found."
+				};
+			}
+
+			var questions = await _unitOfWork.QuestionBankRepository.GetAsync(
+							filter: r => r.IsDeleted.Equals(false)
+							&& r.ChapterId == chapterId,
+							pageIndex: pageIndex,
+							pageSize: pageSize,
+							includeProperties: "Answers",
+							orderBy: r => r.OrderBy(r => r.Question)
+							);
+			var questionDtos = _mapper.Map<Pagination<ViewListQuestionBankDTO>>(questions);
+
+			foreach (var questionDto in questionDtos.Items)
+			{
+				questionDto.Answers = questionDto.Answers.Select(a => new ViewListAnswerDTO
+				{
+					AnswerId = a.AnswerId,
+					AnswerText = a.AnswerText,
+					IsCorrect = a.IsCorrect.ToString()
+				}).ToList();
+			}
+
+			return new SuccessResponseModel<object>
+			{
+				Success = true,
+				Message = "Question retrieved successfully.",
+				Data = questionDtos
+			};
+		}
+
+		public async Task<ResponseModel> GetQuestionsByLessonIdAsync(string lessonId, int pageIndex, int pageSize)
+		{
+			if (string.IsNullOrEmpty(lessonId))
+			{
+				return new ResponseModel
+				{
+					Success = false,
+					Message = "LessonId is required."
+				};
+			}
+
+			var lesson = await _unitOfWork.LessonRepository.GetByIdAsync(lessonId);
+			if (lesson == null)
+			{
+				return new ResponseModel
+				{
+					Success = false,
+					Message = "Lesson not found."
+				};
+			}
+
+			var questions = await _unitOfWork.QuestionBankRepository.GetAsync(
+							filter: r => r.IsDeleted.Equals(false)
+							&& r.LessonId == lessonId,
+							pageIndex: pageIndex,
+							pageSize: pageSize,
+							includeProperties: "Answers",
+							orderBy: r => r.OrderBy(r => r.Question)
+							);
+			var questionDtos = _mapper.Map<Pagination<ViewListQuestionBankDTO>>(questions);
+
+			foreach (var questionDto in questionDtos.Items)
+			{
+				questionDto.Answers = questionDto.Answers.Select(a => new ViewListAnswerDTO
+				{
+					AnswerId = a.AnswerId,
+					AnswerText = a.AnswerText,
+					IsCorrect = a.IsCorrect.ToString()
+				}).ToList();
+			}
+
+			return new SuccessResponseModel<object>
+			{
+				Success = true,
+				Message = "Question retrieved successfully.",
+				Data = questionDtos
 			};
 		}
 

@@ -12,14 +12,16 @@ namespace Elepla.Domain.Entities
         public string ScheduleId { get; set; }
 
         // Attributes
-        public DateTime Date { get; set; }
+        public string Title { get; set; }
+		public string? Description { get; set; }
+		public DateTime Date { get; set; }
         public string StartTime { get; set; }
         public string EndTime { get; set; }
-        public string ClassName { get; set; }
+        public string? ClassName { get; set; }
 
         // Foreign Key
         public string TeacherId { get; set; }
-        public string PlanbookId { get; set; }
+        public string? PlanbookId { get; set; }
 
         // Navigation properties
         public virtual User Teacher { get; set; }

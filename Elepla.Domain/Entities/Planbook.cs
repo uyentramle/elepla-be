@@ -24,17 +24,19 @@ namespace Elepla.Domain.Entities
         public string? TeachingTools { get; set; }
         public string? Notes { get; set; }
         public bool IsDefault { get; set; }
+        public bool IsPublic { get; set; }
 
-		// Foreign Key
-		public string? CollectionId { get; set; }
+        // Foreign Key
+        //public string? CollectionId { get; set; }
         public string LessonId { get; set; }
 
         // Navigation properties
-        public virtual PlanbookCollection PlanbookCollection { get; set; }
+        //public virtual PlanbookCollection PlanbookCollection { get; set; }
         public virtual Lesson Lesson { get; set; }
         public virtual ICollection<Activity> Activities { get; set; } = new List<Activity>();
         public virtual ICollection<TeachingSchedule> TeachingSchedules { get; set; } = new List<TeachingSchedule>();
         public virtual ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
         public virtual ICollection<PlanBookShare> PlanbookShares { get; set; } = new List<PlanBookShare>();
-	}
+        public virtual ICollection<PlanbookInCollection> PlanbookInCollections { get; set; } = new List<PlanbookInCollection>();
+    }
 }

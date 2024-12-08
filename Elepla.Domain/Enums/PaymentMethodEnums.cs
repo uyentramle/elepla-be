@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Elepla.Service.Interfaces
+namespace Elepla.Domain.Enums
 {
-    public interface IQuestionInExamService
+    public enum PaymentMethodEnums
     {
+        PayOS,
     }
 }

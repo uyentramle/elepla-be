@@ -17,5 +17,8 @@ namespace Elepla.Service.Models.ResponseModels
 
         [JsonPropertyOrder(5)]
         public DateTime TokenExpiryTime { get; set; }
-    }
+
+		//[JsonPropertyOrder(6)]
+		//public string Role { get; set; }
+	}
 }

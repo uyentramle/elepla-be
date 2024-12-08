@@ -1,6 +1,7 @@
 ﻿using Elepla.Service.Interfaces;
+using Elepla.Service.Models.ViewModels.PaymentViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
 
 namespace Elepla.API.Controllers
 {
@@ -13,39 +14,36 @@ namespace Elepla.API.Controllers
             _paymentService = paymentService;
         }
 
-        #region Get All Users Payment History
-        [HttpGet("GetAllPayments")]
-        public async Task<IActionResult> GetAllUserPaymentHistoryAsync(int pageIndex = 0, int pageSize = 10)
+        #region Manage Payment
+        [HttpGet]
+        [Authorize(Roles = "Manager")]
+        public async Task<IActionResult> GetAllPaymentAsync(int pageIndex = 0, int pageSize = 10)
         {
-            var response = await _paymentService.GetAllUserPaymentHistoryAsync(pageIndex, pageSize);
+            var response = await _paymentService.GetAllPaymentAsync(pageIndex, pageSize);
             if (response.Success)
             {
                 return Ok(response);
             }
             return BadRequest(response);
         }
-        #endregion
 
-        #region View User Payment History
-        [HttpGet("history/{teacherId}")]
-        //[Authorize]
-        public async Task<IActionResult> GetUserPaymentHistoryAsync(string teacherId, int pageIndex = 0, int pageSize = 10)
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetPaymentByIdAsync(string paymentId)
         {
-            var response = await _paymentService.GetUserPaymentHistoryAsync(teacherId, pageIndex, pageSize);
+            var response = await _paymentService.GetPaymentByIdAsync(paymentId);
             if (response.Success)
             {
                 return Ok(response);
             }
             return BadRequest(response);
         }
-        #endregion
 
-        #region View Payment Details
-        [HttpGet("{paymentId}")]
-        //[Authorize]
-        public async Task<IActionResult> GetPaymentDetailsAsync(string paymentId)
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetAllPaymentByUserIdAsync(string teacherId, int pageIndex = 0, int pageSize = 10)
         {
-            var response = await _paymentService.GetPaymentDetailsAsync(paymentId);
+            var response = await _paymentService.GetAllPaymentByUserIdAsync(teacherId, pageIndex, pageSize);
             if (response.Success)
             {
                 return Ok(response);
@@ -55,10 +53,10 @@ namespace Elepla.API.Controllers
         #endregion
 
         #region View Revenue Reports
-
         // Revenue report by month
-        [HttpGet("RevenueByMonth/{year}")]
-        public async Task<IActionResult> GetRevenueByMonthAsync(int year)
+        [HttpGet]
+		[Authorize(Roles = "Manager")]
+		public async Task<IActionResult> GetRevenueByMonthAsync(int year)
         {
             var response = await _paymentService.GetRevenueByMonthAsync(year);
             if (response.Success)
@@ -69,8 +67,9 @@ namespace Elepla.API.Controllers
         }
 
         // Revenue report by quarter
-        [HttpGet("RevenueByQuarter/{year}")]
-        public async Task<IActionResult> GetRevenueByQuarterAsync(int year)
+        [HttpGet]
+		[Authorize(Roles = "Manager")]
+		public async Task<IActionResult> GetRevenueByQuarterAsync(int year)
         {
             var response = await _paymentService.GetRevenueByQuarterAsync(year);
             if (response.Success)
@@ -81,8 +80,9 @@ namespace Elepla.API.Controllers
         }
 
         // Revenue report by year
-        [HttpGet("RevenueByYear")]
-        public async Task<IActionResult> GetRevenueByYearAsync()
+        [HttpGet]
+		[Authorize(Roles = "Manager")]
+		public async Task<IActionResult> GetRevenueByYearAsync()
         {
             var response = await _paymentService.GetRevenueByYearAsync();
             if (response.Success)
@@ -92,6 +92,32 @@ namespace Elepla.API.Controllers
             return BadRequest(response);
         }
 
+        #endregion
+
+        #region Payment
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> CreatePaymentLinkAsync(CreatePaymentDTO model)
+        {
+            var response = await _paymentService.CreatePaymentLinkAsync(model);
+            if (response.Success)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
+        }
+
+        [HttpPut]
+        [Authorize]
+        public async Task<IActionResult> UpdatePaymentStatusAsync(UpdatePaymentDTO model)
+        {
+            var response = await _paymentService.UpdatePaymentStatusAsync(model);
+            if (response.Success)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
+        }
         #endregion
     }
 }

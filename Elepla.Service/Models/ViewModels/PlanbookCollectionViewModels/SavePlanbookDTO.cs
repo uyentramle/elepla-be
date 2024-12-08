@@ -9,8 +9,8 @@ namespace Elepla.Service.Models.ViewModels.PlanbookCollectionViewModels
 {
 	public class SavePlanbookDTO
 	{
-		public string? CollectionId { get; set; }
-		public string TeacherId { get; set; }
+		public string CollectionId { get; set; }
+		//public string TeacherId { get; set; }
 		public string PlanbookId { get; set; }
 	}
 }

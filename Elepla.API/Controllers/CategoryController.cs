@@ -1,5 +1,6 @@
 ﻿using Elepla.Service.Interfaces;
 using Elepla.Service.Models.ViewModels.CategoryViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -28,6 +29,7 @@ namespace Elepla.API.Controllers
 		}
 
 		[HttpPost]
+		[Authorize(Roles = "Admin")]
 		public async Task<IActionResult> CreateCategoryAsync(CreateCategoryDTO model)
 		{
 			if (!ModelState.IsValid)
@@ -47,6 +49,7 @@ namespace Elepla.API.Controllers
 		}
 
 		[HttpPut]
+		[Authorize(Roles = "Admin")]
 		public async Task<IActionResult> UpdateCategoryAsync(UpdateCategoryDTO model)
 		{
 			var response = await _categoryService.UpdateCategoryAsync(model);
@@ -61,6 +64,7 @@ namespace Elepla.API.Controllers
 		}
 
 		[HttpDelete]
+		[Authorize(Roles = "Admin")]
 		public async Task<IActionResult> DeleteCategoryAsync(string id)
 		{
 			var response = await _categoryService.DeleteCategoryAsync(id);

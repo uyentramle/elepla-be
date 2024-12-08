@@ -1,4 +1,5 @@
 ﻿using Elepla.Service.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
@@ -13,32 +14,52 @@ namespace Elepla.API.Controllers
             _userPackageService = userPackageService;
         }
 
-        #region Get User Packages
         [HttpGet]
-        //[Authorize]
-        public async Task<IActionResult> GetUserPackagesAsync(string userId)
+        [Authorize(Roles = "Manager")]
+        public async Task<IActionResult> GetAllUserPackagesAsync(string? keyword, int pageIndex = 0, int pageSize = 10)
         {
-            var response = await _userPackageService.GetUserPackagesAsync(userId);
+            var response = await _userPackageService.GetAllUserPackagesAsync(keyword, pageIndex, pageSize);
             if (response.Success)
             {
                 return Ok(response);
             }
             return BadRequest(response);
         }
-        #endregion
 
-        #region Get User Package Details
         [HttpGet]
-        //[Authorize]
-        public async Task<IActionResult> GetUserPackageDetailsAsync(int userPackageId)
+        [Authorize]
+        public async Task<IActionResult> GetUserPackagesByUserIdAsync(string userId)
         {
-            var response = await _userPackageService.GetUserPackageDetailsAsync(userPackageId);
+            var response = await _userPackageService.GetUserPackagesByUserIdAsync(userId);
             if (response.Success)
             {
                 return Ok(response);
             }
-            return NotFound(response);
+            return BadRequest(response);
         }
-        #endregion
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetUserPackageByIdAsync(string userPackageId)
+        {
+            var response = await _userPackageService.GetUserPackageByIdAsync(userPackageId);
+            if (response.Success)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
+        }
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetActiveUserPackageByUserIdAsync(string userId)
+        {
+            var response = await _userPackageService.GetActiveUserPackageByUserIdAsync(userId);
+            if (response.Success)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
+        }
     }
 }

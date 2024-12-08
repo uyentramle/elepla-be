@@ -43,10 +43,7 @@ namespace Elepla.Service.Services
 
         public async Task<ResponseModel> GetTeachingScheduleByIdAsync(string scheduleId)
         {
-            var schedule = await _unitOfWork.TeachingScheduleRepository.GetByIdAsync(
-                scheduleId,
-                includeProperties: "Teacher,Planbook" 
-            );
+            var schedule = await _unitOfWork.TeachingScheduleRepository.GetByIdAsync(scheduleId, includeProperties: "Teacher,Planbook");
 
             if (schedule == null)
             {
@@ -67,10 +64,32 @@ namespace Elepla.Service.Services
             };
         }
 
+        public async Task<ResponseModel> GetTeachingSchedulesByUserIdAsync(string userId, int pageIndex, int pageSize)
+        {
+            var schedules = await _unitOfWork.TeachingScheduleRepository.GetAsync(
+                                filter: s => s.TeacherId == userId && !s.IsDeleted,
+                                orderBy: s => s.OrderBy(s => s.Date),
+                                includeProperties: "Teacher,Planbook",
+                                pageIndex: pageIndex,
+                                pageSize: pageSize
+            );
+
+            var scheduleDtos = _mapper.Map<Pagination<ViewTeachingScheduleDTO>>(schedules);
+
+            return new SuccessResponseModel<object>
+            {
+                Success = true,
+                Message = "Teaching schedules for the user retrieved successfully.",
+                Data = scheduleDtos
+            };
+        }
+
+
         public async Task<ResponseModel> AddTeachingScheduleAsync(CreateTeachingScheduleDTO model)
         {
             try
             {
+                // Map the model to the TeachingSchedule entity
                 var schedule = _mapper.Map<TeachingSchedule>(model);
                 schedule.ScheduleId = Guid.NewGuid().ToString(); 
 
@@ -117,6 +136,7 @@ namespace Elepla.Service.Services
                     };
                 }
 
+                // Map the updated model to the schedule entity
                 _mapper.Map(model, schedule);
 
                 _unitOfWork.TeachingScheduleRepository.Update(schedule);

@@ -44,7 +44,6 @@ namespace Elepla.Service.Services
             };
         }
 
-
         // Get a service package by its ID
         public async Task<ResponseModel> GetServicePackageByIdAsync(string packageId)
         {
@@ -86,9 +85,14 @@ namespace Elepla.Service.Services
                     if (servicePackage.IsDeleted)
                     {
                         servicePackage.Description = model.Description;
+                        servicePackage.UseTemplate = model.UseTemplate;
+                        servicePackage.UseAI = model.UseAI;
+                        servicePackage.ExportWord = model.ExportWord;
+                        servicePackage.ExportPdf = model.ExportPdf;
                         servicePackage.Price = model.Price;
                         servicePackage.Discount = model.Discount;
-                        //servicePackage.Duration = model.Duration;
+                        servicePackage.StartDate = model.StartDate;
+                        servicePackage.EndDate = model.EndDate;
                         servicePackage.MaxPlanbooks = model.MaxLessonPlans;
                         servicePackage.IsDeleted = false;
 
@@ -131,8 +135,6 @@ namespace Elepla.Service.Services
                 };
             }
         }
-
-
 
         // Update an existing service package
         public async Task<ResponseModel> UpdateServicePackageAsync(UpdateServicePackageDTO model)

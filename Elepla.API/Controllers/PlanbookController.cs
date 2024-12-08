@@ -1,5 +1,7 @@
 ﻿using Elepla.Service.Interfaces;
+using Elepla.Service.Models.ViewModels.PlanbookCollectionViewModels;
 using Elepla.Service.Models.ViewModels.PlanbookViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -29,6 +31,7 @@ namespace Elepla.API.Controllers
 		}
 
 		[HttpGet]
+		[Authorize]
 		public async Task<IActionResult> GetPlanbookByCollectionIdAsync(string collectionId, int pageIndex = 0, int pageSize = 10)
 		{
 			var response = await _planbookService.GetPlanbookByCollectionIdAsync(collectionId, pageIndex, pageSize);
@@ -43,6 +46,7 @@ namespace Elepla.API.Controllers
 		}
 
 		[HttpPost]
+		[Authorize]
 		public async Task<IActionResult> CreatePlanbookAsync(CreatePlanbookDTO model)
 		{
 			if (!ModelState.IsValid)
@@ -59,6 +63,7 @@ namespace Elepla.API.Controllers
         }
 
 		[HttpPut]
+		[Authorize]
 		public async Task<IActionResult> UpdatePlanbookAsync(UpdatePlanbookDTO model)
 		{
 			if (!ModelState.IsValid)
@@ -75,7 +80,8 @@ namespace Elepla.API.Controllers
         }
 
 		[HttpDelete]
-        public async Task<IActionResult> DeletePlanbookAsync(string planbookId)
+		[Authorize]
+		public async Task<IActionResult> DeletePlanbookAsync(string planbookId)
         {
             var response = await _planbookService.DeletePlanbookAsync(planbookId);
 			if (response != null)
@@ -85,15 +91,17 @@ namespace Elepla.API.Controllers
             return BadRequest(response);
         }
 
-        [HttpDelete]
-		public async Task<IActionResult> SoftRemovePlanbookAsync(string planbookId)
-		{
-			var response = await _planbookService.SoftRemovePlanbookAsync(planbookId);
-			return Ok(response);
-		}
+        //[HttpDelete]
+		//[Authorize]
+		//public async Task<IActionResult> SoftRemovePlanbookAsync(string planbookId)
+		//{
+		//	var response = await _planbookService.SoftRemovePlanbookAsync(planbookId);
+		//	return Ok(response);
+		//}
 
         [HttpPost]
-        public async Task<IActionResult> CreatePlanbookFromTemplateAsync(string lessonId)
+		[Authorize]
+		public async Task<IActionResult> CreatePlanbookFromTemplateAsync(string lessonId)
         {
             var response = await _planbookService.GetPlanbookFromTemplateAsync(lessonId);
             if (response != null)
@@ -104,7 +112,8 @@ namespace Elepla.API.Controllers
         }
 
 		[HttpPost]
-        public async Task<IActionResult> CreatePlanbookUsingAIAsync(string lessonId)
+		[Authorize]
+		public async Task<IActionResult> CreatePlanbookUsingAIAsync(string lessonId)
 		{
             var response = await _planbookService.GetPlanbookUsingAIAsync(lessonId);
             if (response != null)
@@ -115,7 +124,8 @@ namespace Elepla.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> ClonePlanbookAsync(ClonePlanbookDTO model)
+		[Authorize]
+		public async Task<IActionResult> ClonePlanbookAsync(ClonePlanbookDTO model)
         {
             if (!ModelState.IsValid)
             {
@@ -128,6 +138,120 @@ namespace Elepla.API.Controllers
                 return Ok(response);
             }
             return BadRequest(response);
+        }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> SavePlanbookAsync(SavePlanbookDTO model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var response = await _planbookService.SavePlanbookAsync(model);
+            if (response != null)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
+        }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> UnsavePlanbookAsync(SavePlanbookDTO model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var response = await _planbookService.UnsavePlanbookAsync(model);
+            if (response != null)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
+        }
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> ExportPlanbookToWord(string planbookId)
+        {
+            var response = await _planbookService.ExportPlanbookToWordAsync(planbookId);
+            if (!response.Success)
+            {
+                return BadRequest(response);
+            }
+
+            var wordBase64String = response.Message;
+            if (string.IsNullOrEmpty(wordBase64String))
+            {
+                return NotFound(new
+                {
+                    Success = false,
+                    Message = "Word document content not found."
+                });
+            }
+
+            try
+            {
+                var wordBytes = Convert.FromBase64String(wordBase64String);
+                var fileName = $"{planbookId}_Planbook.docx";
+                return File(wordBytes, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", fileName);
+            }
+            catch (FormatException)
+            {
+                return BadRequest(new
+                {
+                    Success = false,
+                    Message = "The Word document content is not a valid Base64 string."
+                });
+            }
+        }
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> ExportPlanbookToPdf(string planbookId)
+        {
+            var response = await _planbookService.ExportPlanbookToPdfAsync(planbookId);
+            if (!response.Success)
+            {
+                return BadRequest(response);
+            }
+
+            var pdfBase64String = response.Message;
+            if (string.IsNullOrEmpty(pdfBase64String))
+            {
+                return NotFound(new
+                {
+                    Success = false,
+                    Message = "PDF content not found."
+                });
+            }
+
+            try
+            {
+                var pdfBytes = Convert.FromBase64String(pdfBase64String);
+                var fileName = $"{planbookId}_Planbook.pdf";
+                return File(pdfBytes, "application/pdf", fileName);
+            }
+            catch (FormatException)
+            {
+                return BadRequest(new
+                {
+                    Success = false,
+                    Message = "The PDF content is not a valid Base64 string."
+                });
+            }
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "AcademicStaff")]
+        public async Task<IActionResult> GetAllPlanbookTemplatesAsync(int pageIndex = 0, int pageSize = 10)
+        {
+            var responnse = await _planbookService.GetAllPlanbookTemplatesAsync(pageIndex, pageSize);
+            return Ok(responnse);
         }
     }
 }

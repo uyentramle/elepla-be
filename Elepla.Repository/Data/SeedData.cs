@@ -19,6 +19,7 @@ namespace Elepla.Repository.Data
             await InitializeSubject(unitOfWork);
             await InitializeCurriculum(unitOfWork);
             await InitializeGrade(unitOfWork);
+            await InitializeServicePackage(unitOfWork);
         }
 
         private static async Task InitializeRole(IUnitOfWork unitOfWork)
@@ -122,29 +123,29 @@ namespace Elepla.Repository.Data
                 }
             }
 
-            var teacherRole = await unitOfWork.RoleRepository.GetRoleByNameAsync(RoleEnums.Teacher.ToString());
+            //var teacherRole = await unitOfWork.RoleRepository.GetRoleByNameAsync(RoleEnums.Teacher.ToString());
             
-            if (teacherRole != null)
-            {
-                var existingTeacher = await unitOfWork.AccountRepository.GetUserByUsernameAsync("teacher");
-                if (existingTeacher == null)
-                {
-                    var teacher = new User
-                    {
-                        UserId = Guid.NewGuid().ToString(),
-                        Username = "teacher",
-                        Email = "teacher@example.com",
-                        EmailConfirmed = true,
-                        PasswordHash = hashedPassword,
-                        Gender = GenderEnums.Unknown.ToString(),
-                        Status = true,
-                        RoleId = teacherRole.RoleId,
-                        CreatedBy = "system",
-                    };
+            //if (teacherRole != null)
+            //{
+            //    var existingTeacher = await unitOfWork.AccountRepository.GetUserByUsernameAsync("teacher");
+            //    if (existingTeacher == null)
+            //    {
+            //        var teacher = new User
+            //        {
+            //            UserId = Guid.NewGuid().ToString(),
+            //            Username = "teacher",
+            //            Email = "teacher@example.com",
+            //            EmailConfirmed = true,
+            //            PasswordHash = hashedPassword,
+            //            Gender = GenderEnums.Unknown.ToString(),
+            //            Status = true,
+            //            RoleId = teacherRole.RoleId,
+            //            CreatedBy = "system",
+            //        };
 
-                    await unitOfWork.AccountRepository.AddAsync(teacher);
-                }
-            }
+            //        await unitOfWork.AccountRepository.AddAsync(teacher);
+            //    }
+            //}
 
             await unitOfWork.SaveChangeAsync();
         }
@@ -222,6 +223,43 @@ namespace Elepla.Repository.Data
 
             await unitOfWork.SaveChangeAsync();
         }
-    }
 
+        private static async Task InitializeServicePackage(IUnitOfWork unitOfWork)
+        {
+            var servicePackages = new List<(string Name, decimal Price, decimal Discount, DateTime StartDate, DateTime EndDate, int MaxPlanbooks, bool UseTemplate, bool UseAI, bool ExportWord, bool ExportPdf)>
+            {
+                ("Gói miễn phí", 0, 0, new DateTime(2024, 9, 5), new DateTime(2025, 5, 31), 5, false, false, false, false),
+                ("Gói cơ bản", 10000, 0, new DateTime(2024, 9, 5), new DateTime(2025, 5, 31), 50, true, false, true, true),
+                ("Gói cao cấp", 30000, 0, new DateTime(2024, 9, 5), new DateTime(2025, 5, 31), 300, true, false, true, true)
+            };
+
+            foreach (var servicePackageName in servicePackages)
+            {
+                var servicePackageExists = await unitOfWork.ServicePackageRepository.ServicePackageExistsAsync(servicePackageName.Name);
+                if (servicePackageExists is null)
+                {
+                    var servicePackage = new ServicePackage
+                    {
+                        PackageId = Guid.NewGuid().ToString(),
+                        PackageName = servicePackageName.Name,
+                        Price = servicePackageName.Price,
+                        Discount = servicePackageName.Discount,
+                        StartDate = servicePackageName.StartDate,
+                        EndDate = servicePackageName.EndDate,
+                        MaxPlanbooks = servicePackageName.MaxPlanbooks,
+                        UseTemplate = servicePackageName.UseTemplate,
+                        UseAI = servicePackageName.UseAI,
+                        ExportWord = servicePackageName.ExportWord,
+                        ExportPdf = servicePackageName.ExportPdf,
+                        CreatedBy = "system",
+                        IsDeleted = false
+                    };
+
+                    await unitOfWork.ServicePackageRepository.AddAsync(servicePackage);
+                }
+            }
+
+            await unitOfWork.SaveChangeAsync();
+        }
+    }
 }

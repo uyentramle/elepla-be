@@ -20,6 +20,6 @@ namespace Elepla.Domain.Entities
 
         // Navigation properties
         public virtual User Teacher { get; set; }
-        public virtual ICollection<Planbook> Planbooks { get; set; } = new List<Planbook>();
+        public virtual ICollection<PlanbookInCollection> PlanbookInCollections { get; set; } = new List<PlanbookInCollection>();
     }
 }

@@ -17,6 +17,7 @@ namespace Elepla.API.Controllers
 
         #region View User Profile
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> GetUserProfileAsync(string userId)
         {
             var response = await _accountService.GetUserProfileAsync(userId);
@@ -30,8 +31,8 @@ namespace Elepla.API.Controllers
 
         #region Update User Profile
         [HttpPut]
-        //[Authorize]
-        public async Task<IActionResult> UpdateUserProfileAsync(UpdateUserProfileDTO model)
+		[Authorize]
+		public async Task<IActionResult> UpdateUserProfileAsync(UpdateUserProfileDTO model)
         {
             if (!ModelState.IsValid)
             {
@@ -48,7 +49,7 @@ namespace Elepla.API.Controllers
         }
 
         [HttpPut]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> UpdateUserAvatarAsync(UpdateUserAvatarDTO model)
         {
             var response = await _accountService.UpdateUserAvatarAsync(model);
@@ -62,7 +63,7 @@ namespace Elepla.API.Controllers
 
         #region Change Password
         [HttpPut]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> ChangePasswordAsync(ChangePasswordDTO model)
         {
             if (!ModelState.IsValid)
@@ -81,7 +82,7 @@ namespace Elepla.API.Controllers
 
         #region Update User Phone Number Or Link Phone Number
         [HttpPost]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> SendVerificationCodeAsync(NewPhoneNumberDTO model)
         {
             if (!ModelState.IsValid)
@@ -98,7 +99,7 @@ namespace Elepla.API.Controllers
         }
 
         [HttpPut]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> VerifyAndUpdateNewPhoneNumberAsync(ChangePhoneNumberDTO model)
         {
             if (!ModelState.IsValid)
@@ -117,7 +118,7 @@ namespace Elepla.API.Controllers
 
         #region Update User Email Or Link Email
         [HttpPost]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> SendVerificationCodeEmailAsync(NewEmailDTO model)
         {
             if (!ModelState.IsValid)
@@ -134,7 +135,7 @@ namespace Elepla.API.Controllers
         }
 
         [HttpPut]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> VerifyAndUpdateNewEmailAsync(ChangeEmailDTO model)
         {
             if (!ModelState.IsValid)
@@ -153,7 +154,7 @@ namespace Elepla.API.Controllers
 
         #region Link Account With Username
         [HttpPut]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> LinkAccountWithUsernameAsync(UpdateUserAccountDTO model)
         {
             if (!ModelState.IsValid)
@@ -172,7 +173,7 @@ namespace Elepla.API.Controllers
 
         #region Manage User By Admin
         [HttpGet]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAllUsersForAdminAsync(string? keyword, bool? status, int pageIndex = 0, int pageSize = 10)
         {
             var response = await _accountService.GetAllUserAsync(keyword, status, pageIndex, pageSize);
@@ -184,7 +185,7 @@ namespace Elepla.API.Controllers
         }
 
         [HttpPost]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateUserByAdminAsync(CreateUserByAdminDTO model)
         {
             if (!ModelState.IsValid)
@@ -201,7 +202,7 @@ namespace Elepla.API.Controllers
         }
 
         [HttpPut]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateUserByAdminAsync(UpdateUserByAdminDTO model)
         {
             if (!ModelState.IsValid)
@@ -218,7 +219,7 @@ namespace Elepla.API.Controllers
         }
 
         [HttpDelete]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteUserByAdminAsync(string userId)
         {
             var response = await _accountService.DeleteUserAsync(userId);
@@ -230,7 +231,7 @@ namespace Elepla.API.Controllers
         }
 
         [HttpPut]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> BlockOrUnBlockUserByAdmin(BlockOrUnBlockAccountDTO model)
         {
             var response = await _accountService.BlockOrUnBlockUserByAdmin(model);

@@ -19,7 +19,7 @@ namespace Elepla.Domain.Entities
 
 		// Foreign Key
 		public string TeacherId { get; set; }
-        public string PlanbookId { get; set; }
+        public string? PlanbookId { get; set; }
 
         // Navigation properties
         public virtual User Teacher { get; set; }

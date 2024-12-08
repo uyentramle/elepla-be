@@ -94,6 +94,7 @@ namespace Elepla.API
 
         public static IServiceCollection AddInfrastructuresService(this IServiceCollection services, string[] databaseConnection)
         {
+            // Add services to the container
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<ITimeService, TimeService>();
             services.AddScoped<IClaimsService, ClaimsService>();
@@ -106,6 +107,7 @@ namespace Elepla.API
             services.AddScoped<ITokenService, TokenService>();
 			services.AddScoped<IUrlService, UrlService>();
             services.AddScoped<IOpenAIService, OpenAIService>();
+            services.AddScoped<IPayOSService, PayOSService>();
 
             // User
             services.AddScoped<IAccountRepository, AccountRepository>();
@@ -177,6 +179,9 @@ namespace Elepla.API
             services.AddScoped<IPlanbookCollectionRepository, PlanbookCollectionRepository>();
             services.AddScoped<IPlanbookCollectionService, PlanbookCollectionService>();
 
+            // Planbook In Collection
+            services.AddScoped<IPlanbookInCollectionRepository, PlanbookInCollectionRepository>();
+
             // Planbook
             services.AddScoped<IPlanbookRepository, PlanbookRepository>();
             services.AddScoped<IPlanbookService, PlanbookService>();
@@ -202,7 +207,6 @@ namespace Elepla.API
 
             // Question In Exam
             services.AddScoped<IQuestionInExamRepository, QuestionInExamRepository>();
-            services.AddScoped<IQuestionInExamService, QuestionInExamService>();
 
             // Add database context
             string selectedConnectionString = null;
