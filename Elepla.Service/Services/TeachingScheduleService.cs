@@ -5,6 +5,7 @@ using Elepla.Repository.Interfaces;
 using Elepla.Service.Interfaces;
 using Elepla.Service.Models.ResponseModels;
 using Elepla.Service.Models.ViewModels.TeachingScheduleModels;
+using Elepla.Service.Utils;
 using System;
 
 
@@ -14,11 +15,13 @@ namespace Elepla.Service.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly IGoogleCalendarService _googleCalendarService;
 
-        public TeachingScheduleService(IUnitOfWork unitOfWork, IMapper mapper)
+        public TeachingScheduleService(IUnitOfWork unitOfWork, IMapper mapper, IGoogleCalendarService googleCalendarService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _googleCalendarService = googleCalendarService;
         }
 
         public async Task<ResponseModel> GetAllTeachingSchedulesAsync(string? keyword, int pageIndex, int pageSize)
@@ -196,5 +199,63 @@ namespace Elepla.Service.Services
             }
         }
 
+        public async Task<ResponseModel> ImportToGoogleCalendarAsync(string scheduleId, string calendarId, string accessToken)
+        {
+            try
+            {
+                var schedule = await _unitOfWork.TeachingScheduleRepository.GetByIdAsync(scheduleId);
+                if (schedule == null)
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "Teaching schedule not found."
+                    };
+                }
+
+                // Initialize Google Calendar service with teacher's access token
+                //await _googleCalendarService.InitializeServiceAsync(accessToken);
+
+                var startDateTime = schedule.Date.Add(TimeSpan.Parse(schedule.StartTime));
+                var endDateTime = schedule.Date.Add(TimeSpan.Parse(schedule.EndTime));
+
+                var eventId = await _googleCalendarService.CreateEventAsync(
+                    calendarId,
+                    schedule.Title,
+                    schedule.Description,
+                    startDateTime,
+                    endDateTime,
+                    "Asia/Ho_Chi_Minh" // Adjust time zone accordingly
+                );
+
+                return new ResponseModel
+                {
+                    Success = true,
+                    Message = $"Event successfully created in Google Calendar. Event ID: {eventId}"
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ErrorResponseModel<object>
+                {
+                    Success = false,
+                    Message = "An error occurred while importing to Google Calendar.",
+                    Errors = new List<string> { ex.Message }
+                };
+            }
+        }
+
+
+        public async Task<string> CreateCalendarAsync()
+        {
+            var newCalendar = new Google.Apis.Calendar.v3.Data.Calendar
+            {
+                Summary = "Test Calendar",
+                TimeZone = "Asia/Ho_Chi_Minh"
+            };
+
+            var createdCalendar = await _googleCalendarService.CreateAsync(newCalendar);
+            return createdCalendar.Id; 
+        }
     }
 }

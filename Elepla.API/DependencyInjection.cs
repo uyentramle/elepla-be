@@ -196,6 +196,7 @@ namespace Elepla.API
 			// Teaching Schedule
 			services.AddScoped<ITeachingScheduleRepository, TeachingScheduleRepository>();
             services.AddScoped<ITeachingScheduleService, TeachingScheduleService>();
+            services.AddScoped<IGoogleCalendarService, GoogleCalendarService>();
 
             // Feedback
             services.AddScoped<IFeedbackRepository, FeedbackRepository>();
