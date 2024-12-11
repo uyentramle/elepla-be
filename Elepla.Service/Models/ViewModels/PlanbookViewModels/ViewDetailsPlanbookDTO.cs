@@ -27,6 +27,8 @@ namespace Elepla.Service.Models.ViewModels.PlanbookViewModels
         //public string CollectionName { get; set; }
         public string LessonId { get; set; }
         public string LessonName { get; set; }
+        public int CommentCount { get; set; }
+        public float AverageRate { get; set; }
 
         // Activities
         public List<ViewListActivityDTO> Activities { get; set; } // Các hoạt động

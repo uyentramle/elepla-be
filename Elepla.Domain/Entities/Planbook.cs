@@ -14,6 +14,7 @@ namespace Elepla.Domain.Entities
         // Attributes
         public string Title { get; set; }
         public string? SchoolName { get; set; }
+        public string? GroupName { get; set; }
         public string? TeacherName { get; set; }
         public string Subject { get; set; }
         public string? ClassName { get; set; }

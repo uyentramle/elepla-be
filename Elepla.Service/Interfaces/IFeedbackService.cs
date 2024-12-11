@@ -18,5 +18,6 @@ namespace Elepla.Service.Interfaces
         Task<ResponseModel> GetFlaggedFeedbackAsync(int pageIndex, int pageSize);
         Task<ResponseModel> GetSystemFeedbackAsync(int pageIndex, int pageSize);
         Task<ResponseModel> GetPlanbookFeedbackAsync(int pageIndex, int pageSize);
-	}
+        Task<ResponseModel> FlagCommentAsync(string feedbackId);
+    }
 }

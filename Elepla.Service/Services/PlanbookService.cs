@@ -35,7 +35,7 @@ namespace Elepla.Service.Services
         {
             var planbooks = await _unitOfWork.PlanbookRepository.GetAsync(
                             filter: r => r.IsDeleted == false && r.IsPublic && !r.IsDefault,
-                            includeProperties: "Lesson.Chapter.SubjectInCurriculum.Subject,Lesson.Chapter.SubjectInCurriculum.Curriculum,Lesson.Chapter.SubjectInCurriculum.Grade",
+                            includeProperties: "Lesson.Chapter.SubjectInCurriculum.Subject,Lesson.Chapter.SubjectInCurriculum.Curriculum,Lesson.Chapter.SubjectInCurriculum.Grade,Feedbacks",
                             pageIndex: pageIndex,
                             pageSize: pageSize
                             );
@@ -46,6 +46,25 @@ namespace Elepla.Service.Services
                 if (lesson != null)
                 {
                     item.LessonName = lesson.Name;
+                }
+
+                // Tính số lượng comment và đánh giá trung bình
+                var feedbacks = planbooks.Items
+                    .FirstOrDefault(p => p.PlanbookId == item.PlanbookId)?
+                    .Feedbacks
+                    .Where(f => !f.IsDeleted) // Lọc những feedback hợp lệ
+                    .ToList();
+
+                if (feedbacks != null && feedbacks.Any())
+                {
+                    item.CommentCount = feedbacks.Count;
+                    var totalRate = feedbacks.Where(f => f.Rate.HasValue).Sum(f => f.Rate.Value);
+                    item.AverageRate = (float)Math.Round(totalRate / (double)item.CommentCount, 1);
+                }
+                else
+                {
+                    item.CommentCount = 0;
+                    item.AverageRate = 0;
                 }
             }
 
@@ -61,7 +80,7 @@ namespace Elepla.Service.Services
         #region Get Planbook By Id
         public async Task<ResponseModel> GetPlanbookByIdAsync(string planbookId)
         {
-            var planbook = await _unitOfWork.PlanbookRepository.GetByIdAsync(planbookId);
+            var planbook = await _unitOfWork.PlanbookRepository.GetByIdAsync(id: planbookId, includeProperties: "Feedbacks");
             if (planbook == null)
             {
                 return new ResponseModel
@@ -83,6 +102,20 @@ namespace Elepla.Service.Services
             if (lesson != null)
             {
                 mapper.LessonName = lesson.Name;
+            }
+
+            // Tính toán CommentCount và AverageRate
+            var feedbacks = planbook.Feedbacks.Where(f => !f.IsDeleted).ToList();
+            if (feedbacks.Any())
+            {
+                mapper.CommentCount = feedbacks.Count;
+                var totalRate = feedbacks.Where(f => f.Rate.HasValue).Sum(f => f.Rate.Value);
+                mapper.AverageRate = (float)Math.Round(totalRate / (double)mapper.CommentCount, 1);
+            }
+            else
+            {
+                mapper.CommentCount = 0;
+                mapper.AverageRate = 0;
             }
 
             var activities = await _unitOfWork.ActivityRepository.GetByPlanbookIdAsync(planbookId);

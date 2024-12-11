@@ -17,6 +17,8 @@ namespace Elepla.Service.Models.ViewModels.TeachingScheduleModels
         public string ClassName { get; set; }
         public string? TeacherName { get; set; }
         public string? PlanbookTitle { get; set; }
+        public string? PlanbookId { get; set; }
+
     }
 
 }
