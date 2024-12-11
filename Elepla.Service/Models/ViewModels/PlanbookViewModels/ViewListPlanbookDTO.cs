@@ -29,6 +29,8 @@ namespace Elepla.Service.Models.ViewModels.PlanbookViewModels
 		public string LessonId { get; set; }
 		public string LessonName { get; set; }
 		public string ChapterName { get; set; }
+        public int CommentCount { get; set; }
+        public float AverageRate { get; set; }
         public DateTime CreatedAt { get; set; }
 		public string CreatedBy { get; set; }
 		public DateTime? UpdatedAt { get; set; }

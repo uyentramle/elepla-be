@@ -891,10 +891,14 @@ namespace Elepla.Service.Mappers
 				.ForMember(dest => dest.Rate, opt => opt.MapFrom(src => src.Rate))
 				.ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
 				.ForMember(dest => dest.IsFlagged, opt => opt.MapFrom(src => src.IsFlagged))
-				.ForMember(dest => dest.TeacherName, opt => opt.MapFrom(src => src.Teacher.FirstName + " " + src.Teacher.LastName))
-				.ForMember(dest => dest.PlanbookTitle, opt => opt.MapFrom(src => src.Planbook.Title))
+                .ForMember(dest => dest.FlagCount, opt => opt.MapFrom(src => src.FlagCount))
+                .ForMember(dest => dest.TeacherId, opt => opt.MapFrom(src => src.TeacherId))
+                .ForMember(dest => dest.TeacherName, opt => opt.MapFrom(src => src.Teacher.LastName + " " + src.Teacher.FirstName))
+                .ForMember(dest => dest.Avatar, opt => opt.MapFrom(src => src.Teacher.Avatar.ImageUrl))
+                .ForMember(dest => dest.PlanbookId, opt => opt.MapFrom(src => src.Planbook.PlanbookId))
 				.ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
-				.ReverseMap();
+                .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.UpdatedAt))
+                .ReverseMap();
 
 			// Mapping CreateFeedbackDTO to Feedback
 			CreateMap<CreateFeedbackDTO, Feedback>()
@@ -903,7 +907,8 @@ namespace Elepla.Service.Mappers
 				.ForMember(dest => dest.Rate, opt => opt.MapFrom(src => src.Rate))
 				.ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
 				.ForMember(dest => dest.IsFlagged, opt => opt.MapFrom(src => false))
-				.ForMember(dest => dest.TeacherId, opt => opt.MapFrom(src => src.TeacherId))
+                .ForMember(dest => dest.FlagCount, opt => opt.MapFrom(src => 0))
+                .ForMember(dest => dest.TeacherId, opt => opt.MapFrom(src => src.TeacherId))
 				.ForMember(dest => dest.PlanbookId, opt => opt.MapFrom(src => src.PlanbookId))
 				.ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => DateTime.UtcNow))
 				.ReverseMap();

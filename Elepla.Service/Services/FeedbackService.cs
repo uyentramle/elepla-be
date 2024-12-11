@@ -29,7 +29,8 @@ namespace Elepla.Service.Services
         {
             var feedbacks = await _unitOfWork.FeedbackRepository.GetAsync(
                 filter: f => f.PlanbookId == planbookId && !f.IsDeleted,
-                includeProperties: "Teacher,Planbook",
+                orderBy: f => f.OrderByDescending(f => f.CreatedAt),
+                includeProperties: "Teacher.Avatar,Planbook",
                 pageIndex: pageIndex,
                 pageSize: pageSize
             );
@@ -43,7 +44,6 @@ namespace Elepla.Service.Services
                 Data = feedbackDtos
             };
         }
-
 
         // Submit new feedback for a Planbook
         public async Task<ResponseModel> SubmitFeedbackAsync(CreateFeedbackDTO model)
@@ -108,7 +108,6 @@ namespace Elepla.Service.Services
                 };
             }
         }
-
 
         // Hard delete feedback by Id
         public async Task<ResponseModel> HardDeleteFeedbackAsync(string feedbackId)
@@ -229,5 +228,42 @@ namespace Elepla.Service.Services
 				Data = feedbackDtos
 			};
 		}
-	}
+
+        // Flag a feedback
+        public async Task<ResponseModel> FlagCommentAsync(string feedbackId)
+        {
+            try
+            {
+                var feedback = await _unitOfWork.FeedbackRepository.GetByIdAsync(feedbackId);
+                if (feedback is null)
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "Feedback not found."
+                    };
+                }
+
+                feedback.FlagCount++;
+
+                _unitOfWork.FeedbackRepository.Update(feedback);
+                await _unitOfWork.SaveChangeAsync();
+
+                return new ResponseModel
+                {
+                    Success = true,
+                    Message = "Feedback flagged successfully."
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ErrorResponseModel<object>
+                {
+                    Success = false,
+                    Message = "An error occurred while flagging feedback.",
+                    Errors = new List<string> { ex.Message }
+                };
+            }
+        }
+    }
 }
