@@ -518,6 +518,7 @@ namespace Elepla.Service.Mappers
                 .ForMember(dest => dest.TeacherName, opt => opt.MapFrom(src => src.Teacher.FirstName + " " + src.Teacher.LastName)) 
                 .ForMember(dest => dest.PlanbookTitle, opt => opt.MapFrom(src => src.Planbook.Title))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.PlanbookId, opt => opt.MapFrom(src => src.PlanbookId))
                 .ReverseMap();
 
 
