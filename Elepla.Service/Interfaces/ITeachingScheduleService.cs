@@ -22,7 +22,6 @@ namespace Elepla.Service.Interfaces
 
         Task<ResponseModel> DeleteTeachingScheduleAsync(string scheduleId);
 
-        Task<ResponseModel> ImportToGoogleCalendarAsync(string scheduleId, string calendarId, string accessToken);
-        Task<string> CreateCalendarAsync();
+        Task<ResponseModel> AddTeachingScheduleToGoogleCalendarAsync(string scheduleId);
     }
 }

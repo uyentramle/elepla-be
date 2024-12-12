@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using DocumentFormat.OpenXml.Drawing;
 using Elepla.Domain.Entities;
 using Elepla.Repository.Common;
 using Elepla.Repository.Interfaces;
@@ -6,7 +7,10 @@ using Elepla.Service.Interfaces;
 using Elepla.Service.Models.ResponseModels;
 using Elepla.Service.Models.ViewModels.TeachingScheduleModels;
 using Elepla.Service.Utils;
+using Google.Apis.Calendar.v3.Data;
+using iText.Kernel.Pdf.Canvas.Parser.ClipperLib;
 using System;
+using System.Globalization;
 
 
 namespace Elepla.Service.Services
@@ -29,7 +33,7 @@ namespace Elepla.Service.Services
             var schedules = await _unitOfWork.TeachingScheduleRepository.GetAsync(
                                 filter: s => !s.IsDeleted && (string.IsNullOrEmpty(keyword) || s.ClassName.Contains(keyword)),
                                 orderBy: s => s.OrderBy(s => s.Date),
-                                includeProperties: "Teacher,Planbook", 
+                                includeProperties: "Teacher,Planbook",
                                 pageIndex: pageIndex,
                                 pageSize: pageSize
             );
@@ -94,7 +98,7 @@ namespace Elepla.Service.Services
             {
                 // Map the model to the TeachingSchedule entity
                 var schedule = _mapper.Map<TeachingSchedule>(model);
-                schedule.ScheduleId = Guid.NewGuid().ToString(); 
+                schedule.ScheduleId = Guid.NewGuid().ToString();
 
                 await _unitOfWork.TeachingScheduleRepository.AddAsync(schedule);
                 await _unitOfWork.SaveChangeAsync();
@@ -179,7 +183,7 @@ namespace Elepla.Service.Services
                     };
                 }
 
-                _unitOfWork.TeachingScheduleRepository.Delete(schedule); 
+                _unitOfWork.TeachingScheduleRepository.Delete(schedule);
                 await _unitOfWork.SaveChangeAsync();
 
                 return new ResponseModel
@@ -199,11 +203,13 @@ namespace Elepla.Service.Services
             }
         }
 
-        public async Task<ResponseModel> ImportToGoogleCalendarAsync(string scheduleId, string calendarId, string accessToken)
+        public async Task<ResponseModel> AddTeachingScheduleToGoogleCalendarAsync(string scheduleId)
         {
             try
             {
-                var schedule = await _unitOfWork.TeachingScheduleRepository.GetByIdAsync(scheduleId);
+                // Fetch teaching schedule by ID using GetByIdAsync from the repository
+                var schedule = await _unitOfWork.TeachingScheduleRepository.GetByIdAsync(scheduleId, includeProperties: "Teacher,Planbook");
+
                 if (schedule == null)
                 {
                     return new ResponseModel
@@ -213,25 +219,60 @@ namespace Elepla.Service.Services
                     };
                 }
 
-                // Initialize Google Calendar service with teacher's access token
-                //await _googleCalendarService.InitializeServiceAsync(accessToken);
+                // Parse StartTime and EndTime as DateTime
+                if (!DateTime.TryParse(schedule.StartTime, out DateTime startTime) ||
+                    !DateTime.TryParse(schedule.EndTime, out DateTime endTime))
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "Invalid time format for StartTime or EndTime."
+                    };
+                }
 
-                var startDateTime = schedule.Date.Add(TimeSpan.Parse(schedule.StartTime));
-                var endDateTime = schedule.Date.Add(TimeSpan.Parse(schedule.EndTime));
+                // Combine Date with StartTime and EndTime (Assume schedule.Date is in local time)
+                DateTime startLocalTime = schedule.Date.Add(startTime.TimeOfDay);
+                DateTime endLocalTime = schedule.Date.Add(endTime.TimeOfDay);
 
-                var eventId = await _googleCalendarService.CreateEventAsync(
-                    calendarId,
-                    schedule.Title,
-                    schedule.Description,
-                    startDateTime,
-                    endDateTime,
-                    "Asia/Ho_Chi_Minh" // Adjust time zone accordingly
-                );
+                // Convert local times to UTC for Google Calendar
+                TimeZoneInfo localTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Ho_Chi_Minh");
+                DateTime startUtc = TimeZoneInfo.ConvertTimeToUtc(startLocalTime, localTimeZone);
+                DateTime endUtc = TimeZoneInfo.ConvertTimeToUtc(endLocalTime, localTimeZone);
+
+                // Map teaching schedule to Google Calendar event
+                var calendarEvent = new Event
+                {
+                    Summary = schedule.Title,
+                    Description = schedule.Description,
+                    Start = new EventDateTime
+                    {
+                        DateTime = startUtc,
+                        TimeZone = "Asia/Ho_Chi_Minh" // Ensure the correct time zone is sent
+                    },
+                    End = new EventDateTime
+                    {
+                        DateTime = endUtc,
+                        TimeZone = "Asia/Ho_Chi_Minh"
+                    },
+                    Location = schedule.ClassName
+                };
+
+                // Add event to Google Calendar using GoogleCalendarService
+                var eventResponse = await _googleCalendarService.AddEventToCalendarAsync(calendarEvent);
+
+                if (eventResponse == null)
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "Failed to add teaching schedule to Google Calendar."
+                    };
+                }
 
                 return new ResponseModel
                 {
                     Success = true,
-                    Message = $"Event successfully created in Google Calendar. Event ID: {eventId}"
+                    Message = "Teaching schedule successfully added to Google Calendar."
                 };
             }
             catch (Exception ex)
@@ -239,23 +280,12 @@ namespace Elepla.Service.Services
                 return new ErrorResponseModel<object>
                 {
                     Success = false,
-                    Message = "An error occurred while importing to Google Calendar.",
+                    Message = "An error occurred while adding the teaching schedule to Google Calendar.",
                     Errors = new List<string> { ex.Message }
                 };
             }
         }
 
 
-        public async Task<string> CreateCalendarAsync()
-        {
-            var newCalendar = new Google.Apis.Calendar.v3.Data.Calendar
-            {
-                Summary = "Test Calendar",
-                TimeZone = "Asia/Ho_Chi_Minh"
-            };
-
-            var createdCalendar = await _googleCalendarService.CreateAsync(newCalendar);
-            return createdCalendar.Id; 
-        }
     }
 }
