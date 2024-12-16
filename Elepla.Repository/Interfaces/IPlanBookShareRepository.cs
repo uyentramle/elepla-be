@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Elepla.Repository.Interfaces
 {
-	public interface IPlanBookShareRepository : IGenericRepository<PlanBookShare>
+	public interface IPlanbookShareRepository : IGenericRepository<PlanbookShare>
 	{
 	}
 }

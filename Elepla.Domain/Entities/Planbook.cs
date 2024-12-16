@@ -37,7 +37,7 @@ namespace Elepla.Domain.Entities
         public virtual ICollection<Activity> Activities { get; set; } = new List<Activity>();
         public virtual ICollection<TeachingSchedule> TeachingSchedules { get; set; } = new List<TeachingSchedule>();
         public virtual ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
-        public virtual ICollection<PlanBookShare> PlanbookShares { get; set; } = new List<PlanBookShare>();
+        public virtual ICollection<PlanbookShare> PlanbookShares { get; set; } = new List<PlanbookShare>();
         public virtual ICollection<PlanbookInCollection> PlanbookInCollections { get; set; } = new List<PlanbookInCollection>();
     }
 }

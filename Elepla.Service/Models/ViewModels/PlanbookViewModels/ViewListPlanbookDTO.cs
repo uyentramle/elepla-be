@@ -12,7 +12,8 @@ namespace Elepla.Service.Models.ViewModels.PlanbookViewModels
 
 		public string Title { get; set; }
 		public string SchoolName { get; set; }
-		public string TeacherName { get; set; }
+		public string GroupName { get; set; }
+        public string TeacherName { get; set; }
 		public string Subject { get; set; }
         public string Curriculum { get; set; }
 		public string Grade { get; set; }

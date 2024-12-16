@@ -33,12 +33,11 @@ namespace Elepla.Service.Services
 				&& (string.IsNullOrEmpty(keyword)
 				|| r.Question.Contains(keyword)),
 				orderBy: r => r.OrderBy(r => r.Question),
-				includeProperties: "Answers", 
+				includeProperties: "Answers,Lesson.Chapter.SubjectInCurriculum.Subject,Lesson.Chapter.SubjectInCurriculum.Curriculum,Lesson.Chapter.SubjectInCurriculum.Grade,Chapter.SubjectInCurriculum.Subject,Chapter.SubjectInCurriculum.Curriculum,Chapter.SubjectInCurriculum.Grade", 
 				pageIndex: pageIndex,
 				pageSize: pageSize
 				);
 			var questionDtos = _mapper.Map<Pagination<ViewListQuestionBankDTO>>(questions);
-
 			
 			foreach (var questionDto in questionDtos.Items)
 			{

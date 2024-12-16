@@ -235,6 +235,12 @@ namespace Elepla.Repository.Repositories
             _dbSet.Remove(entityToDelete);
         }
 
+        // Delete range of entities
+        public void DeleteRange(IEnumerable<TEntity> entities)
+        {
+            _dbSet.RemoveRange(entities);
+        }
+
         // Count entities with filter
         public async Task<int> CountAsync(Expression<Func<TEntity, bool>> filter = null)
         {

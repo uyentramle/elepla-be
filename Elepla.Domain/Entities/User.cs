@@ -50,7 +50,8 @@ namespace Elepla.Domain.Entities
         public virtual ICollection<PlanbookCollection> PlanbookCollections { get; set; } = new List<PlanbookCollection>();
         public virtual ICollection<TeachingSchedule> TeachingSchedules { get; set; } = new List<TeachingSchedule>();
         public virtual ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
-		public virtual ICollection<PlanBookShare> PlanbookShares { get; set; } = new List<PlanBookShare>();
+		public virtual ICollection<PlanbookShare> SharedPlanbooks { get; set; } = new List<PlanbookShare>(); // Planbooks shared bởi user này
+        public virtual ICollection<PlanbookShare> ReceivedPlanbooks { get; set; } = new List<PlanbookShare>(); // Planbooks được user này nhận
         public virtual ICollection<Exam> Exams { get; set; } = new List<Exam>();
     }
 }

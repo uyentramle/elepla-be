@@ -30,7 +30,7 @@ namespace Elepla.Repository.Interfaces
         IPlanbookInCollectionRepository PlanbookInCollectionRepository { get; }
         IPlanbookRepository PlanbookRepository { get; }
         IActivityRepository ActivityRepository { get; }
-		IPlanBookShareRepository PlanBookShareRepository { get; }
+		IPlanbookShareRepository PlanbookShareRepository { get; }
 		ITeachingScheduleRepository TeachingScheduleRepository { get; }
         IFeedbackRepository FeedbackRepository { get; }
         IExamRepository ExamRepository { get; }

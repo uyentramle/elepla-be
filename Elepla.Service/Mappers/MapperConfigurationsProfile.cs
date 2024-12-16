@@ -130,10 +130,29 @@ namespace Elepla.Service.Mappers
 				.ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.LastName))
 				.ForMember(dest => dest.Gender, opt => opt.MapFrom(src => src.Gender))
 				.ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status)).ReverseMap();
-			#endregion
 
-			#region Role
-			CreateMap<Role, ViewListRoleDTO>()
+            CreateMap<User, ViewListUserPlanbookShareDTO>()
+                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
+				.ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.LastName + " " + src.FirstName))
+                .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.Username))
+                .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
+                .ForMember(dest => dest.GoogleEmail, opt => opt.MapFrom(src => src.GoogleEmail))
+                .ForMember(dest => dest.FacebookEmail, opt => opt.MapFrom(src => src.FacebookEmail))
+                .ForMember(dest => dest.Avatar, opt => opt.MapFrom(src => src.Avatar.ImageUrl))
+                .ForMember(dest => dest.IsOwner, opt => opt.MapFrom(src => false)).ReverseMap();
+
+            CreateMap<User, ViewListUserToPlanbookShareDTO>()
+				.ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
+                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.LastName + " " + src.FirstName))
+				.ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.Username))
+				.ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
+				.ForMember(dest => dest.GoogleEmail, opt => opt.MapFrom(src => src.GoogleEmail))
+				.ForMember(dest => dest.FacebookEmail, opt => opt.MapFrom(src => src.FacebookEmail))
+				.ForMember(dest => dest.Avatar, opt => opt.MapFrom(src => src.Avatar.ImageUrl)).ReverseMap();
+            #endregion
+
+            #region Role
+            CreateMap<Role, ViewListRoleDTO>()
 				.ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.RoleId))
 				.ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
 				.ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault))
@@ -237,9 +256,14 @@ namespace Elepla.Service.Mappers
 				.ForMember(dest => dest.Question, opt => opt.MapFrom(src => src.Question))
 				.ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
 				.ForMember(dest => dest.Plum, opt => opt.MapFrom(src => src.Plum))
-				.ForMember(dest => dest.ChapterId, opt => opt.MapFrom(src => src.ChapterId))
-				.ForMember(dest => dest.LessonId, opt => opt.MapFrom(src => src.LessonId))
-				.ForMember(dest => dest.Answers, opt => opt.MapFrom(src => src.Answers))
+                .ForMember(dest => dest.Subject, opt => opt.MapFrom(src => src.Lesson != null ? src.Lesson.Chapter.SubjectInCurriculum.Subject.Name : src.Chapter.SubjectInCurriculum.Subject.Name))
+				.ForMember(dest => dest.Curriculum, opt => opt.MapFrom(src => src.Lesson != null ? src.Lesson.Chapter.SubjectInCurriculum.Curriculum.Name : src.Chapter.SubjectInCurriculum.Curriculum.Name))
+				.ForMember(dest => dest.Grade, opt => opt.MapFrom(src => src.Lesson != null ? src.Lesson.Chapter.SubjectInCurriculum.Grade.Name : src.Chapter.SubjectInCurriculum.Grade.Name))
+                .ForMember(dest => dest.ChapterId, opt => opt.MapFrom(src => src.ChapterId))
+                .ForMember(dest => dest.ChapterName, opt => opt.MapFrom(src => src.Chapter.Name))
+                .ForMember(dest => dest.LessonId, opt => opt.MapFrom(src => src.LessonId))
+                .ForMember(dest => dest.LessonName, opt => opt.MapFrom(src => src.Lesson.Name))
+                .ForMember(dest => dest.Answers, opt => opt.MapFrom(src => src.Answers))
 				.ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
 				.ForMember(dest => dest.CreatedBy, opt => opt.MapFrom(src => src.CreatedBy))
 				.ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.UpdatedAt))
@@ -553,7 +577,8 @@ namespace Elepla.Service.Mappers
 				.ForMember(dest => dest.PlanbookId, opt => opt.MapFrom(src => src.PlanbookId))
 				.ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
 				.ForMember(dest => dest.SchoolName, opt => opt.MapFrom(src => src.SchoolName))
-				.ForMember(dest => dest.TeacherName, opt => opt.MapFrom(src => src.TeacherName))
+                .ForMember(dest => dest.GroupName, opt => opt.MapFrom(src => src.GroupName))
+                .ForMember(dest => dest.TeacherName, opt => opt.MapFrom(src => src.TeacherName))
 				.ForMember(dest => dest.Subject, opt => opt.MapFrom(src => src.Lesson.Chapter.SubjectInCurriculum.Subject.Name))
 				.ForMember(dest => dest.Curriculum, opt => opt.MapFrom(src => src.Lesson.Chapter.SubjectInCurriculum.Curriculum.Name))
                 .ForMember(dest => dest.Grade, opt => opt.MapFrom(src => src.Lesson.Chapter.SubjectInCurriculum.Grade.Name))
@@ -607,7 +632,8 @@ namespace Elepla.Service.Mappers
 				.ForMember(dest => dest.PlanbookId, opt => opt.MapFrom(src => src.PlanbookId))
 				.ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
 				.ForMember(dest => dest.SchoolName, opt => opt.MapFrom(src => src.SchoolName))
-				.ForMember(dest => dest.TeacherName, opt => opt.MapFrom(src => src.TeacherName))
+                .ForMember(dest => dest.GroupName, opt => opt.MapFrom(src => src.GroupName))
+                .ForMember(dest => dest.TeacherName, opt => opt.MapFrom(src => src.TeacherName))
 				.ForMember(dest => dest.Subject, opt => opt.MapFrom(src => src.Subject))
 				.ForMember(dest => dest.ClassName, opt => opt.MapFrom(src => src.ClassName))
 				.ForMember(dest => dest.DurationInPeriods, opt => opt.MapFrom(src => src.DurationInPeriods))
@@ -897,7 +923,8 @@ namespace Elepla.Service.Mappers
                 .ForMember(dest => dest.TeacherName, opt => opt.MapFrom(src => src.Teacher.LastName + " " + src.Teacher.FirstName))
                 .ForMember(dest => dest.Avatar, opt => opt.MapFrom(src => src.Teacher.Avatar.ImageUrl))
                 .ForMember(dest => dest.PlanbookId, opt => opt.MapFrom(src => src.Planbook.PlanbookId))
-				.ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
+                .ForMember(dest => dest.PlanbookTitle, opt => opt.MapFrom(src => src.Planbook.Title))
+                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
                 .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.UpdatedAt))
                 .ReverseMap();
 

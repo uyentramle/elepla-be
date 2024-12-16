@@ -12,6 +12,7 @@ namespace Elepla.Service.Models.ViewModels.PlanbookViewModels
         public string PlanbookId { get; set; }
         public string Title { get; set; } // Tiêu đề
         public string SchoolName { get; set; }
+        public string GroupName { get; set; }
         public string TeacherName { get; set; }
         public string Subject { get; set; } // Môn học
         public string ClassName { get; set; }

@@ -4,6 +4,7 @@ using Elepla.Repository.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Elepla.Repository.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241216140334_UpdateTablePlanbookShare")]
+    partial class UpdateTablePlanbookShare
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1517,7 +1520,7 @@ namespace Elepla.Repository.Migrations
 
             modelBuilder.Entity("Elepla.Domain.Entities.PlanbookShare", b =>
                 {
-                    b.HasOne("Elepla.Domain.Entities.Planbook", "Planbook")
+                    b.HasOne("Elepla.Domain.Entities.Planbook", "PlanBook")
                         .WithMany("PlanbookShares")
                         .HasForeignKey("PlanbookId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1543,7 +1546,7 @@ namespace Elepla.Repository.Migrations
                         .WithMany("ReceivedPlanbooks")
                         .HasForeignKey("UserId1");
 
-                    b.Navigation("Planbook");
+                    b.Navigation("PlanBook");
 
                     b.Navigation("SharedByUser");
 

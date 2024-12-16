@@ -174,6 +174,59 @@ namespace Elepla.API.Controllers
             return BadRequest(response);
         }
 
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> SharePlanbookAsync(SharePlanbookDTO model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var response = await _planbookService.SharePlanbookAsync(model);
+            if (response != null)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
+        }
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetUserSharedByPlanbookAsync(string planbookId)
+        {
+            var response = await _planbookService.GetUserSharedByPlanbookAsync(planbookId);
+            if (response != null)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
+        }
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetUserToSharedPlanbookAsync(string planbookId)
+        {
+            var response = await _planbookService.GetUserToSharedPlanbookAsync(planbookId);
+            if (response != null)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
+        }
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetSharedPlanbookByUserIdAsync(string userId)
+        {
+            var response = await _planbookService.GetSharedPlanbookByUserIdAsync(userId);
+            if (response != null)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
+        }
+
         [HttpGet]
         [Authorize]
         public async Task<IActionResult> ExportPlanbookToWord(string planbookId)

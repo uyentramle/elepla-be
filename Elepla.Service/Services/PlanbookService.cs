@@ -14,6 +14,7 @@ using iText.Kernel.Pdf;
 using Word = DocumentFormat.OpenXml.Wordprocessing;
 using DocumentFormat.OpenXml.Wordprocessing;
 using Elepla.Service.Models.ViewModels.PlanbookCollectionViewModels;
+using Elepla.Service.Models.ViewModels.AccountViewModels;
 
 namespace Elepla.Service.Services
 {
@@ -1008,6 +1009,266 @@ namespace Elepla.Service.Services
                 {
                     Success = false,
                     Message = "An error occurred while unsaving the planbook.",
+                    Errors = new List<string> { ex.Message }
+                };
+            }
+        }
+        #endregion
+
+        #region Share Planbook
+        public async Task<ResponseModel> SharePlanbookAsync(SharePlanbookDTO model)
+        {
+            try
+            {
+                var planbook = await _unitOfWork.PlanbookRepository.GetByIdAsync(
+                                            id: model.PlanbookId,
+                                            includeProperties: "PlanbookInCollections.PlanbookCollection");
+
+                if (planbook is null)
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "Planbook not found."
+                    };
+                }
+
+                // Kiểm tra nếu SharedTo rỗng, xóa tất cả chia sẻ
+                if (model.SharedTo is null || !model.SharedTo.Any())
+                {
+                    var sharesToDelete = await _unitOfWork.PlanbookShareRepository
+                        .GetAllAsync(ps => ps.PlanbookId == model.PlanbookId);
+
+                    // Xóa tất cả chia sẻ
+                    _unitOfWork.PlanbookShareRepository.DeleteRange(sharesToDelete);
+                    await _unitOfWork.SaveChangeAsync();
+
+                    return new ResponseModel
+                    {
+                        Success = true,
+                        Message = "Planbook sharing updated successfully."
+                    };
+                }
+
+                // Lấy danh sách tất cả các userId từ danh sách SharedTo
+                var userIds = model.SharedTo.Select(x => x.UserId).ToList();
+
+                // Kiểm tra các userId tồn tại
+                var users = await _unitOfWork.AccountRepository.GetByIdsAsync(userIds);
+
+                if (users.Count != userIds.Count)
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "Some users not found."
+                    };
+                }
+
+                var existingShares = await _unitOfWork.PlanbookShareRepository
+                    .GetAllAsync(ps => ps.PlanbookId == model.PlanbookId);
+
+                // Sử dụng dictionary để tra cứu nhanh
+                var existingSharesDict = existingShares.ToDictionary(x => x.SharedTo);
+
+                // Xử lý chia sẻ mới hoặc cập nhật
+                var newShares = new List<PlanbookShare>();
+
+                foreach (var userShare in model.SharedTo)
+                {
+                    var shareExists = existingSharesDict.TryGetValue(userShare.UserId, out var existingShare);
+
+                    if (shareExists)
+                    {
+                        // Nếu chia sẻ đã tồn tại, cập nhật IsEdited
+                        existingShare.IsEdited = userShare.IsEdited;
+                        _unitOfWork.PlanbookShareRepository.Update(existingShare);
+                    }
+                    else
+                    {
+                        // Nếu chưa có chia sẻ, tạo mới
+                        var planbookShare = new PlanbookShare
+                        {
+                            ShareId = Guid.NewGuid().ToString(),
+                            PlanbookId = model.PlanbookId,
+                            SharedBy = planbook.PlanbookInCollections.FirstOrDefault()?.PlanbookCollection?.TeacherId,
+                            SharedTo = userShare.UserId,
+                            IsEdited = userShare.IsEdited
+                        };
+
+                        newShares.Add(planbookShare);
+                    }
+                }
+
+                // Thêm chia sẻ mới
+                if (newShares.Any())
+                {
+                    await _unitOfWork.PlanbookShareRepository.AddRangeAsync(newShares);
+                }
+
+                await _unitOfWork.SaveChangeAsync();
+
+                return new ResponseModel
+                {
+                    Success = true,
+                    Message = "Planbook sharing updated successfully."
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ErrorResponseModel<string>
+                {
+                    Success = false,
+                    Message = "An error occurred while sharing the planbook.",
+                    Errors = new List<string> { ex.Message }
+                };
+            }
+        }
+
+        public async Task<ResponseModel> GetUserSharedByPlanbookAsync(string planbookId)
+        {
+            try
+            {
+                // Lấy thông tin về Planbook từ PlanbookInCollections hoặc cách khác để xác định chủ sở hữu
+                var planbook = await _unitOfWork.PlanbookRepository.GetByIdAsync(planbookId, includeProperties: "PlanbookInCollections.PlanbookCollection");
+
+                if (planbook is null)
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "Planbook not found."
+                    };
+                }
+
+                // Lấy thông tin chủ sở hữu từ PlanbookInCollections
+                var ownerUserId = planbook.PlanbookInCollections?.FirstOrDefault()?.PlanbookCollection?.TeacherId;
+
+                // Lấy tất cả các bản ghi chia sẻ từ PlanbookShare tương ứng với PlanbookId
+                var shares = await _unitOfWork.PlanbookShareRepository.GetAllAsync(ps => ps.PlanbookId == planbookId);
+
+                // Lấy danh sách UserIds từ các bản ghi chia sẻ
+                var userIds = shares?.Select(x => x.SharedTo).ToList() ?? new List<string>();
+
+                // Lấy thông tin người dùng từ UserIds
+                var users = userIds.Any() ? await _unitOfWork.AccountRepository.GetByIdsAsync(userIds)
+                                            : new List<User>();
+
+                // Tạo danh sách để chứa thông tin người dùng bao gồm cả chủ sở hữu
+                var sharedBy = new List<ViewListUserPlanbookShareDTO>();
+
+                // Thêm chủ sở hữu vào danh sách
+                var owner = await _unitOfWork.AccountRepository.GetByIdAsync(id: ownerUserId, includeProperties: "Avatar");
+                if (owner is not null)
+                {
+                    var ownerDto = _mapper.Map<ViewListUserPlanbookShareDTO>(owner);
+                    ownerDto.IsEdited = true; // Chủ sở hữu không có quyền chỉnh sửa từ chia sẻ
+                    ownerDto.IsOwner = true;
+                    sharedBy.Add(ownerDto);
+                }
+
+                // Thêm các người dùng được chia sẻ vào danh sách
+                foreach (var user in users)
+                {
+                    var sharedUserDto = _mapper.Map<ViewListUserPlanbookShareDTO>(user);
+                    var shareRecord = shares?.FirstOrDefault(x => x.SharedTo == user.UserId);
+                    if (shareRecord is not null)
+                    {
+                        sharedUserDto.IsEdited = shareRecord.IsEdited;
+                    }
+                    sharedBy.Add(sharedUserDto);
+                }
+
+                // Trả về kết quả với dữ liệu đã chuyển đổi
+                return new SuccessResponseModel<object>
+                {
+                    Success = true,
+                    Message = "Planbook shared by retrieved successfully.",
+                    Data = sharedBy
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ErrorResponseModel<string>
+                {
+                    Success = false,
+                    Message = "An error occurred while retrieving the planbook shared by.",
+                    Errors = new List<string> { ex.Message }
+                };
+            }
+        }
+
+        public async Task<ResponseModel> GetUserToSharedPlanbookAsync(string planbookId)
+        {
+            try
+            {
+                // Lấy tất cả người dùng từ hệ thống
+                var allUsers = await _unitOfWork.AccountRepository.GetAllAsync(includeProperties: "Avatar");
+
+                // Lấy thông tin chủ sở hữu từ PlanbookInCollections
+                var planbook = await _unitOfWork.PlanbookRepository.GetByIdAsync(planbookId, includeProperties: "PlanbookInCollections.PlanbookCollection");
+                var ownerUserId = planbook?.PlanbookInCollections?.FirstOrDefault()?.PlanbookCollection?.TeacherId;
+
+                // Lấy danh sách chia sẻ từ PlanbookShare
+                var sharedUsers = await _unitOfWork.PlanbookShareRepository.GetAllAsync(ps => ps.PlanbookId == planbookId);
+
+                // Danh sách UserIds đã được chia sẻ
+                var sharedUserIds = sharedUsers.Select(ps => ps.SharedTo).ToHashSet();
+
+                // Lọc người dùng chưa được chia sẻ
+                var notSharedUsers = allUsers.Where(user => !sharedUserIds.Contains(user.UserId) && user.UserId != ownerUserId).ToList();
+
+                // Sử dụng AutoMapper để chuyển đổi sang DTO
+                var notSharedUserDtos = _mapper.Map<List<ViewListUserToPlanbookShareDTO>>(notSharedUsers);
+
+                // Trả về kết quả
+                return new SuccessResponseModel<object>
+                {
+                    Success = true,
+                    Message = "Users retrieved successfully.",
+                    Data = notSharedUserDtos
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ErrorResponseModel<object>
+                {
+                    Success = false,
+                    Message = "An error occurred while retrieving users not shared with the planbook.",
+                    Errors = new List<string> { ex.Message }
+                };
+            }
+        }
+
+        public async Task<ResponseModel> GetSharedPlanbookByUserIdAsync(string userId)
+        {
+            try
+            {
+                // Lấy danh sách các bản ghi chia sẻ từ PlanbookShare dựa vào userId
+                var sharedPlanbooks = await _unitOfWork.PlanbookShareRepository.GetAllAsync(
+                                                    filter: ps => ps.SharedTo.Equals(userId),
+                                                    includeProperties: "PlanBook.PlanbookInCollections.PlanbookCollection,PlanBook.Lesson.Chapter.SubjectInCurriculum.Subject,PlanBook.Lesson.Chapter.SubjectInCurriculum.Curriculum,PlanBook.Lesson.Chapter.SubjectInCurriculum.Grade");
+
+                // Lấy danh sách Planbooks từ bản ghi chia sẻ
+                var planbooks = sharedPlanbooks.Select(ps => ps.Planbook).Distinct().ToList();
+
+                // Sử dụng AutoMapper để chuyển đổi sang DTO
+                var planbookDtos = _mapper.Map<List<ViewListPlanbookDTO>>(planbooks);
+
+                // Trả về danh sách DTO
+                return new SuccessResponseModel<object>
+                {
+                    Success = true,
+                    Message = "Shared planbooks retrieved successfully.",
+                    Data = planbookDtos
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ErrorResponseModel<object>
+                {
+                    Success = false,
+                    Message = "An error occurred while retrieving the planbooks shared with user.",
                     Errors = new List<string> { ex.Message }
                 };
             }
