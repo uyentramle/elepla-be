@@ -1071,6 +1071,15 @@ namespace Elepla.Service.Services
                 // Sử dụng dictionary để tra cứu nhanh
                 var existingSharesDict = existingShares.ToDictionary(x => x.SharedTo);
 
+                // Danh sách chia sẻ cần xóa
+                var sharesToRemove = existingShares.Where(ps => !userIds.Contains(ps.SharedTo)).ToList();
+
+                // Xóa những chia sẻ không còn trong danh sách SharedTo
+                if (sharesToRemove.Any())
+                {
+                    _unitOfWork.PlanbookShareRepository.DeleteRange(sharesToRemove);
+                }
+
                 // Xử lý chia sẻ mới hoặc cập nhật
                 var newShares = new List<PlanbookShare>();
 
@@ -1202,11 +1211,21 @@ namespace Elepla.Service.Services
         {
             try
             {
+                var planbook = await _unitOfWork.PlanbookRepository.GetByIdAsync(planbookId, includeProperties: "PlanbookInCollections.PlanbookCollection");
+
+                if (planbook is null)
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "Planbook not found."
+                    };
+                }
+
                 // Lấy tất cả người dùng từ hệ thống
                 var allUsers = await _unitOfWork.AccountRepository.GetAllAsync(includeProperties: "Avatar");
 
                 // Lấy thông tin chủ sở hữu từ PlanbookInCollections
-                var planbook = await _unitOfWork.PlanbookRepository.GetByIdAsync(planbookId, includeProperties: "PlanbookInCollections.PlanbookCollection");
                 var ownerUserId = planbook?.PlanbookInCollections?.FirstOrDefault()?.PlanbookCollection?.TeacherId;
 
                 // Lấy danh sách chia sẻ từ PlanbookShare
@@ -1247,7 +1266,7 @@ namespace Elepla.Service.Services
                 // Lấy danh sách các bản ghi chia sẻ từ PlanbookShare dựa vào userId
                 var sharedPlanbooks = await _unitOfWork.PlanbookShareRepository.GetAllAsync(
                                                     filter: ps => ps.SharedTo.Equals(userId),
-                                                    includeProperties: "PlanBook.PlanbookInCollections.PlanbookCollection,PlanBook.Lesson.Chapter.SubjectInCurriculum.Subject,PlanBook.Lesson.Chapter.SubjectInCurriculum.Curriculum,PlanBook.Lesson.Chapter.SubjectInCurriculum.Grade");
+                                                    includeProperties: "Planbook.PlanbookInCollections.PlanbookCollection,Planbook.Lesson.Chapter.SubjectInCurriculum.Subject,Planbook.Lesson.Chapter.SubjectInCurriculum.Curriculum,Planbook.Lesson.Chapter.SubjectInCurriculum.Grade");
 
                 // Lấy danh sách Planbooks từ bản ghi chia sẻ
                 var planbooks = sharedPlanbooks.Select(ps => ps.Planbook).Distinct().ToList();
