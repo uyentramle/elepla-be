@@ -55,7 +55,7 @@ namespace Elepla.Repository.FluentAPIs
                 .OnDelete(DeleteBehavior.Cascade); // Xóa Feedbacks khi xóa Planbook
             builder.HasMany(x => x.PlanbookShares)
                 .WithOne(x => x.Planbook)
-				.HasForeignKey(x => x.PlanbookId)
+                .HasForeignKey(x => x.PlanbookId)
                 .OnDelete(DeleteBehavior.Cascade); // Xóa PlanbookShares khi xóa Planbook
         }
     }

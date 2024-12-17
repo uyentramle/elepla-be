@@ -19,14 +19,14 @@ namespace Elepla.Repository.FluentAPIs
 				.WithMany(x => x.PlanbookShares)
 				.HasForeignKey(x => x.PlanbookId)
 				.OnDelete(DeleteBehavior.Cascade); // Xóa PlanbookShares khi xóa Planbook
-            builder.HasOne(x => x.SharedByUser)
-                .WithMany()
-                .HasForeignKey(x => x.SharedBy)
-                .OnDelete(DeleteBehavior.Restrict);
-            builder.HasOne(x => x.SharedToUser)
-                .WithMany()
-                .HasForeignKey(x => x.SharedTo)
-                .OnDelete(DeleteBehavior.Restrict);
-        }
+			builder.HasOne(x => x.SharedByUser)
+				.WithMany(x => x.SharedPlanbooks)
+				.HasForeignKey(x => x.SharedBy)
+				.OnDelete(DeleteBehavior.Restrict);
+			builder.HasOne(x => x.SharedToUser)
+				.WithMany(x => x.ReceivedPlanbooks)
+				.HasForeignKey(x => x.SharedTo)
+				.OnDelete(DeleteBehavior.Restrict);
+		}
 	}
 }
