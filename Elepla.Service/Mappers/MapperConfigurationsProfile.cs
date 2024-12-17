@@ -713,6 +713,29 @@ namespace Elepla.Service.Mappers
                 .ForMember(dest => dest.DeletedBy, opt => opt.MapFrom(src => src.DeletedBy))
                 .ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => src.IsDeleted))
                 .ReverseMap();
+
+            CreateMap<Planbook, ViewListPlanbookSharedDTO>()
+                .ForMember(dest => dest.PlanbookId, opt => opt.MapFrom(src => src.PlanbookId))
+                .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
+                .ForMember(dest => dest.SchoolName, opt => opt.MapFrom(src => src.SchoolName))
+                .ForMember(dest => dest.GroupName, opt => opt.MapFrom(src => src.GroupName))
+                .ForMember(dest => dest.TeacherName, opt => opt.MapFrom(src => src.TeacherName))
+                .ForMember(dest => dest.Subject, opt => opt.MapFrom(src => src.Lesson.Chapter.SubjectInCurriculum.Subject.Name))
+                .ForMember(dest => dest.Curriculum, opt => opt.MapFrom(src => src.Lesson.Chapter.SubjectInCurriculum.Curriculum.Name))
+                .ForMember(dest => dest.Grade, opt => opt.MapFrom(src => src.Lesson.Chapter.SubjectInCurriculum.Grade.Name))
+                .ForMember(dest => dest.ClassName, opt => opt.MapFrom(src => src.ClassName))
+                .ForMember(dest => dest.IsPublic, opt => opt.MapFrom(src => src.IsPublic))
+                .ForMember(dest => dest.LessonId, opt => opt.MapFrom(src => src.LessonId))
+                .ForMember(dest => dest.LessonName, opt => opt.MapFrom(src => src.Lesson.Name))
+                .ForMember(dest => dest.ChapterName, opt => opt.MapFrom(src => src.Lesson.Chapter.Name))
+                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
+                .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom(src => src.CreatedBy))
+                .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.UpdatedAt))
+                .ForMember(dest => dest.UpdatedBy, opt => opt.MapFrom(src => src.UpdatedBy))
+                .ForMember(dest => dest.DeletedAt, opt => opt.MapFrom(src => src.DeletedAt))
+                .ForMember(dest => dest.DeletedBy, opt => opt.MapFrom(src => src.DeletedBy))
+                .ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => src.IsDeleted))
+                .ReverseMap();
             #endregion
 
             #region PlanbookActivity

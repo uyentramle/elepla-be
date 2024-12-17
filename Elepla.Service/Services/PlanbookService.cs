@@ -1272,7 +1272,17 @@ namespace Elepla.Service.Services
                 var planbooks = sharedPlanbooks.Select(ps => ps.Planbook).Distinct().ToList();
 
                 // Sử dụng AutoMapper để chuyển đổi sang DTO
-                var planbookDtos = _mapper.Map<List<ViewListPlanbookDTO>>(planbooks);
+                var planbookDtos = _mapper.Map<List<ViewListPlanbookSharedDTO>>(planbooks);
+
+                // Lấy IsEdited từ PlanbookShare để ánh xạ vào DTO
+                foreach (var dto in planbookDtos)
+                {
+                    var sharedPlanbook = sharedPlanbooks.FirstOrDefault(ps => ps.PlanbookId == dto.PlanbookId && ps.SharedTo == userId);
+                    if (sharedPlanbook != null)
+                    {
+                        dto.IsEdited = sharedPlanbook.IsEdited;
+                    }
+                }
 
                 // Trả về danh sách DTO
                 return new SuccessResponseModel<object>
