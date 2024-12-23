@@ -919,6 +919,7 @@ namespace Elepla.Service.Mappers
 				.ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
 				.ForMember(dest => dest.Objectives, opt => opt.MapFrom(src => src.Objectives))
 				.ForMember(dest => dest.Content, opt => opt.MapFrom(src => src.Content))
+				.ForMember(dest => dest.SubjectInCurriculumId, opt => opt.MapFrom(src => src.Chapter.SubjectInCurriculumId))
                 .ForMember(dest => dest.ChapterId, opt => opt.MapFrom(src => src.ChapterId))
                 .ForMember(dest => dest.ChapterName, opt => opt.MapFrom(src => src.Chapter.Name))
                 .ForMember(dest => dest.SubjectId, opt => opt.MapFrom(src => src.Chapter.SubjectInCurriculum.Subject.SubjectId))

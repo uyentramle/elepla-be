@@ -12,6 +12,7 @@ namespace Elepla.Service.Models.ViewModels.LessonViewModels
         public string Name { get; set; }
         public string? Objectives { get; set; }
         public string? Content { get; set; }
+        public string SubjectInCurriculumId { get; set; }
         public string ChapterId { get; set; }
         public string ChapterName { get; set; }
         public string SubjectId { get; set; }
