@@ -31,7 +31,7 @@ namespace Elepla.Service.Services
         public async Task<ResponseModel> GetAllUserPackagesAsync(string? keyword, int pageIndex, int pageSize)
         {
             var userPackages = await _unitOfWork.UserPackageRepository.GetAsync(
-                filter: up => !up.IsDeleted && (string.IsNullOrEmpty(keyword) || up.Package.PackageName.Contains(keyword)),
+                filter: up => !up.IsDeleted && (string.IsNullOrEmpty(keyword) || up.Package.PackageName.Contains(keyword)) && up.User.Role.Name != "Admin" && up.User.Role.Name != "AcademicStaff" && up.User.Role.Name != "Manager",
                 orderBy: up => up.OrderByDescending(p => p.CreatedAt),
                 includeProperties: "Package,User,Payments",
                 pageIndex: pageIndex,

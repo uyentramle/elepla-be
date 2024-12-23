@@ -30,7 +30,7 @@ namespace Elepla.Service.Services
             var lessons = await _unitOfWork.LessonRepository.GetAsync(
                                                    filter: l => !l.IsDeleted && (string.IsNullOrEmpty(keyword) || l.Name.Contains(keyword)),
                                                    orderBy: l => l.OrderBy(l => l.Name),
-                                                   includeProperties: "Chapter",
+                                                   includeProperties: "Chapter.SubjectInCurriculum.Subject,Chapter.SubjectInCurriculum.Curriculum,Chapter.SubjectInCurriculum.Grade",
                                                    pageIndex: pageIndex,
                                                    pageSize: pageSize);
 
@@ -49,7 +49,7 @@ namespace Elepla.Service.Services
             var lessons = await _unitOfWork.LessonRepository.GetAllAsync(
                                         filter: l => !l.IsDeleted && l.ChapterId.Equals(chapterId),
                                         orderBy: l => l.OrderBy(l => l.Name),
-                                        includeProperties: "Chapter");
+                                        includeProperties: "Chapter.SubjectInCurriculum.Subject,Chapter.SubjectInCurriculum.Curriculum,Chapter.SubjectInCurriculum.Grade");
 
             var lessonDtos = _mapper.Map<List<ViewListLessonDTO>>(lessons);
 
@@ -66,7 +66,7 @@ namespace Elepla.Service.Services
             var lesson = await _unitOfWork.LessonRepository.GetByIdAsync(
                                         id: lessonId,
                                         filter: l => !l.IsDeleted,
-                                        includeProperties: "Chapter");
+                                        includeProperties: "Chapter.SubjectInCurriculum.Subject,Chapter.SubjectInCurriculum.Curriculum,Chapter.SubjectInCurriculum.Grade");
 
             if (lesson == null)
             {

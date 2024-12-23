@@ -174,7 +174,7 @@ namespace Elepla.Service.Services
         {
             var flaggedFeedbacks = await _unitOfWork.FeedbackRepository.GetAsync(
                 filter: f => f.IsFlagged && !f.IsDeleted,
-                includeProperties: "Teacher,Planbook",
+                includeProperties: "Teacher.Avatar,Planbook",
                 pageIndex: pageIndex,
                 pageSize: pageSize
             );
@@ -194,7 +194,7 @@ namespace Elepla.Service.Services
 		{
 			var systemFeedbacks = await _unitOfWork.FeedbackRepository.GetAsync(
 						            filter: f => f.Type == "System" && !f.IsDeleted,
-									includeProperties: "Teacher,Planbook",
+									includeProperties: "Teacher.Avatar,Planbook",
 									pageIndex: pageIndex,
 									pageSize: pageSize
 									);
@@ -214,7 +214,7 @@ namespace Elepla.Service.Services
 		{
 			var planbookFeedbacks = await _unitOfWork.FeedbackRepository.GetAsync(
 									filter: f => f.Type == "Planbook" && !f.IsDeleted,
-				                    includeProperties: "Teacher,Planbook",
+				                    includeProperties: "Teacher.Avatar,Planbook",
 									pageIndex: pageIndex,
 									pageSize: pageSize
                                     );

@@ -37,6 +37,7 @@ namespace Elepla.Service.Services
             var planbooks = await _unitOfWork.PlanbookRepository.GetAsync(
                             filter: r => r.IsDeleted == false && r.IsPublic && !r.IsDefault,
                             includeProperties: "Lesson.Chapter.SubjectInCurriculum.Subject,Lesson.Chapter.SubjectInCurriculum.Curriculum,Lesson.Chapter.SubjectInCurriculum.Grade,Feedbacks",
+                            orderBy: r => r.OrderByDescending(r => r.CreatedAt),
                             pageIndex: pageIndex,
                             pageSize: pageSize
                             );
@@ -1223,7 +1224,9 @@ namespace Elepla.Service.Services
                 }
 
                 // Lấy tất cả người dùng từ hệ thống
-                var allUsers = await _unitOfWork.AccountRepository.GetAllAsync(includeProperties: "Avatar");
+                var allUsers = await _unitOfWork.AccountRepository.GetAllAsync(
+                                            filter: u => u.Role.Name != "Admin" && u.Role.Name != "AcademicStaff" && u.Role.Name != "Manager",
+                                            includeProperties: "Avatar,Role");
 
                 // Lấy thông tin chủ sở hữu từ PlanbookInCollections
                 var ownerUserId = planbook?.PlanbookInCollections?.FirstOrDefault()?.PlanbookCollection?.TeacherId;

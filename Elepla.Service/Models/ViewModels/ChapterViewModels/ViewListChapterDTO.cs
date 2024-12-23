@@ -12,6 +12,9 @@ namespace Elepla.Service.Models.ViewModels.ChapterViewModels
         public string Name { get; set; }
         public string Description { get; set; }
         public string SubjectInCurriculum { get; set; }
+        public string Subject { get; set; }
+        public string Grade { get; set; }
+        public string Curriculum { get; set; }
         public List<string> Lessons { get; set; }
         public DateTime CreatedAt { get; set; }
         public string CreatedBy { get; set; }
