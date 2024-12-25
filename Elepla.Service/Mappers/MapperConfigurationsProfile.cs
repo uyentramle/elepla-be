@@ -295,7 +295,8 @@ namespace Elepla.Service.Mappers
 				.ForMember(dest => dest.Question, opt => opt.MapFrom(src => src.Question))
 				.ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
 				.ForMember(dest => dest.Plum, opt => opt.MapFrom(src => src.Plum))
-				.ForMember(dest => dest.ChapterId, opt => opt.MapFrom(src => src.ChapterId))
+                .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault))
+                .ForMember(dest => dest.ChapterId, opt => opt.MapFrom(src => src.ChapterId))
 				.ForMember(dest => dest.LessonId, opt => opt.MapFrom(src => src.LessonId))
 				.ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => false))
 				.ReverseMap();
