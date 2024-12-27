@@ -80,12 +80,11 @@ namespace Elepla.Repository.Repositories
                 query = orderBy(query);
             }
 
-            int totalItemsCount = 0;
+            int totalItemsCount = await query.CountAsync();
 
-            // Kiểm tra nếu query không null
-            if (query != null)
+            if (totalItemsCount == 0)
             {
-                totalItemsCount = await query.CountAsync();
+                totalItemsCount = 10;
             }
 
             // Implementing pagination
