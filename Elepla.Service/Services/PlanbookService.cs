@@ -23,12 +23,14 @@ namespace Elepla.Service.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IOpenAIService _openAIService;
+        private readonly IClaimsService _claimsService;
 
-        public PlanbookService(IUnitOfWork unitOfWork, IMapper mapper, IOpenAIService openAIService)
+        public PlanbookService(IUnitOfWork unitOfWork, IMapper mapper, IOpenAIService openAIService, IClaimsService claimsService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _openAIService = openAIService;
+            _claimsService = claimsService;
         }
 
         #region Get All Planbooks
@@ -149,6 +151,18 @@ namespace Elepla.Service.Services
             //        item.LessonName = lesson.Name;
             //    }
             //}
+
+            var existingCollection = await _unitOfWork.PlanbookCollectionRepository.GetByIdAsync(collectionId);
+
+            if (existingCollection is null)
+            {
+                return new ResponseModel
+                {
+                    Success = false,
+                    Message = "Collection not found."
+                };
+            }
+
             var planbooks = await _unitOfWork.PlanbookRepository.GetAsync(
                     filter: r => r.PlanbookInCollections.Any(pc => pc.CollectionId == collectionId) && !r.IsDeleted,
                     includeProperties: "Lesson,PlanbookInCollections.PlanbookCollection",
@@ -372,7 +386,9 @@ namespace Elepla.Service.Services
             try
             {
                 // Kiểm tra planbookDto có tồn tại không
-                var planbook = await _unitOfWork.PlanbookRepository.GetByIdAsync(model.PlanbookId);
+                var planbook = await _unitOfWork.PlanbookRepository.GetByIdAsync(
+                                                                       id: model.PlanbookId,
+                                                                       includeProperties: "PlanbookShares");
                 if (planbook is null)
                 {
                     return new ResponseModel
@@ -380,6 +396,23 @@ namespace Elepla.Service.Services
                         Success = false,
                         Message = "Planbook not found."
                     };
+                }
+
+                if (!planbook.IsDefault)
+                {
+                    // Kiểm tra xem người dùng có quyền chỉnh sửa planbook không
+                    var currentUser = _claimsService.GetCurrentUserId().ToString();
+                    var isOwner = planbook.CreatedBy.Equals(currentUser);
+                    var isShared = planbook.PlanbookShares.Any(s => s.SharedTo == currentUser);
+
+                    if (!isOwner && !isShared)
+                    {
+                        return new ResponseModel
+                        {
+                            Success = false,
+                            Message = "Bạn không có quyền chỉnh sửa kế hoạch này."
+                        };
+                    }
                 }
 
                 // Cập nhật Planbook
