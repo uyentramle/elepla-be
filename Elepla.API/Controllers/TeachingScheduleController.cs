@@ -112,12 +112,27 @@ namespace Elepla.API.Controllers
         }
         #endregion
 
-        #region Add Teaching Schedule To Google Calendar
-        [HttpPost]
-        public async Task<IActionResult> AddTeachingScheduleToGoogleCalendar(string scheduleId)
+        #region Get Google Authorization URL
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetGoogleAuthUrl(string scheduleId)
         {
-            var response = await _teachingScheduleService.AddTeachingScheduleToGoogleCalendarAsync(scheduleId);
+            var response = await _teachingScheduleService.GetGoogleAuthUrlAsync(scheduleId);
+            if (response.Success)
+            {
+                return Ok(response);
+            }
 
+            return BadRequest(response);
+        }
+        #endregion
+
+        #region Add Teaching Schedule to Google Calendar
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> AddTeachingScheduleToGoogleCalendar(string scheduleId, [FromBody] string authorizationCode)
+        {
+            var response = await _teachingScheduleService.AddTeachingScheduleToGoogleCalendarAsync(scheduleId, authorizationCode);
             if (response.Success)
             {
                 return Ok(response);

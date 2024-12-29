@@ -1,86 +1,102 @@
-﻿using Google.Apis.Auth.OAuth2;
-using Google.Apis.Auth.OAuth2.Responses;
-using Google.Apis.Auth.OAuth2.Requests;
+﻿using Elepla.Service.Common;
+using Elepla.Service.Interfaces;
+using Elepla.Service.Models.ViewModels.AuthViewModels;
+using Google.Apis.Auth.OAuth2;
 using Google.Apis.Calendar.v3;
 using Google.Apis.Calendar.v3.Data;
 using Google.Apis.Services;
-using Elepla.Domain.Entities;
+using Microsoft.Extensions.Caching.Memory;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
-using System.Diagnostics;
+using System.Collections.Generic;
 using System.IO;
-using System.Net;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Elepla.Service.Interfaces;
-using Google.Apis.Util.Store;
-using Microsoft.AspNetCore.Http;
 
 namespace Elepla.Service.Utils
 {
     public class GoogleCalendarService : IGoogleCalendarService
     {
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private CalendarService _calendarService;
+        private readonly string clientId;
+        private readonly string clientSecret;
+        private readonly string redirectUri;
+        private readonly IMemoryCache _cache;
 
-        public GoogleCalendarService(IHttpContextAccessor httpContextAccessor)
+
+        public GoogleCalendarService(IMemoryCache cache)
         {
-            _httpContextAccessor = httpContextAccessor;
+            _cache = cache;
+
+            // Đọc thông tin từ credential.json
+            var credentialPath = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "credential.json");
+            var credentialJson = File.ReadAllText(credentialPath);
+            var credentialData = JObject.Parse(credentialJson);
+
+            clientId = credentialData["web"]["client_id"]?.ToString();
+            clientSecret = credentialData["web"]["client_secret"]?.ToString();
+            redirectUri = credentialData["web"]["redirect_uris"]?[0]?.ToString();
         }
 
-        public async Task<Event> AddEventToCalendarAsync(Event calendarEvent)
+        public string GenerateAuthorizationUrl(string scheduleId)
         {
-            var calendarService = GetCalendarService(); // Method to initialize and return CalendarService
+            // Tạo URL xác thực Google OAuth 2.0 với state chứa scheduleId để nhận diện
+            var authorizationUrl = new UriBuilder("https://accounts.google.com/o/oauth2/v2/auth")
+            {
+                Query = $"client_id={clientId}" +
+                        $"&redirect_uri={redirectUri}" +
+                        $"&response_type=code" +
+                        $"&scope=https://www.googleapis.com/auth/calendar" +
+                        $"&state={scheduleId}" +
+                        $"&access_type=offline" +
+                        $"&prompt=consent"
+            };
+
+            return authorizationUrl.ToString();
+        }
+
+        public async Task<Event> AddEventToCalendarAfterAuthorizationAsync(string authorizationCode, Event calendarEvent)
+        {
+            // Lấy Access Token từ Authorization Code
+            string accessToken = await GetAccessTokenFromAuthorizationCode(authorizationCode);
+
+            // Tạo dịch vụ Google Calendar
+            var calendarService = new CalendarService(new BaseClientService.Initializer
+            {
+                HttpClientInitializer = GoogleCredential.FromAccessToken(accessToken),
+                ApplicationName = "Elepla"
+            });
+
+            // Thêm sự kiện vào Google Calendar
             var insertRequest = calendarService.Events.Insert(calendarEvent, "primary");
             return await insertRequest.ExecuteAsync();
         }
-
-        private CalendarService GetCalendarService()
+        
+        private async Task<string> GetAccessTokenFromAuthorizationCode(string authorizationCode)
         {
-            // Initialize Google Calendar Service with credentials
-            var credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
-                GoogleClientSecrets.FromFile("Resources/credential.json").Secrets,
-                new[] { CalendarService.Scope.Calendar },
-                "user",
-                CancellationToken.None
-            //new FileDataStore("Credentials", true),
-            //new CustomCodeReceiver("https://eleplaclone-production.up.railway.app/")
-            ).Result;
-
-            return new CalendarService(new BaseClientService.Initializer
+            using (var httpClient = new HttpClient())
             {
-                HttpClientInitializer = credential,
-                ApplicationName = "Elepla"
-            });
-        }
-
-        // CustomCodeReceiver implementation inside the same class
-        private class CustomCodeReceiver : ICodeReceiver
-        {
-            private readonly string _redirectUri;
-
-            public CustomCodeReceiver(string redirectUri)
-            {
-                _redirectUri = redirectUri;
-            }
-
-            public string RedirectUri => _redirectUri;
-
-            public async Task<AuthorizationCodeResponseUrl> ReceiveCodeAsync(AuthorizationCodeRequestUrl url, CancellationToken cancellationToken)
-            {
-                // Open the authorization URL in the default browser
-                Process.Start(new ProcessStartInfo(url.Build().ToString()) { UseShellExecute = true });
-
-                // Simulate receiving the code manually
-                Console.WriteLine("Enter the authorization code:");
-                string code = Console.ReadLine();
-
-                // Create and return an AuthorizationCodeResponseUrl instance
-                var responseUrl = new AuthorizationCodeResponseUrl
+                var values = new Dictionary<string, string>
                 {
-                    Code = code
+                    { "code", authorizationCode },
+                    { "client_id", clientId },
+                    { "client_secret", clientSecret },
+                    { "redirect_uri", redirectUri },
+                    { "grant_type", "authorization_code" }
                 };
 
-                return await Task.FromResult(responseUrl);
+                var content = new FormUrlEncodedContent(values);
+                var response = await httpClient.PostAsync("https://oauth2.googleapis.com/token", content);
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new Exception($"Không thể lấy Access Token: {responseContent}");
+                }
+
+                var tokenData = JObject.Parse(responseContent);
+                return tokenData["access_token"]?.ToString();
             }
         }
     }

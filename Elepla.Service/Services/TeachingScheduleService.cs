@@ -203,13 +203,12 @@ namespace Elepla.Service.Services
             }
         }
 
-        public async Task<ResponseModel> AddTeachingScheduleToGoogleCalendarAsync(string scheduleId)
+        public async Task<ResponseModel> GetGoogleAuthUrlAsync(string scheduleId)
         {
             try
             {
-                // Fetch teaching schedule by ID using GetByIdAsync from the repository
-                var schedule = await _unitOfWork.TeachingScheduleRepository.GetByIdAsync(scheduleId, includeProperties: "Teacher,Planbook");
-
+                // Lấy thông tin lịch từ database
+                var schedule = await _unitOfWork.TeachingScheduleRepository.GetByIdAsync(scheduleId);
                 if (schedule == null)
                 {
                     return new ResponseModel
@@ -219,7 +218,54 @@ namespace Elepla.Service.Services
                     };
                 }
 
-                // Parse StartTime and EndTime as DateTime
+                // Tạo URL xác thực Google
+                string authUrl = _googleCalendarService.GenerateAuthorizationUrl(scheduleId);
+
+                return new SuccessResponseModel<object>
+                {
+                    Success = true,
+                    Message = "Authorization URL generated successfully.",
+                    Data = authUrl
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ErrorResponseModel<object>
+                {
+                    Success = false,
+                    Message = "An error occurred while generating the authorization URL.",
+                    Errors = new List<string> { ex.Message }
+                };
+            }
+        }
+
+        public async Task<ResponseModel> AddTeachingScheduleToGoogleCalendarAsync(string scheduleId, string authorizationCode)
+        {
+            try
+            {
+                // Lấy thông tin lịch từ database
+                var schedule = await _unitOfWork.TeachingScheduleRepository.GetByIdAsync(scheduleId, includeProperties: "Teacher,Planbook");
+                if (schedule == null)
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "Teaching schedule not found."
+                    };
+                }
+
+                // Lấy thông tin giáo viên từ UserId trong schedule
+                var teacher = schedule.Teacher;
+                if (teacher == null || string.IsNullOrEmpty(teacher.GoogleEmail))
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "Teacher does not have a linked Google account. Please connect a Google account before adding to calendar."
+                    };
+                }
+
+                // Parse StartTime và EndTime
                 if (!DateTime.TryParse(schedule.StartTime, out DateTime startTime) ||
                     !DateTime.TryParse(schedule.EndTime, out DateTime endTime))
                 {
@@ -257,22 +303,14 @@ namespace Elepla.Service.Services
                     Location = schedule.ClassName
                 };
 
-                // Add event to Google Calendar using GoogleCalendarService
-                var eventResponse = await _googleCalendarService.AddEventToCalendarAsync(calendarEvent);
+                // Thêm sự kiện vào Google Calendar sau xác thực
+                var createdEvent = await _googleCalendarService.AddEventToCalendarAfterAuthorizationAsync(authorizationCode, calendarEvent);
 
-                if (eventResponse == null)
-                {
-                    return new ResponseModel
-                    {
-                        Success = false,
-                        Message = "Failed to add teaching schedule to Google Calendar."
-                    };
-                }
-
-                return new ResponseModel
+                return new SuccessResponseModel<object>
                 {
                     Success = true,
-                    Message = "Teaching schedule successfully added to Google Calendar."
+                    Message = "Teaching schedule successfully added to Google Calendar.",
+                    Data = createdEvent.HtmlLink
                 };
             }
             catch (Exception ex)
@@ -285,7 +323,5 @@ namespace Elepla.Service.Services
                 };
             }
         }
-
-
     }
 }
