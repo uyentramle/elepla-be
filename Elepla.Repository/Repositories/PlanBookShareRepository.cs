@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace Elepla.Repository.Repositories
 {
-	public class PlanBookShareRepository : GenericRepository<PlanBookShare>, IPlanBookShareRepository
+	public class PlanbookShareRepository : GenericRepository<PlanbookShare>, IPlanbookShareRepository
 	{
-		public PlanBookShareRepository(AppDbContext dbContext, ITimeService timeService, IClaimsService claimsService) : base(dbContext, timeService, claimsService)
+		public PlanbookShareRepository(AppDbContext dbContext, ITimeService timeService, IClaimsService claimsService) : base(dbContext, timeService, claimsService)
 		{
 		}
 	}

@@ -17,5 +17,8 @@ namespace Elepla.Service.Interfaces
 		Task<ResponseModel> CreateQuestionAsync(CreateQuestionDTO model);
 		Task<ResponseModel> UpdateQuestionAsync(UpdateQuestionDTO model);
 		Task<ResponseModel> DeleteQuestionAsync(string id);
-	}
+		Task<ResponseModel> GetAllQuestionByUserId(string userId, int pageIndex, int pageSize);
+		Task<ResponseModel> GetQuestionByUserIdAndChapterId(string userId, string chapterId, int pageIndex, int pageSize);
+		Task<ResponseModel> GetQuestionByUserIdAndLessonId(string userId, string lessonId, int pageIndex, int pageSize);
+    }
 }

@@ -58,5 +58,10 @@ namespace Elepla.Repository.Repositories
                                           (!string.IsNullOrEmpty(googleEmail) && a.GoogleEmail == googleEmail) ||
                                           (!string.IsNullOrEmpty(facebookEmail) && a.FacebookEmail == facebookEmail));
         }
+
+        public async Task<List<User>> GetByIdsAsync(List<string> userIds)
+        {
+            return await _dbContext.Users.Include(u => u.Avatar).Where(u => userIds.Contains(u.UserId)).ToListAsync();
+        }
     }
 }

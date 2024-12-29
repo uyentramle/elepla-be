@@ -33,7 +33,7 @@ namespace Elepla.Repository.Repositories
         private readonly IPlanbookInCollectionRepository _planbookInCollectionRepository;
         private readonly IPlanbookRepository _planbookRepository;
         private readonly IActivityRepository _activityRepository;
-        private readonly IPlanBookShareRepository _planBookShareRepository;
+        private readonly IPlanbookShareRepository _planbookShareRepository;
         private readonly ITeachingScheduleRepository _teachingScheduleRepository;
         private readonly IFeedbackRepository _feedbackRepository;
         private readonly IExamRepository _examRepository;
@@ -62,7 +62,7 @@ namespace Elepla.Repository.Repositories
             IPlanbookInCollectionRepository planbookInCollectionRepository,
             IPlanbookRepository planbookRepository,
             IActivityRepository activityRepository,
-            IPlanBookShareRepository planBookShareRepository,
+            IPlanbookShareRepository planbookShareRepository,
             ITeachingScheduleRepository teachingScheduleRepository,
             IFeedbackRepository feedbackRepository,
             IExamRepository examRepository,
@@ -91,7 +91,7 @@ namespace Elepla.Repository.Repositories
             _planbookInCollectionRepository = planbookInCollectionRepository;
             _planbookRepository = planbookRepository;
             _activityRepository = activityRepository;
-            _planBookShareRepository = planBookShareRepository;
+            _planbookShareRepository = planbookShareRepository;
             _teachingScheduleRepository = teachingScheduleRepository;
             _feedbackRepository = feedbackRepository;
             _examRepository = examRepository;
@@ -142,7 +142,7 @@ namespace Elepla.Repository.Repositories
 
         public IActivityRepository ActivityRepository => _activityRepository;
 
-		public IPlanBookShareRepository PlanBookShareRepository => _planBookShareRepository;
+		public IPlanbookShareRepository PlanbookShareRepository => _planbookShareRepository;
 
 		public ITeachingScheduleRepository TeachingScheduleRepository => _teachingScheduleRepository;
 

@@ -4,6 +4,7 @@ using Elepla.Repository.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Elepla.Repository.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241217091525_UpdateTablePlanbookShare4")]
+    partial class UpdateTablePlanbookShare4
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -556,6 +559,7 @@ namespace Elepla.Repository.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("AddressText")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
@@ -579,9 +583,6 @@ namespace Elepla.Repository.Migrations
 
                     b.Property<string>("PaymentMethod")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PaymentUrl")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Status")
@@ -841,9 +842,6 @@ namespace Elepla.Repository.Migrations
 
                     b.Property<string>("DeletedBy")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsDefault")
-                        .HasColumnType("bit");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");

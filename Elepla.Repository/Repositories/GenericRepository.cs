@@ -80,7 +80,12 @@ namespace Elepla.Repository.Repositories
                 query = orderBy(query);
             }
 
-            var totalItemsCount = await query.CountAsync();
+            int totalItemsCount = await query.CountAsync();
+
+            if (totalItemsCount == 0)
+            {
+                totalItemsCount = 10;
+            }
 
             // Implementing pagination
             if (pageIndex.HasValue && pageIndex.Value == -1)
@@ -233,6 +238,12 @@ namespace Elepla.Repository.Repositories
                 _dbSet.Attach(entityToDelete);
             }
             _dbSet.Remove(entityToDelete);
+        }
+
+        // Delete range of entities
+        public void DeleteRange(IEnumerable<TEntity> entities)
+        {
+            _dbSet.RemoveRange(entities);
         }
 
         // Count entities with filter

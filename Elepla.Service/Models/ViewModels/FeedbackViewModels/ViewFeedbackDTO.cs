@@ -18,6 +18,7 @@ namespace Elepla.Service.Models.ViewModels.FeedbackViewModels
         public string TeacherName { get; set; }
         public string Avatar { get; set; }
         public string PlanbookId { get; set; }
+        public string PlanbookTitle { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set;}
     }

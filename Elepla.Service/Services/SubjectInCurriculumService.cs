@@ -118,8 +118,7 @@ namespace Elepla.Service.Services
                 var existingSubjects = await _unitOfWork.SubjectInCurriculumRepository.GetAllAsync(
                     filter: s => s.SubjectId == model.SubjectId
                                  && s.GradeId == model.GradeId
-                                 && s.CurriculumId == model.CurriculumId
-                );
+                                 && s.CurriculumId == model.CurriculumId);
 
                 if (existingSubjects.Any())
                 {
@@ -192,8 +191,22 @@ namespace Elepla.Service.Services
                     return validationResult;
                 }
 
-                _mapper.Map(model, subjectInCurriculum);
+                // Kiểm tra trùng lặp Subject, Grade, Curriculum
+                var existingSubjects = await _unitOfWork.SubjectInCurriculumRepository.GetAllAsync(
+                                       filter: s => s.SubjectId == model.SubjectId 
+                                               && s.GradeId == model.GradeId
+                                               && s.CurriculumId == model.CurriculumId);
 
+                if (existingSubjects.Any())
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "Subject in curriculum already exists."
+                    };
+                }
+
+                _mapper.Map(model, subjectInCurriculum);
                 _unitOfWork.SubjectInCurriculumRepository.Update(subjectInCurriculum);
                 await _unitOfWork.SaveChangeAsync();
 
