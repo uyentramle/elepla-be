@@ -3,6 +3,8 @@ using Elepla.Service.Models.ViewModels.TeachingScheduleModels;
 using Elepla.Service.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
+using Newtonsoft.Json;
 
 namespace Elepla.API.Controllers
 {
@@ -10,7 +12,6 @@ namespace Elepla.API.Controllers
     {
         private readonly ITeachingScheduleService _teachingScheduleService;
         private readonly IGoogleCalendarService _googleCalendarService;
-
 
         public TeachingScheduleController(ITeachingScheduleService teachingScheduleService, IGoogleCalendarService googleCalendarService)
         {
@@ -113,11 +114,11 @@ namespace Elepla.API.Controllers
         #endregion
 
         #region Get Google Authorization URL
-        [HttpGet]
+        [HttpPost]
         [Authorize]
-        public async Task<IActionResult> GetGoogleAuthUrl(string scheduleId)
+        public async Task<IActionResult> GetGoogleAuthUrls([FromBody] List<string> scheduleIds)
         {
-            var response = await _teachingScheduleService.GetGoogleAuthUrlAsync(scheduleId);
+            var response = await _teachingScheduleService.GetGoogleAuthUrlsAsync(scheduleIds);
             if (response.Success)
             {
                 return Ok(response);
@@ -130,9 +131,14 @@ namespace Elepla.API.Controllers
         #region Add Teaching Schedule to Google Calendar
         [HttpPost]
         [Authorize]
-        public async Task<IActionResult> AddTeachingScheduleToGoogleCalendar(string scheduleId, [FromBody] string authorizationCode)
+        public async Task<IActionResult> AddMultipleTeachingSchedulesToGoogleCalendar([FromBody] AddMultipleSchedulesRequest request)
         {
-            var response = await _teachingScheduleService.AddTeachingScheduleToGoogleCalendarAsync(scheduleId, authorizationCode);
+            if (request.ScheduleIds == null || request.ScheduleIds.Count == 0)
+            {
+                return BadRequest(new { message = "No schedule IDs provided." });
+            }
+
+            var response = await _teachingScheduleService.AddMultipleTeachingSchedulesToGoogleCalendarAsync(request.ScheduleIds, request.AuthorizationCode);
             if (response.Success)
             {
                 return Ok(response);

@@ -7,10 +7,15 @@ using Elepla.Service.Interfaces;
 using Elepla.Service.Models.ResponseModels;
 using Elepla.Service.Models.ViewModels.TeachingScheduleModels;
 using Elepla.Service.Utils;
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Calendar.v3;
 using Google.Apis.Calendar.v3.Data;
+using Google.Apis.Services;
 using iText.Kernel.Pdf.Canvas.Parser.ClipperLib;
+using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.Globalization;
+using System.Net;
 
 
 namespace Elepla.Service.Services
@@ -203,29 +208,27 @@ namespace Elepla.Service.Services
             }
         }
 
-        public async Task<ResponseModel> GetGoogleAuthUrlAsync(string scheduleId)
+        public async Task<ResponseModel> GetGoogleAuthUrlsAsync(List<string> scheduleIds)
         {
             try
             {
-                // Lấy thông tin lịch từ database
-                var schedule = await _unitOfWork.TeachingScheduleRepository.GetByIdAsync(scheduleId);
-                if (schedule == null)
+                if (scheduleIds == null || scheduleIds.Count == 0)
                 {
                     return new ResponseModel
                     {
                         Success = false,
-                        Message = "Teaching schedule not found."
+                        Message = "No schedule IDs provided."
                     };
                 }
 
-                // Tạo URL xác thực Google
-                string authUrl = _googleCalendarService.GenerateAuthorizationUrl(scheduleId);
+                // Gọi GoogleCalendarService để tạo URL xác thực duy nhất
+                string authUrl = _googleCalendarService.GenerateAuthorizationUrl(scheduleIds);
 
-                return new SuccessResponseModel<object>
+                return new SuccessResponseModel<string>
                 {
                     Success = true,
                     Message = "Authorization URL generated successfully.",
-                    Data = authUrl
+                    Data = authUrl // Trả về một URL duy nhất
                 };
             }
             catch (Exception ex)
@@ -239,89 +242,115 @@ namespace Elepla.Service.Services
             }
         }
 
-        public async Task<ResponseModel> AddTeachingScheduleToGoogleCalendarAsync(string scheduleId, string authorizationCode)
+
+
+        public async Task<ResponseModel> AddMultipleTeachingSchedulesToGoogleCalendarAsync(List<string> scheduleIds, string authorizationCode)
         {
+            var results = new List<string>();
+            var errors = new List<string>();
+
+            // Lấy Refresh Token (nếu chưa lưu, sử dụng Authorization Code)
+            string refreshToken;
             try
             {
-                // Lấy thông tin lịch từ database
-                var schedule = await _unitOfWork.TeachingScheduleRepository.GetByIdAsync(scheduleId, includeProperties: "Teacher,Planbook");
-                if (schedule == null)
-                {
-                    return new ResponseModel
-                    {
-                        Success = false,
-                        Message = "Teaching schedule not found."
-                    };
-                }
-
-                // Lấy thông tin giáo viên từ UserId trong schedule
-                var teacher = schedule.Teacher;
-                if (teacher == null || string.IsNullOrEmpty(teacher.GoogleEmail))
-                {
-                    return new ResponseModel
-                    {
-                        Success = false,
-                        Message = "Teacher does not have a linked Google account. Please connect a Google account before adding to calendar."
-                    };
-                }
-
-                // Parse StartTime và EndTime
-                if (!DateTime.TryParse(schedule.StartTime, out DateTime startTime) ||
-                    !DateTime.TryParse(schedule.EndTime, out DateTime endTime))
-                {
-                    return new ResponseModel
-                    {
-                        Success = false,
-                        Message = "Invalid time format for StartTime or EndTime."
-                    };
-                }
-
-                // Combine Date with StartTime and EndTime (Assume schedule.Date is in local time)
-                DateTime startLocalTime = schedule.Date.Add(startTime.TimeOfDay);
-                DateTime endLocalTime = schedule.Date.Add(endTime.TimeOfDay);
-
-                // Convert local times to UTC for Google Calendar
-                TimeZoneInfo localTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Ho_Chi_Minh");
-                DateTime startUtc = TimeZoneInfo.ConvertTimeToUtc(startLocalTime, localTimeZone);
-                DateTime endUtc = TimeZoneInfo.ConvertTimeToUtc(endLocalTime, localTimeZone);
-
-                // Map teaching schedule to Google Calendar event
-                var calendarEvent = new Event
-                {
-                    Summary = schedule.Title,
-                    Description = schedule.Description,
-                    Start = new EventDateTime
-                    {
-                        DateTime = startUtc,
-                        TimeZone = "Asia/Ho_Chi_Minh" // Ensure the correct time zone is sent
-                    },
-                    End = new EventDateTime
-                    {
-                        DateTime = endUtc,
-                        TimeZone = "Asia/Ho_Chi_Minh"
-                    },
-                    Location = schedule.ClassName
-                };
-
-                // Thêm sự kiện vào Google Calendar sau xác thực
-                var createdEvent = await _googleCalendarService.AddEventToCalendarAfterAuthorizationAsync(authorizationCode, calendarEvent);
-
-                return new SuccessResponseModel<object>
-                {
-                    Success = true,
-                    Message = "Teaching schedule successfully added to Google Calendar.",
-                    Data = createdEvent.HtmlLink
-                };
+                refreshToken = await _googleCalendarService.GetRefreshTokenFromAuthorizationCodeAsync(authorizationCode);
             }
             catch (Exception ex)
             {
                 return new ErrorResponseModel<object>
                 {
                     Success = false,
-                    Message = "An error occurred while adding the teaching schedule to Google Calendar.",
+                    Message = "Could not retrieve Refresh Token.",
                     Errors = new List<string> { ex.Message }
                 };
             }
+
+            foreach (var scheduleId in scheduleIds)
+            {
+                try
+                {
+                    var schedule = await _unitOfWork.TeachingScheduleRepository.GetByIdAsync(scheduleId, includeProperties: "Teacher,Planbook");
+                    if (schedule == null)
+                    {
+                        errors.Add($"Schedule ID {scheduleId} not found.");
+                        continue;
+                    }
+
+                    var teacher = schedule.Teacher;
+                    if (teacher == null || string.IsNullOrEmpty(teacher.GoogleEmail))
+                    {
+                        errors.Add($"Teacher for schedule ID {scheduleId} does not have a linked Google account.");
+                        continue;
+                    }
+
+                    if (!DateTime.TryParse(schedule.StartTime, out DateTime startTime) || !DateTime.TryParse(schedule.EndTime, out DateTime endTime))
+                    {
+                        errors.Add($"Invalid time format for schedule ID {scheduleId}.");
+                        continue;
+                    }
+
+                    DateTime startLocalTime = schedule.Date.Add(startTime.TimeOfDay);
+                    DateTime endLocalTime = schedule.Date.Add(endTime.TimeOfDay);
+
+                    TimeZoneInfo localTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Ho_Chi_Minh");
+                    DateTime startUtc = TimeZoneInfo.ConvertTimeToUtc(startLocalTime, localTimeZone);
+                    DateTime endUtc = TimeZoneInfo.ConvertTimeToUtc(endLocalTime, localTimeZone);
+
+                    var calendarEvent = new Event
+                    {
+                        Summary = schedule.Title,
+                        Description = schedule.Description,
+                        Start = new EventDateTime
+                        {
+                            DateTime = startUtc,
+                            TimeZone = "Asia/Ho_Chi_Minh"
+                        },
+                        End = new EventDateTime
+                        {
+                            DateTime = endUtc,
+                            TimeZone = "Asia/Ho_Chi_Minh"
+                        },
+                        Location = schedule.ClassName
+                    };
+
+                    // Lấy Access Token từ Refresh Token
+                    string accessToken = await _googleCalendarService.GetAccessTokenFromRefreshTokenAsync(refreshToken);
+
+                    // Tạo sự kiện trên Google Calendar
+                    var calendarService = new CalendarService(new BaseClientService.Initializer
+                    {
+                        HttpClientInitializer = GoogleCredential.FromAccessToken(accessToken),
+                        ApplicationName = "Elepla"
+                    });
+
+                    var insertRequest = calendarService.Events.Insert(calendarEvent, "primary");
+                    var createdEvent = await insertRequest.ExecuteAsync();
+
+                    results.Add($"Schedule ID {scheduleId} added successfully: {createdEvent.HtmlLink}");
+                }
+                catch (Exception ex)
+                {
+                    errors.Add($"Error for schedule ID {scheduleId}: {ex.Message}");
+                }
+            }
+
+            if (errors.Count > 0)
+            {
+                return new ErrorResponseModel<List<string>>
+                {
+                    Success = false,
+                    Message = "Some schedules could not be added.",
+                    Errors = errors
+                };
+            }
+
+            return new SuccessResponseModel<List<string>>
+            {
+                Success = true,
+                Message = "All schedules added successfully.",
+                Data = results
+            };
         }
+
     }
 }

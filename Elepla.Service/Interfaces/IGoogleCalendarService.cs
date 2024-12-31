@@ -10,7 +10,10 @@ namespace Elepla.Service.Interfaces
 {
     public interface IGoogleCalendarService
     {
+        string GenerateAuthorizationUrl(List<string> scheduleIds);
         string GenerateAuthorizationUrl(string scheduleId);
         Task<Event> AddEventToCalendarAfterAuthorizationAsync(string authorizationCode, Event calendarEvent);
+        Task<string> GetAccessTokenFromRefreshTokenAsync(string refreshToken);
+        Task<string> GetRefreshTokenFromAuthorizationCodeAsync(string authorizationCode);
     }
 }

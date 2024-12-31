@@ -22,8 +22,8 @@ namespace Elepla.Service.Interfaces
 
         Task<ResponseModel> DeleteTeachingScheduleAsync(string scheduleId);
 
-        Task<ResponseModel> GetGoogleAuthUrlAsync(string scheduleId);
+        Task<ResponseModel> GetGoogleAuthUrlsAsync(List<string> scheduleIds);
 
-        Task<ResponseModel> AddTeachingScheduleToGoogleCalendarAsync(string scheduleId, string authorizationCode);
+        Task<ResponseModel> AddMultipleTeachingSchedulesToGoogleCalendarAsync(List<string> scheduleIds, string authorizationCode);
     }
 }
