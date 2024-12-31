@@ -68,7 +68,7 @@ namespace Elepla.Service.Services
                 else
                 {
                     item.CommentCount = 0;
-                    item.AverageRate = 0;
+                    item.AverageRate = 0.0f;
                 }
             }
 
@@ -165,11 +165,33 @@ namespace Elepla.Service.Services
 
             var planbooks = await _unitOfWork.PlanbookRepository.GetAsync(
                     filter: r => r.PlanbookInCollections.Any(pc => pc.CollectionId == collectionId) && !r.IsDeleted,
-                    includeProperties: "Lesson,PlanbookInCollections.PlanbookCollection",
+                    includeProperties: "PlanbookInCollections.PlanbookCollection,Lesson.Chapter.SubjectInCurriculum.Subject,Lesson.Chapter.SubjectInCurriculum.Curriculum,Lesson.Chapter.SubjectInCurriculum.Grade,Feedbacks",
                     pageIndex: pageIndex,
                     pageSize: pageSize);
 
             var mappers = _mapper.Map<Pagination<ViewListPlanbookDTO>>(planbooks);
+
+            foreach (var item in mappers.Items)
+            {
+                // Tính số lượng comment và đánh giá trung bình
+                var feedbacks = planbooks.Items
+                    .FirstOrDefault(p => p.PlanbookId == item.PlanbookId)?
+                    .Feedbacks
+                    .Where(f => !f.IsDeleted) // Lọc những feedback hợp lệ
+                    .ToList();
+
+                if (feedbacks != null && feedbacks.Any())
+                {
+                    item.CommentCount = feedbacks.Count;
+                    var totalRate = feedbacks.Where(f => f.Rate.HasValue).Sum(f => f.Rate.Value);
+                    item.AverageRate = (float)Math.Round(totalRate / (double)item.CommentCount, 1);
+                }
+                else
+                {
+                    item.CommentCount = 0;
+                    item.AverageRate = 0.0f;
+                }
+            }
 
             return new SuccessResponseModel<object>
             {
@@ -403,7 +425,7 @@ namespace Elepla.Service.Services
                     // Kiểm tra xem người dùng có quyền chỉnh sửa planbook không
                     var currentUser = _claimsService.GetCurrentUserId().ToString();
                     var isOwner = planbook.CreatedBy.Equals(currentUser);
-                    var isShared = planbook.PlanbookShares.Any(s => s.SharedTo == currentUser);
+                    var isShared = planbook.PlanbookShares.Any(s => s.SharedTo == currentUser && s.IsEdited);
 
                     if (!isOwner && !isShared)
                     {
