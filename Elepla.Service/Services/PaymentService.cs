@@ -42,6 +42,7 @@ namespace Elepla.Service.Services
                                                 p.Teacher.Role.Name != "AcademicStaff" &&
                                                 p.Teacher.Role.Name != "Manager",
                                         includeProperties: "UserPackage.Package,Teacher.Role",
+                                        orderBy: p => p.OrderByDescending(p => p.CreatedAt),
                                         pageIndex: pageIndex,
                                         pageSize: pageSize);
 
@@ -136,6 +137,7 @@ namespace Elepla.Service.Services
         {
             var payments = await _unitOfWork.PaymentRepository.GetAllAsync(
                 filter: p => p.CreatedAt.Year == year &&
+                        p.Status == "Paid" &&
                         p.Teacher.Role.Name != "Admin" &&
                         p.Teacher.Role.Name != "AcademicStaff" &&
                         p.Teacher.Role.Name != "Manager",
@@ -164,6 +166,7 @@ namespace Elepla.Service.Services
         {
             var payments = await _unitOfWork.PaymentRepository.GetAllAsync(
                 filter: p => p.CreatedAt.Year == year &&
+                        p.Status == "Paid" &&
                         p.Teacher.Role.Name != "Admin" &&
                         p.Teacher.Role.Name != "AcademicStaff" &&
                         p.Teacher.Role.Name != "Manager",
@@ -191,7 +194,8 @@ namespace Elepla.Service.Services
         public async Task<ResponseModel> GetRevenueByYearAsync()
         {
             var payments = await _unitOfWork.PaymentRepository.GetAllAsync(
-                filter: p => p.Teacher.Role.Name != "Admin" &&
+                filter: p => p.Status == "Paid" &&
+                        p.Teacher.Role.Name != "Admin" &&
                         p.Teacher.Role.Name != "AcademicStaff" &&
                         p.Teacher.Role.Name != "Manager",
                 includeProperties: "Teacher.Role");

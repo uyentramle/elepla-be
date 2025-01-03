@@ -1,5 +1,6 @@
 ﻿using Elepla.Service.Interfaces;
 using Elepla.Service.Models.ViewModels.AccountViewModels;
+using Elepla.Service.Models.ViewModels.AuthViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -163,6 +164,25 @@ namespace Elepla.API.Controllers
             }
 
             var response = await _accountService.LinkAccountWithUsernameAsync(model);
+            if (response.Success)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
+        }
+        #endregion
+
+        #region Link Google Account
+        [HttpPut]
+        [Authorize]
+        public async Task<IActionResult> LinkGoogleAccountAsync(GoogleLoginDTO model, string currentUserId)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var response = await _accountService.LinkGoogleAccountAsync(model, currentUserId);
             if (response.Success)
             {
                 return Ok(response);

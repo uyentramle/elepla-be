@@ -612,7 +612,7 @@ namespace Elepla.Service.Services
             // Lấy danh sách các planbookDto mặc định cho bài học
             var defaultPlanbooks = await _unitOfWork.PlanbookRepository.GetAllAsync(
                                                 filter: p => p.IsDefault && p.LessonId.Equals(lessonId),
-                                                includeProperties: "PlanbookCollection,Lesson,Activities");
+                                                includeProperties: "Lesson,Activities");
 
             if (defaultPlanbooks is null || !defaultPlanbooks.Any())
             {
