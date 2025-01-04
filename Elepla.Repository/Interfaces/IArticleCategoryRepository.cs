@@ -10,6 +10,6 @@ namespace Elepla.Repository.Interfaces
     public interface IArticleCategoryRepository
     {
 		Task<List<ArticleCategory>> GetByArticleIdAsync(string articleId);
-
+		bool DeleteByArticleId(string articleId);
 	}
 }

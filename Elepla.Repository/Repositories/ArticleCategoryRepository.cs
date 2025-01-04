@@ -26,5 +26,12 @@ namespace Elepla.Repository.Repositories
 				.Include(ac => ac.Category)
 				.ToListAsync();
 		}
+
+		public bool DeleteByArticleId(string articleId)
+		{
+			var articleCategories = _dbContext.ArticleCategories.Where(ac => ac.ArticleId == articleId);
+			_dbContext.ArticleCategories.RemoveRange(articleCategories);
+			return true;
+		}
 	}
 }

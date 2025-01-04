@@ -25,5 +25,22 @@ namespace Elepla.Repository.Repositories
 				.Where(ai => ai.ArticleId == articleId)
 				.FirstOrDefaultAsync();
 		}
+
+		public bool DeleteByArticleId(string articleId)
+		{
+			var articleImage = _dbContext.ArticleImages
+				.Where(ai => ai.ArticleId == articleId)
+				.FirstOrDefault();
+
+			if (articleImage == null)
+			{
+				return false;
+			}
+
+			_dbContext.ArticleImages.Remove(articleImage);
+			_dbContext.SaveChanges();
+
+			return true;
+		}
 	}
 }
