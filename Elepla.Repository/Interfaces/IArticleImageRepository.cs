@@ -10,5 +10,6 @@ namespace Elepla.Repository.Interfaces
     public interface IArticleImageRepository
     {
 		Task<ArticleImage?> GetByArticleIdAsync(string articleId);
+		bool DeleteByArticleId(string articleId);
 	}
 }

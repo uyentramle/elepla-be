@@ -48,6 +48,15 @@ namespace Elepla.Service.Services
 				}
 			}
 
+			foreach (var item in articleDtos.Items)
+			{
+				var categories = await _unitOfWork.ArticleCategoryRepository.GetByArticleIdAsync(item.ArticleId);
+				if (categories != null)
+				{
+					item.Categories = categories.Select(c => c.Category.Name).ToList();
+				}
+			}
+
 			return new SuccessResponseModel<object>
 			{
 				Success = true,
@@ -147,9 +156,11 @@ namespace Elepla.Service.Services
 					article.Url = _urlService.RemoveDiacritics(model.Title).Replace(" ", "-").ToLower();
 				}
 
-				if (model.Content != null)
+				if (!string.IsNullOrEmpty(model.Content))
 				{
-					article.Excerpt = model.Content.Substring(0, 100);
+					article.Excerpt = model.Content.Length > 100
+						? model.Content.Substring(0, 100)
+						: model.Content;
 				}
 
 				article.Status = model.Status ?? "Draft";
@@ -195,6 +206,8 @@ namespace Elepla.Service.Services
 						ArticleId = article.ArticleId,
 						ImageId = imgId
 					};
+
+					article.ArticleImages.Clear();
 					article.ArticleImages.Add(articleImageThumb);
 					await _unitOfWork.SaveChangeAsync();
 				}
@@ -269,52 +282,50 @@ namespace Elepla.Service.Services
 				}
 
 				_unitOfWork.ArticleRepository.Update(mapper);
-				await _unitOfWork.SaveChangeAsync();
 
-				if (model.Categories != null)
+				if (model.Categories != null && model.Categories.Any())
 				{
-					var articleCategories = new List<ArticleCategory>();
-					foreach (var categoryId in model.Categories)
+					_unitOfWork.ArticleCategoryRepository.DeleteByArticleId(article.ArticleId);
+					var articleCategories = model.Categories.Select(categoryId => new ArticleCategory
 					{
-						var articleCategory = new ArticleCategory
-						{
-							ArticleId = article.ArticleId,
-							CategoryId = categoryId.ToString()
-						};
-						articleCategories.Add(articleCategory);
-						await _unitOfWork.SaveChangeAsync();
+						ArticleId = article.ArticleId,
+						CategoryId = categoryId.ToString()
+					}).ToList();
+
+					foreach (var category in articleCategories)
+					{
+						article.ArticleCategories.Add(category);
 					}
 				}
+
 
 				if (model.Thumb != null)
 				{
+					_unitOfWork.ArticleImageRepository.DeleteByArticleId(article.ArticleId);
+
 					var existingImage = await _unitOfWork.ImageRepository.FindByImageUrlAsync(model.Thumb);
-					string imgId;
-					if (existingImage != null)
+					var imgId = existingImage?.ImageId ?? Guid.NewGuid().ToString();
+
+					if (existingImage == null)
 					{
-						imgId = existingImage.ImageId;
-					}
-					else
-					{
-						var thumb = new Image
+						var newImage = new Image
 						{
-							ImageId = Guid.NewGuid().ToString(),
+							ImageId = imgId,
 							ImageUrl = model.Thumb,
 							Type = "Article Thumb"
 						};
-						await _unitOfWork.ImageRepository.AddAsync(thumb);
-						await _unitOfWork.SaveChangeAsync();
-						imgId = thumb.ImageId;
+
+						await _unitOfWork.ImageRepository.AddAsync(newImage);
 					}
-					var articleImageThumb = new ArticleImage
+
+					article.ArticleImages.Add(new ArticleImage
 					{
 						ArticleId = article.ArticleId,
 						ImageId = imgId
-					};
-					article.ArticleImages.Add(articleImageThumb);
-					await _unitOfWork.SaveChangeAsync();
+					});
 				}
 
+				await _unitOfWork.SaveChangeAsync();
 				return new ResponseModel
 				{
 					Success = true,
@@ -323,10 +334,12 @@ namespace Elepla.Service.Services
 			}
 			catch (Exception ex)
 			{
+				var errorMessage = ex.InnerException?.Message ?? ex.Message;
+
 				return new ResponseModel
 				{
 					Success = false,
-					Message = ex.Message
+					Message = ex.Message + "Error update article: " + errorMessage
 				};
 			}
 		}
