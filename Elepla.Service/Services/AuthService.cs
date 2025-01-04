@@ -76,6 +76,15 @@ namespace Elepla.Service.Services
 
                     if (result)
                     {
+                        // Kiểm tra nếu người dùng chưa có gói đang hoạt động
+                        var activePackageResponse = await _userPackageService.GetActiveUserPackageByUserIdAsync(user.UserId);
+
+                        if (!activePackageResponse.Success)
+                        {
+                            // Thêm gói miễn phí nếu chưa có
+                            await _userPackageService.AddFreePackageToUserAsync(user.UserId);
+                        }
+
                         var accessToken = _tokenService.GenerateJsonWebToken(user, out DateTime tokenExpiryTime);
                         var refreshToken = _tokenService.GenerateRefreshToken(out DateTime refreshTokenExpiryTime);
 
@@ -292,6 +301,14 @@ namespace Elepla.Service.Services
                         Success = false,
                         Message = "User account is blocked. Please contact support."
                     };
+                }
+
+                // Kiểm tra nếu người dùng chưa có gói đang hoạt động
+                var activePackageResponse = await _userPackageService.GetActiveUserPackageByUserIdAsync(user.UserId);
+                if (!activePackageResponse.Success)
+                {
+                    // Thêm gói miễn phí nếu chưa có
+                    await _userPackageService.AddFreePackageToUserAsync(user.UserId);
                 }
 
                 // Tạo JWT token hoặc phản hồi xác thực khác

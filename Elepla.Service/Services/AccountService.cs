@@ -6,6 +6,7 @@ using Elepla.Service.Common;
 using Elepla.Service.Interfaces;
 using Elepla.Service.Models.ResponseModels;
 using Elepla.Service.Models.ViewModels.AccountViewModels;
+using Elepla.Service.Models.ViewModels.AuthViewModels;
 using Elepla.Service.Utils;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Caching.Memory;
@@ -20,6 +21,7 @@ namespace Elepla.Service.Services
     public class AccountService : BaseService, IAccountService
     {
         private readonly IUserPackageService _userPackageService;
+        private readonly IGoogleService _googleService;
 
         public AccountService(
             IUnitOfWork unitOfWork,
@@ -30,10 +32,12 @@ namespace Elepla.Service.Services
             ISmsSender smsSender,
             IMemoryCache cache,
             ITokenService tokenService,
-            IUserPackageService userPackageService)
+            IUserPackageService userPackageService,
+            IGoogleService googleService)
             : base(unitOfWork, mapper, timeService, passwordHasher, emailSender, smsSender, cache, tokenService)
         {
             _userPackageService = userPackageService;
+            _googleService = googleService;
         }
 
         #region Manage User Profile
@@ -555,6 +559,127 @@ namespace Elepla.Service.Services
                 {
                     Success = false,
                     Message = "An error occurred while updating user account.",
+                    Errors = new List<string> { ex.Message }
+                };
+            }
+        }
+        #endregion
+
+        #region Link Account With Google
+        public async Task<ResponseModel> LinkGoogleAccountAsync(GoogleLoginDTO model, string currentUserId)
+        {
+            GooglePayload payload;
+
+            // Kiểm tra và xác thực Google token
+            if (model.IsCredential)
+            {
+                payload = await _googleService.VerifyGoogleTokenAsync(model.GoogleToken);
+            }
+            else
+            {
+                var tokenResponse = await _googleService.ExchangeAuthCodeForTokensAsync(model.GoogleToken);
+                if (tokenResponse == null)
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "Invalid Google auth code."
+                    };
+                }
+
+                payload = await _googleService.VerifyGoogleTokenAsync(tokenResponse.IdToken);
+            }
+
+            if (payload == null)
+            {
+                return new ResponseModel
+                {
+                    Success = false,
+                    Message = "Invalid Google token."
+                };
+            }
+
+            // Tạo DTO để chứa thông tin liên kết tài khoản Google
+            var socialLoginDto = new SocialLoginDTO
+            {
+                Email = payload.Email,
+                FirstName = payload.FirstName,
+                LastName = payload.LastName,
+                PictureUrl = payload.PictureUrl,
+                ProviderId = payload.Sub,
+                Provider = "Google"
+            };
+
+            // Thực hiện liên kết tài khoản Google
+            return await LinkGoogleAccountAsync(currentUserId, socialLoginDto);
+        }
+
+        private async Task<ResponseModel> LinkGoogleAccountAsync(string currentUserId, SocialLoginDTO dto)
+        {
+            try
+            {
+                // Lấy thông tin người dùng hiện tại từ UserId
+                var user = await _unitOfWork.AccountRepository.GetByIdAsync(currentUserId);
+
+                if (user == null)
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "User not found."
+                    };
+                }
+
+                // Kiểm tra xem tài khoản Google đã được liên kết với tài khoản khác chưa
+                var existingUserWithGoogleEmail = await _unitOfWork.AccountRepository.FindByAnyCriteriaAsync(
+                                                                null,
+                                                                null,
+                                                                null,
+                                                                dto.Provider == "Google" ? dto.Email : null,
+                                                                null);
+
+                if (existingUserWithGoogleEmail != null && existingUserWithGoogleEmail.UserId != currentUserId)
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "This Google account is already linked to another user."
+                    };
+                }
+
+                // Kiểm tra xem người dùng đã có tài khoản Google hay chưa
+                if (!string.IsNullOrEmpty(user.GoogleEmail))
+                {
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        Message = "Google account is already linked to this user."
+                    };
+                }
+
+                // Cập nhật tài khoản người dùng với email Google
+                user.GoogleEmail = dto.Email;
+
+                // Cập nhật tên và ảnh đại diện nếu cần
+                //if (!string.IsNullOrEmpty(dto.FirstName)) user.FirstName = dto.FirstName;
+                //if (!string.IsNullOrEmpty(dto.LastName)) user.LastName = dto.LastName;
+                //if (!string.IsNullOrEmpty(dto.PictureUrl)) user.AvatarId = dto.PictureUrl;
+
+                _unitOfWork.AccountRepository.Update(user);
+                await _unitOfWork.SaveChangeAsync();
+
+                return new ResponseModel
+                {
+                    Success = true,
+                    Message = "Google account linked successfully."
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ErrorResponseModel<object>
+                {
+                    Success = false,
+                    Message = "An error occurred while linking Google account.",
                     Errors = new List<string> { ex.Message }
                 };
             }

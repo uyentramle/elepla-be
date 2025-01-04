@@ -17,5 +17,6 @@ namespace Elepla.Service.Interfaces
         Task<ResponseModel> GetActiveUserPackageByUserIdAsync(string userId);
         Task DeactivateActiveUserPackagesAsync(string userId);
         Task ActivateUserPackageAsync(string userPackageId);
+        Task<ResponseModel> DeactivateExpiredUserPackagesAsync();
     }
 }

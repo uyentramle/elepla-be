@@ -405,7 +405,8 @@ namespace Elepla.Service.Mappers
 				.ForMember(dest => dest.PaymentUrl, opt => opt.MapFrom(src => src.PaymentUrl))
 				.ForMember(dest => dest.TotalAmount, opt => opt.MapFrom(src => src.TotalAmount))
 				.ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
-				.ForMember(dest => dest.PackageName, opt => opt.MapFrom(src => src.UserPackage.Package.PackageName))
+				.ForMember(dest => dest.PackageId, opt => opt.MapFrom(src => src.UserPackage.PackageId))
+                .ForMember(dest => dest.PackageName, opt => opt.MapFrom(src => src.UserPackage.Package.PackageName))
 				.ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
 				.ReverseMap();
 
