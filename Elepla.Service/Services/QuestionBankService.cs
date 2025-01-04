@@ -29,16 +29,15 @@ namespace Elepla.Service.Services
 		public async Task<ResponseModel> GetAllQuestionBankAsync(string? keyword, int pageIndex, int pageSize)
 		{
 			var questions = await _unitOfWork.QuestionBankRepository.GetAsync(
-				filter: r => r.IsDeleted.Equals(false)
+				filter: r => r.IsDeleted.Equals(false) && r.IsDefault
 				&& (string.IsNullOrEmpty(keyword)
 				|| r.Question.Contains(keyword)),
 				orderBy: r => r.OrderBy(r => r.Question),
-				includeProperties: "Answers", 
+				includeProperties: "Answers,Lesson.Chapter.SubjectInCurriculum.Subject,Lesson.Chapter.SubjectInCurriculum.Curriculum,Lesson.Chapter.SubjectInCurriculum.Grade,Chapter.SubjectInCurriculum.Subject,Chapter.SubjectInCurriculum.Curriculum,Chapter.SubjectInCurriculum.Grade", 
 				pageIndex: pageIndex,
 				pageSize: pageSize
 				);
 			var questionDtos = _mapper.Map<Pagination<ViewListQuestionBankDTO>>(questions);
-
 			
 			foreach (var questionDto in questionDtos.Items)
 			{
@@ -324,7 +323,7 @@ namespace Elepla.Service.Services
 					await _unitOfWork.AnswerRepository.DeleteAnswerAsync(answer);
 				}
 
-				_unitOfWork.QuestionBankRepository.Delete(question);
+				_unitOfWork.QuestionBankRepository.SoftRemove(question);
 				await _unitOfWork.SaveChangeAsync();
 
 				return new ResponseModel
@@ -342,5 +341,132 @@ namespace Elepla.Service.Services
 				};
 			}
 		}
-	}
+
+		public async Task<ResponseModel> GetAllQuestionByUserId(string userId, int pageIndex, int pageSize)
+		{
+            var questions = await _unitOfWork.QuestionBankRepository.GetAsync(
+				                filter: r => !r.IsDeleted && r.CreatedBy.Equals(userId) && !r.IsDefault,
+								orderBy: r => r.OrderBy(r => r.Question),
+								includeProperties: "Answers,Lesson.Chapter.SubjectInCurriculum.Subject,Lesson.Chapter.SubjectInCurriculum.Curriculum,Lesson.Chapter.SubjectInCurriculum.Grade,Chapter.SubjectInCurriculum.Subject,Chapter.SubjectInCurriculum.Curriculum,Chapter.SubjectInCurriculum.Grade",
+								pageIndex: pageIndex,
+								pageSize: pageSize);
+
+            var questionDtos = _mapper.Map<Pagination<ViewListQuestionBankDTO>>(questions);
+
+            foreach (var questionDto in questionDtos.Items)
+			{
+                questionDto.Answers = questionDto.Answers.Select(a => new ViewListAnswerDTO
+				{
+                    AnswerId = a.AnswerId,
+                    AnswerText = a.AnswerText,
+                    IsCorrect = a.IsCorrect.ToString()
+                }).ToList();
+            }
+
+            return new SuccessResponseModel<object>
+			{
+                Success = true,
+                Message = "Question retrieved successfully.",
+                Data = questionDtos
+            };
+        }
+
+		public async Task<ResponseModel> GetQuestionByUserIdAndChapterId(string userId, string chapterId, int pageIndex, int pageSize)
+        {
+            if (string.IsNullOrEmpty(chapterId))
+            {
+                return new ResponseModel
+                {
+                    Success = false,
+                    Message = "ChapterId is required."
+                };
+            }
+
+            var chapter = await _unitOfWork.ChapterRepository.GetByIdAsync(chapterId);
+            if (chapter == null)
+            {
+                return new ResponseModel
+                {
+                    Success = false,
+                    Message = "Chapter not found."
+                };
+            }
+
+            var questions = await _unitOfWork.QuestionBankRepository.GetAsync(
+                                            filter: r => r.IsDeleted.Equals(false) && !r.IsDefault
+                                                    && r.ChapterId == chapterId
+                                                    && r.CreatedBy.Equals(userId),
+                                            pageIndex: pageIndex,
+                                            pageSize: pageSize,
+                                            includeProperties: "Answers",
+                                            orderBy: r => r.OrderBy(r => r.Question));
+            var questionDtos = _mapper.Map<Pagination<ViewListQuestionBankDTO>>(questions);
+
+            foreach (var questionDto in questionDtos.Items)
+            {
+                questionDto.Answers = questionDto.Answers.Select(a => new ViewListAnswerDTO
+                {
+                    AnswerId = a.AnswerId,
+                    AnswerText = a.AnswerText,
+                    IsCorrect = a.IsCorrect.ToString()
+                }).ToList();
+            }
+
+            return new SuccessResponseModel<object>
+            {
+                Success = true,
+                Message = "Question retrieved successfully.",
+                Data = questionDtos
+            };
+        }
+
+        public async Task<ResponseModel> GetQuestionByUserIdAndLessonId(string userId, string lessonId, int pageIndex, int pageSize)
+        {
+            if (string.IsNullOrEmpty(lessonId))
+            {
+                return new ResponseModel
+                {
+                    Success = false,
+                    Message = "LessonId is required."
+                };
+            }
+
+            var lesson = await _unitOfWork.LessonRepository.GetByIdAsync(lessonId);
+            if (lesson == null)
+            {
+                return new ResponseModel
+                {
+                    Success = false,
+                    Message = "Lesson not found."
+                };
+            }
+
+            var questions = await _unitOfWork.QuestionBankRepository.GetAsync(
+                                                            filter: r => r.IsDeleted.Equals(false) && !r.IsDefault
+                                                                    && r.LessonId == lessonId
+                                                                    && r.CreatedBy.Equals(userId),
+                                                            pageIndex: pageIndex,
+                                                            pageSize: pageSize,
+                                                            includeProperties: "Answers",
+                                                            orderBy: r => r.OrderBy(r => r.Question));
+            var questionDtos = _mapper.Map<Pagination<ViewListQuestionBankDTO>>(questions);
+
+            foreach (var questionDto in questionDtos.Items)
+            {
+                questionDto.Answers = questionDto.Answers.Select(a => new ViewListAnswerDTO
+                {
+                    AnswerId = a.AnswerId,
+                    AnswerText = a.AnswerText,
+                    IsCorrect = a.IsCorrect.ToString()
+                }).ToList();
+            }
+
+            return new SuccessResponseModel<object>
+            {
+                Success = true,
+                Message = "Question retrieved successfully.",
+                Data = questionDtos
+            };
+        }
+    }
 }

@@ -14,5 +14,6 @@ namespace Elepla.Repository.Interfaces
         Task<User?> GetUserByPhoneNumberAsync(string phoneNumber);
         Task<User?> GetUserByEmailOrUsernameOrPhoneNumberAsync(string emailOrUsernameOrPhoneNumber, bool includeUsername = true);
         Task<User?> FindByAnyCriteriaAsync(string email, string phoneNumber, string userName, string googleEmail, string facebookEmail);
+        Task<List<User>> GetByIdsAsync(List<string> userIds);
     }
 }

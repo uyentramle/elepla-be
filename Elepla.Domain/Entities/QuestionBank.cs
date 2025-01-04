@@ -15,6 +15,7 @@ namespace Elepla.Domain.Entities
         public string Question { get; set; }
 		public string Type { get; set; }
 		public string Plum { get; set; }
+        public bool IsDefault { get; set; }
 
         // Foreign Key
         public string ChapterId { get; set; }

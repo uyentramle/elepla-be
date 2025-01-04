@@ -4,6 +4,7 @@ using Elepla.Repository.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Elepla.Repository.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241216140334_UpdateTablePlanbookShare")]
+    partial class UpdateTablePlanbookShare
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -556,6 +559,7 @@ namespace Elepla.Repository.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("AddressText")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
@@ -579,9 +583,6 @@ namespace Elepla.Repository.Migrations
 
                     b.Property<string>("PaymentMethod")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PaymentUrl")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Status")
@@ -810,6 +811,12 @@ namespace Elepla.Repository.Migrations
                     b.Property<string>("UpdatedBy")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("UserId1")
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("ShareId");
 
                     b.HasIndex("PlanbookId");
@@ -817,6 +824,10 @@ namespace Elepla.Repository.Migrations
                     b.HasIndex("SharedBy");
 
                     b.HasIndex("SharedTo");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("UserId1");
 
                     b.ToTable("PlanbookShare", (string)null);
                 });
@@ -841,9 +852,6 @@ namespace Elepla.Repository.Migrations
 
                     b.Property<string>("DeletedBy")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsDefault")
-                        .HasColumnType("bit");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -1512,25 +1520,33 @@ namespace Elepla.Repository.Migrations
 
             modelBuilder.Entity("Elepla.Domain.Entities.PlanbookShare", b =>
                 {
-                    b.HasOne("Elepla.Domain.Entities.Planbook", "Planbook")
+                    b.HasOne("Elepla.Domain.Entities.Planbook", "PlanBook")
                         .WithMany("PlanbookShares")
                         .HasForeignKey("PlanbookId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Elepla.Domain.Entities.User", "SharedByUser")
-                        .WithMany("SharedPlanbooks")
+                        .WithMany()
                         .HasForeignKey("SharedBy")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Elepla.Domain.Entities.User", "SharedToUser")
-                        .WithMany("ReceivedPlanbooks")
+                        .WithMany()
                         .HasForeignKey("SharedTo")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Planbook");
+                    b.HasOne("Elepla.Domain.Entities.User", null)
+                        .WithMany("SharedPlanbooks")
+                        .HasForeignKey("UserId");
+
+                    b.HasOne("Elepla.Domain.Entities.User", null)
+                        .WithMany("ReceivedPlanbooks")
+                        .HasForeignKey("UserId1");
+
+                    b.Navigation("PlanBook");
 
                     b.Navigation("SharedByUser");
 

@@ -12,7 +12,8 @@ namespace Elepla.Service.Models.ViewModels.PlanbookViewModels
 
 		public string Title { get; set; }
 		public string SchoolName { get; set; }
-		public string TeacherName { get; set; }
+		public string GroupName { get; set; }
+        public string TeacherName { get; set; }
 		public string Subject { get; set; }
         public string Curriculum { get; set; }
 		public string Grade { get; set; }
@@ -29,6 +30,8 @@ namespace Elepla.Service.Models.ViewModels.PlanbookViewModels
 		public string LessonId { get; set; }
 		public string LessonName { get; set; }
 		public string ChapterName { get; set; }
+        public int CommentCount { get; set; }
+        public float AverageRate { get; set; }
         public DateTime CreatedAt { get; set; }
 		public string CreatedBy { get; set; }
 		public DateTime? UpdatedAt { get; set; }

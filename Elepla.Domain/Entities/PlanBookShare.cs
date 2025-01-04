@@ -6,18 +6,25 @@ using System.Threading.Tasks;
 
 namespace Elepla.Domain.Entities
 {
-	public class PlanBookShare : BaseEntity
+	public class PlanbookShare : BaseEntity
 	{
-		public string ShareId { get; set; }
-		public string ShareType { get; set; }
-		public string? ShareTo { get; set; } // User Id
-		public string? ShareToEmail { get; set; }
-		public bool IsEdited { get; set; }
+        // Primary Key
+        public string ShareId { get; set; }
 
-		public string PlanBookId { get; set; }
-		public string ShareBy { get; set; } // User Id
+        // Attributes
+        //public string ShareType { get; set; }
+        //public string? ShareTo { get; set; } // User Id
+        //public string? ShareToEmail { get; set; }
+        public bool IsEdited { get; set; }
 
-		public virtual Planbook PlanBook { get; set; }
-		public virtual User User { get; set; }
-	}
+        // Foreign Key
+        public string PlanbookId { get; set; }
+		public string SharedBy { get; set; } // User Id thực hiện chia sẻ
+        public string SharedTo { get; set; } // User Id nhận chia sẻ
+
+        // Navigation properties
+        public virtual Planbook Planbook { get; set; }
+		public virtual User SharedByUser { get; set; }
+        public virtual User SharedToUser { get; set; }
+    }
 }

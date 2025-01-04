@@ -31,6 +31,7 @@ namespace Elepla.Repository.Interfaces
         void SoftRemoveRange(List<TEntity> entities);
         void Delete(object id);
         void Delete(TEntity entity);
+        void DeleteRange(IEnumerable<TEntity> entities);
         Task<int> CountAsync(Expression<Func<TEntity, bool>> filter = null);   
     }
 }

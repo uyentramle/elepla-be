@@ -1,5 +1,6 @@
 ﻿using Elepla.Service.Models.ResponseModels;
 using Elepla.Service.Models.ViewModels.AccountViewModels;
+using Elepla.Service.Models.ViewModels.AuthViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,6 +21,7 @@ namespace Elepla.Service.Interfaces
         Task<ResponseModel> SendVerificationCodeEmailAsync(NewEmailDTO model);
         Task<ResponseModel> VerifyAndUpdateNewEmailAsync(ChangeEmailDTO model);
         Task<ResponseModel> LinkAccountWithUsernameAsync(UpdateUserAccountDTO model);
+        Task<ResponseModel> LinkGoogleAccountAsync(GoogleLoginDTO model, string currentUserId);
         Task<ResponseModel> GetAllUserAsync(string? keyword, bool? status, int pageIndex, int pageSize);
         Task<ResponseModel> CreateUserAsync(CreateUserByAdminDTO model);
         Task<ResponseModel> UpdateUserAsync(UpdateUserByAdminDTO model);

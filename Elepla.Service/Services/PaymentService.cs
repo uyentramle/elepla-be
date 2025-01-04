@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using DocumentFormat.OpenXml.Bibliography;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Elepla.Domain.Entities;
 using Elepla.Domain.Enums;
@@ -37,7 +38,11 @@ namespace Elepla.Service.Services
             try
             {
                 var payments = await _unitOfWork.PaymentRepository.GetAsync(
-                                        includeProperties: "UserPackage.Package",
+                                        filter: p => p.Teacher.Role.Name != "Admin" &&
+                                                p.Teacher.Role.Name != "AcademicStaff" &&
+                                                p.Teacher.Role.Name != "Manager",
+                                        includeProperties: "UserPackage.Package,Teacher.Role",
+                                        orderBy: p => p.OrderByDescending(p => p.CreatedAt),
                                         pageIndex: pageIndex,
                                         pageSize: pageSize);
 
@@ -131,7 +136,12 @@ namespace Elepla.Service.Services
         public async Task<ResponseModel> GetRevenueByMonthAsync(int year)
         {
             var payments = await _unitOfWork.PaymentRepository.GetAllAsync(
-                filter: p => p.CreatedAt.Year == year 
+                filter: p => p.CreatedAt.Year == year &&
+                        p.Status == "Paid" &&
+                        p.Teacher.Role.Name != "Admin" &&
+                        p.Teacher.Role.Name != "AcademicStaff" &&
+                        p.Teacher.Role.Name != "Manager",
+                includeProperties: "Teacher.Role"
             );
 
             var monthlyRevenue = payments
@@ -155,7 +165,12 @@ namespace Elepla.Service.Services
         public async Task<ResponseModel> GetRevenueByQuarterAsync(int year)
         {
             var payments = await _unitOfWork.PaymentRepository.GetAllAsync(
-                filter: p => p.CreatedAt.Year == year 
+                filter: p => p.CreatedAt.Year == year &&
+                        p.Status == "Paid" &&
+                        p.Teacher.Role.Name != "Admin" &&
+                        p.Teacher.Role.Name != "AcademicStaff" &&
+                        p.Teacher.Role.Name != "Manager",
+                includeProperties: "Teacher.Role"
             );
 
             var quarterlyRevenue = payments
@@ -178,7 +193,12 @@ namespace Elepla.Service.Services
         // Get revenue report by year
         public async Task<ResponseModel> GetRevenueByYearAsync()
         {
-            var payments = await _unitOfWork.PaymentRepository.GetAllAsync();
+            var payments = await _unitOfWork.PaymentRepository.GetAllAsync(
+                filter: p => p.Status == "Paid" &&
+                        p.Teacher.Role.Name != "Admin" &&
+                        p.Teacher.Role.Name != "AcademicStaff" &&
+                        p.Teacher.Role.Name != "Manager",
+                includeProperties: "Teacher.Role");
 
             var yearlyRevenue = payments
                 .GroupBy(p => p.CreatedAt.Year)
@@ -282,6 +302,24 @@ namespace Elepla.Service.Services
         {
             try
             {
+                // Kiểm tra nếu người dùng đã có thanh toán đang chờ xử lý
+                var existingPayment = (await _unitOfWork.PaymentRepository.GetAllAsync(
+                                                    filter: p => p.TeacherId == model.UserId && p.Status == "Pending")).FirstOrDefault();
+
+                if (existingPayment is not null)
+                {
+                    return new SuccessResponseModel<object>
+                    {
+                        Success = false,
+                        Message = "Bạn hiện có một thanh toán đang chờ xử lý. Vui lòng hoàn tất hoặc hủy thanh toán đó trước khi tạo thanh toán mới.",
+                        Data = new PaymentLinkDTO
+                        {
+                            PaymentId = existingPayment.PaymentId,
+                            PaymentUrl = existingPayment.PaymentUrl
+                        }
+                    };
+                }
+
                 // 1. Tạo đối tượng Payment như ở trên
                 var paymentResult = await CreatePaymentDataAsync(model);
                 var package = await _unitOfWork.ServicePackageRepository.GetByIdAsync(model.PackageId); // Lấy thông tin gói dịch vụ
@@ -307,6 +345,12 @@ namespace Elepla.Service.Services
                 );
 
                 var paymentLink = await _payOSService.CreatePaymentLink(paymentData);
+
+                var payment = await _unitOfWork.PaymentRepository.GetByIdAsync(paymentResult.PaymentId);
+                payment.PaymentUrl = paymentLink.checkoutUrl;
+
+                _unitOfWork.PaymentRepository.Update(payment);
+                await _unitOfWork.SaveChangeAsync();
 
                 // 3. Trả về liên kết thanh toán
                 return new SuccessResponseModel<object>

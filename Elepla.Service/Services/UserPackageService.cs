@@ -31,7 +31,7 @@ namespace Elepla.Service.Services
         public async Task<ResponseModel> GetAllUserPackagesAsync(string? keyword, int pageIndex, int pageSize)
         {
             var userPackages = await _unitOfWork.UserPackageRepository.GetAsync(
-                filter: up => !up.IsDeleted && (string.IsNullOrEmpty(keyword) || up.Package.PackageName.Contains(keyword)),
+                filter: up => !up.IsDeleted && (string.IsNullOrEmpty(keyword) || up.Package.PackageName.Contains(keyword)) && up.User.Role.Name != "Admin" && up.User.Role.Name != "AcademicStaff" && up.User.Role.Name != "Manager",
                 orderBy: up => up.OrderByDescending(p => p.CreatedAt),
                 includeProperties: "Package,User,Payments",
                 pageIndex: pageIndex,
@@ -120,7 +120,7 @@ namespace Elepla.Service.Services
                 }
 
                 var existingUserPackages = await _unitOfWork.UserPackageRepository.GetAllAsync(
-                                                        filter: up => up.UserId.Equals(userId) && up.Package.PackageName.Equals("Gói miễn phí"));
+                                                        filter: up => up.UserId.Equals(userId) && up.Package.PackageName.Equals("Gói miễn phí") && up.IsActive);
 
                 if (existingUserPackages.Any())
                 {
@@ -218,6 +218,40 @@ namespace Elepla.Service.Services
                 userPackage.IsActive = true;
                 _unitOfWork.UserPackageRepository.Update(userPackage);
                 await _unitOfWork.SaveChangeAsync();
+            }
+        }
+
+        public async Task<ResponseModel> DeactivateExpiredUserPackagesAsync()
+        {
+            try
+            {
+                var expiredUserPackages = await _unitOfWork.UserPackageRepository.GetAllAsync(up => up.EndDate <= _timeService.GetCurrentTime() && up.IsActive);
+
+                if (expiredUserPackages.Any())
+                {
+                    foreach (var userPackage in expiredUserPackages)
+                    {
+                        userPackage.IsActive = false;
+                        _unitOfWork.UserPackageRepository.Update(userPackage);
+                    }
+                }
+
+                await _unitOfWork.SaveChangeAsync();
+
+                return new SuccessResponseModel<object>
+                {
+                    Success = true,
+                    Message = "Expired user packages deactivated successfully."
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ErrorResponseModel<object>
+                {
+                    Success = false,
+                    Message = "An error occurred while deactivating expired user packages.",
+                    Errors = new List<string> { ex.Message }
+                };
             }
         }
     }

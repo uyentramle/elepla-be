@@ -61,5 +61,16 @@ namespace Elepla.API.Controllers
             }
             return BadRequest(response);
         }
+
+        [HttpPut]
+        public async Task<IActionResult> DeactivateExpiredUserPackagesAsync()
+        {
+            var response = await _userPackageService.DeactivateExpiredUserPackagesAsync();
+            if (response.Success)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
+        }
     }
 }

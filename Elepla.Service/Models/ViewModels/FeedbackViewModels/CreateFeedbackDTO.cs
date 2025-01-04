@@ -14,5 +14,4 @@ namespace Elepla.Service.Models.ViewModels.FeedbackViewModels
         public string TeacherId { get; set; }
         public string? PlanbookId { get; set; }
     }
-
 }

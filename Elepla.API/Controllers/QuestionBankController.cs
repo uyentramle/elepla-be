@@ -67,5 +67,29 @@ namespace Elepla.API.Controllers
 			var response = await _questionBankService.DeleteQuestionAsync(id);
 			return Ok(response);
 		}
-	}
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetAllQuestionByUserId(string userId, int pageIndex = 0, int pageSize = 10)
+        {
+            var response = await _questionBankService.GetAllQuestionByUserId(userId, pageIndex, pageSize);
+            return Ok(response);
+        }
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetQuestionByUserIdAndChapterId(string userId, string chapterId, int pageIndex = 0, int pageSize = 10)
+        {
+            var response = await _questionBankService.GetQuestionByUserIdAndChapterId(userId, chapterId, pageIndex, pageSize);
+            return Ok(response);
+        }
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetQuestionByUserIdAndLessonId(string userId, string lessonId, int pageIndex = 0, int pageSize = 10)
+        {
+            var response = await _questionBankService.GetQuestionByUserIdAndLessonId(userId, lessonId, pageIndex, pageSize);
+            return Ok(response);
+        }
+    }
 }

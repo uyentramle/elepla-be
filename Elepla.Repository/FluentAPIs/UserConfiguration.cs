@@ -49,9 +49,14 @@ namespace Elepla.Repository.FluentAPIs
             builder.HasMany(x => x.Feedbacks)
                 .WithOne(x => x.Teacher)
                 .HasForeignKey(x => x.TeacherId);
-            builder.HasMany(x => x.PlanbookShares)
-				.WithOne(x => x.User)
-				.HasForeignKey(x => x.ShareBy);
+            builder.HasMany(x => x.SharedPlanbooks)
+                .WithOne(x => x.SharedByUser)
+                .HasForeignKey(x => x.SharedBy)
+                .OnDelete(DeleteBehavior.Restrict);
+            builder.HasMany(x => x.ReceivedPlanbooks)
+                .WithOne(x => x.SharedToUser)
+                .HasForeignKey(x => x.SharedTo)
+                .OnDelete(DeleteBehavior.Restrict);
             builder.HasMany(x => x.Exams)
                 .WithOne(x => x.User)
                 .HasForeignKey(x => x.UserId);

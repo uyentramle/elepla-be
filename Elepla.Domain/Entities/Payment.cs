@@ -13,9 +13,10 @@ namespace Elepla.Domain.Entities
 
         // Attributes
 		public string PaymentMethod { get; set; }
+		public string? PaymentUrl { get; set; }
         public decimal TotalAmount { get; set; }
 		public string FullName { get; set; }
-        public string AddressText { get; set; }
+        public string? AddressText { get; set; }
         public string Status { get; set; }
 
         // Foreign Key

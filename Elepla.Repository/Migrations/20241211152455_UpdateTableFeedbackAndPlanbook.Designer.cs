@@ -4,6 +4,7 @@ using Elepla.Repository.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Elepla.Repository.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241211152455_UpdateTableFeedbackAndPlanbook")]
+    partial class UpdateTableFeedbackAndPlanbook
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -556,6 +559,7 @@ namespace Elepla.Repository.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("AddressText")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
@@ -579,9 +583,6 @@ namespace Elepla.Repository.Migrations
 
                     b.Property<string>("PaymentMethod")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PaymentUrl")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Status")
@@ -612,6 +613,62 @@ namespace Elepla.Repository.Migrations
                     b.HasIndex("UserPackageId");
 
                     b.ToTable("Payment", (string)null);
+                });
+
+            modelBuilder.Entity("Elepla.Domain.Entities.PlanBookShare", b =>
+                {
+                    b.Property<string>("ShareId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsEdited")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("PlanBookId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ShareBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ShareTo")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ShareToEmail")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ShareType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ShareId");
+
+                    b.HasIndex("PlanBookId");
+
+                    b.HasIndex("ShareBy");
+
+                    b.ToTable("PlanBookShare", (string)null);
                 });
 
             modelBuilder.Entity("Elepla.Domain.Entities.Planbook", b =>
@@ -769,58 +826,6 @@ namespace Elepla.Repository.Migrations
                     b.ToTable("PlanbookInCollection", (string)null);
                 });
 
-            modelBuilder.Entity("Elepla.Domain.Entities.PlanbookShare", b =>
-                {
-                    b.Property<string>("ShareId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DeletedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsEdited")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("PlanbookId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("SharedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("SharedTo")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("ShareId");
-
-                    b.HasIndex("PlanbookId");
-
-                    b.HasIndex("SharedBy");
-
-                    b.HasIndex("SharedTo");
-
-                    b.ToTable("PlanbookShare", (string)null);
-                });
-
             modelBuilder.Entity("Elepla.Domain.Entities.QuestionBank", b =>
                 {
                     b.Property<string>("QuestionId")
@@ -841,9 +846,6 @@ namespace Elepla.Repository.Migrations
 
                     b.Property<string>("DeletedBy")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsDefault")
-                        .HasColumnType("bit");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -1469,6 +1471,25 @@ namespace Elepla.Repository.Migrations
                     b.Navigation("UserPackage");
                 });
 
+            modelBuilder.Entity("Elepla.Domain.Entities.PlanBookShare", b =>
+                {
+                    b.HasOne("Elepla.Domain.Entities.Planbook", "PlanBook")
+                        .WithMany("PlanbookShares")
+                        .HasForeignKey("PlanBookId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Elepla.Domain.Entities.User", "User")
+                        .WithMany("PlanbookShares")
+                        .HasForeignKey("ShareBy")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("PlanBook");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Elepla.Domain.Entities.Planbook", b =>
                 {
                     b.HasOne("Elepla.Domain.Entities.Lesson", "Lesson")
@@ -1508,33 +1529,6 @@ namespace Elepla.Repository.Migrations
                     b.Navigation("Planbook");
 
                     b.Navigation("PlanbookCollection");
-                });
-
-            modelBuilder.Entity("Elepla.Domain.Entities.PlanbookShare", b =>
-                {
-                    b.HasOne("Elepla.Domain.Entities.Planbook", "Planbook")
-                        .WithMany("PlanbookShares")
-                        .HasForeignKey("PlanbookId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Elepla.Domain.Entities.User", "SharedByUser")
-                        .WithMany("SharedPlanbooks")
-                        .HasForeignKey("SharedBy")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Elepla.Domain.Entities.User", "SharedToUser")
-                        .WithMany("ReceivedPlanbooks")
-                        .HasForeignKey("SharedTo")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Planbook");
-
-                    b.Navigation("SharedByUser");
-
-                    b.Navigation("SharedToUser");
                 });
 
             modelBuilder.Entity("Elepla.Domain.Entities.QuestionBank", b =>
@@ -1767,9 +1761,7 @@ namespace Elepla.Repository.Migrations
 
                     b.Navigation("PlanbookCollections");
 
-                    b.Navigation("ReceivedPlanbooks");
-
-                    b.Navigation("SharedPlanbooks");
+                    b.Navigation("PlanbookShares");
 
                     b.Navigation("TeachingSchedules");
 

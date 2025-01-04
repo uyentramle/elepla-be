@@ -14,6 +14,7 @@ namespace Elepla.Domain.Entities
         // Attributes
         public string Title { get; set; }
         public string? SchoolName { get; set; }
+        public string? GroupName { get; set; }
         public string? TeacherName { get; set; }
         public string Subject { get; set; }
         public string? ClassName { get; set; }
@@ -36,7 +37,7 @@ namespace Elepla.Domain.Entities
         public virtual ICollection<Activity> Activities { get; set; } = new List<Activity>();
         public virtual ICollection<TeachingSchedule> TeachingSchedules { get; set; } = new List<TeachingSchedule>();
         public virtual ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
-        public virtual ICollection<PlanBookShare> PlanbookShares { get; set; } = new List<PlanBookShare>();
+        public virtual ICollection<PlanbookShare> PlanbookShares { get; set; } = new List<PlanbookShare>();
         public virtual ICollection<PlanbookInCollection> PlanbookInCollections { get; set; } = new List<PlanbookInCollection>();
     }
 }

@@ -18,7 +18,6 @@ namespace Elepla.API.Controllers
 
         #region Get Feedback by Planbook ID
         [HttpGet]
-        //[Authorize]
         public async Task<IActionResult> GetFeedbackByPlanbookIdAsync(string planbookId, int pageIndex = 0, int pageSize = 10)
         {
             var response = await _feedbackService.GetFeedbackByPlanbookIdAsync(planbookId, pageIndex, pageSize);
@@ -136,6 +135,20 @@ namespace Elepla.API.Controllers
 			}
 			return BadRequest(response);
 		}
-		#endregion
-	}
+        #endregion
+
+        #region Flag Comment
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> FlagCommentAsync(string feedbackId)
+        {
+            var response = await _feedbackService.FlagCommentAsync(feedbackId);
+            if (response.Success)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
+        }
+        #endregion
+    }
 }

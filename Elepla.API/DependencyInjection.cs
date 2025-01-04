@@ -191,10 +191,10 @@ namespace Elepla.API
 			services.AddScoped<IActivityService, ActivityService>();
 
 			// Planbook Share
-            services.AddScoped<IPlanBookShareRepository, PlanBookShareRepository>();
+            services.AddScoped<IPlanbookShareRepository, PlanbookShareRepository>();
 
-			// Teaching Schedule
-			services.AddScoped<ITeachingScheduleRepository, TeachingScheduleRepository>();
+            // Teaching Schedule
+            services.AddScoped<ITeachingScheduleRepository, TeachingScheduleRepository>();
             services.AddScoped<ITeachingScheduleService, TeachingScheduleService>();
 
             // Feedback
