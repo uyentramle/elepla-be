@@ -28,7 +28,7 @@ namespace Elepla.Repository.Repositories
             return await _dbContext.PlanbookInCollections
                                     .Include(pic => pic.Planbook)
                                     .Include(pic => pic.PlanbookCollection)
-                                    .Where(pic => pic.PlanbookCollection.TeacherId.Equals(userId))
+                                    .Where(pic => pic.PlanbookCollection.TeacherId.Equals(userId) && !pic.PlanbookCollection.IsSaved)
                                     .CountAsync();
         }
     }
