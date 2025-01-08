@@ -317,11 +317,11 @@ namespace Elepla.Service.Services
 					};
 				}
 
-				var existingAnswers = await _unitOfWork.AnswerRepository.GetByQuestionIdAsync(questionId);
-				foreach (var answer in existingAnswers)
-				{
-					await _unitOfWork.AnswerRepository.DeleteAnswerAsync(answer);
-				}
+				//var existingAnswers = await _unitOfWork.AnswerRepository.GetByQuestionIdAsync(questionId);
+				//foreach (var answer in existingAnswers)
+				//{
+				//	await _unitOfWork.AnswerRepository.DeleteAnswerAsync(answer);
+				//}
 
 				_unitOfWork.QuestionBankRepository.SoftRemove(question);
 				await _unitOfWork.SaveChangeAsync();
