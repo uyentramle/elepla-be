@@ -225,6 +225,17 @@ namespace Elepla.Service.Services
         {
             try
             {
+                var servicePackages = await _unitOfWork.ServicePackageRepository.GetAllAsync(sp => sp.EndDate <= _timeService.GetCurrentTime());
+
+                if (!servicePackages.Any())
+                {
+                    return new SuccessResponseModel<object>
+                    {
+                        Success = false,
+                        Message = "Không có gói dịch vụ nào đã hết hạn."
+                    };
+                }
+
                 var expiredUserPackages = await _unitOfWork.UserPackageRepository.GetAllAsync(up => up.EndDate <= _timeService.GetCurrentTime() && up.IsActive);
 
                 if (expiredUserPackages.Any())
@@ -233,6 +244,17 @@ namespace Elepla.Service.Services
                     {
                         userPackage.IsActive = false;
                         _unitOfWork.UserPackageRepository.Update(userPackage);
+                    }
+                }
+
+                var collections = await _unitOfWork.PlanbookCollectionRepository.GetAllAsync(pc => !pc.IsSaved);
+
+                if (collections.Any())
+                {
+                    foreach (var collection in collections)
+                    {
+                        collection.IsSaved = true;
+                        _unitOfWork.PlanbookCollectionRepository.Update(collection);
                     }
                 }
 

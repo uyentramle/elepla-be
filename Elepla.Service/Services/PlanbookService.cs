@@ -1391,13 +1391,13 @@ namespace Elepla.Service.Services
                             "TỔ ...",
                             "HỌ VÀ TÊN GIÁO VIÊN",
                             planbook.TeacherName?.ToUpper() ?? string.Empty,
-                            14 // Font size
+                            10 // Font size
                         ));
 
                         // Add Title and Other Details
                         body.AppendChild(CreateParagraph($"", JustificationValues.Center, fontSize: 14));
                         body.AppendChild(CreateParagraph($"TÊN BÀI DẠY: {planbook.Title?.ToUpper()}", JustificationValues.Center, bold: true, fontSize: 14));
-                        body.AppendChild(CreateParagraph($"Môn học: {planbook.Subject}; lớp: {planbook.ClassName}", JustificationValues.Center, fontSize: 14));
+                        body.AppendChild(CreateParagraph($"Môn học: {planbook.Subject}, Lớp: {planbook.ClassName}", JustificationValues.Center, fontSize: 14));
                         body.AppendChild(CreateParagraph($"Thời gian thực hiện: ({planbook.DurationInPeriods} tiết)", JustificationValues.Center, fontSize: 14));
                         body.AppendChild(CreateParagraph($"", JustificationValues.Center, fontSize: 14));
 

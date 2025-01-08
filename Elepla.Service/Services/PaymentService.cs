@@ -107,6 +107,7 @@ namespace Elepla.Service.Services
                 var payments = await _unitOfWork.PaymentRepository.GetAsync(
                                             filter: p => p.TeacherId.Equals(teacherId),
                                             includeProperties: "UserPackage.Package",
+                                            orderBy: p => p.OrderByDescending(p => p.CreatedAt),
                                             pageIndex: pageIndex,
                                             pageSize: pageSize);
 
