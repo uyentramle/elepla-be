@@ -39,6 +39,7 @@ Elepla là một nền tảng hỗ trợ lập kế hoạch giảng dạy linh h
 
 ### 🎯 Roadmap
 
+
 - [ ] 🌟 Hỗ trợ nhiều ngôn ngữ (optional)
 - [ ] 🌍 Tích hợp với Google Classroom (optional)
 - [ ] 🧩 Plugin tùy chỉnh cho giáo viên (optional)
