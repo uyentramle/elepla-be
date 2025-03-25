@@ -2,7 +2,7 @@
 
 ---
 
-Elepla là một nền tảng hỗ trợ lập kế hoạch giảng dạy linh hoạt và hiệu quả cho các giáo viên trung học phổ thông. Với Elepla, bạn có thể dễ dàng tạo, quản lý và chia sẻ các giáo án theo chuẩn chương trình của Bộ Giáo dục và Đào tạo (MOET), tất cả trong một hệ thống trung tâm.
+Elepla là một nền tảng hỗ trợ lập kế hoạch giảng dạy linh hoạt và hiệu quả cho các giáo viên trung học phổ thông. Với Elepla, bạn có thể dễ dàng tạo, quản lý và chia sẻ các kế hoạch bài dạy (giáo án) theo chuẩn chương trình của Bộ Giáo dục và Đào tạo (MOET), tất cả trong một hệ thống trung tâm. 
 
 ---
 
@@ -39,12 +39,22 @@ Elepla là một nền tảng hỗ trợ lập kế hoạch giảng dạy linh h
 
 ### 🎯 Roadmap
 
-
 - [ ] 🌟 Hỗ trợ nhiều ngôn ngữ (optional)
 - [ ] 🌍 Tích hợp với Google Classroom (optional)
 - [ ] 🧩 Plugin tùy chỉnh cho giáo viên (optional)
 - [ ] 📱 Ứng dụng di động (optional)
 
+---
+
+### 🔮 Tính năng tương lai:
+
+🚧 Hỗ trợ trí tuệ nhân tạo (AI) – Đề xuất nội dung giảng dạy, gợi ý tài liệu và tự động điều chỉnh giáo án theo xu hướng giáo dục mới nhất.
+🚧 Thư viện tài nguyên giảng dạy – Kho tài liệu mở với các bài giảng, video, hình ảnh minh họa, giúp giáo viên làm phong phú bài dạy.
+🚧 Tính năng chat, giúp các giáo viên có thể trao đổi với nhau.
+🚧 Một diễn đàn để giáo viên có đăng bài và chia sẻ bài viết để học hỏi trao đổi kinh nghiệm giảng dạy.
+🚧 Một tính năng chuyên biệt hỗ trợ cho từng môn học cụ thể, ví dụ: vẽ các hình học ba chiều trong môn Toán, các thí nghiệm trong môn Vật Lý và Hóa Học, hoặc hỗ trợ giáo viên Tiếng Anh trong việc giảng dạy...
+
+Elepla không chỉ giúp giáo viên tiết kiệm thời gian soạn giáo án mà còn mở ra một hệ sinh thái giáo dục số, hiện đại và tiện lợi hơn. 🌟📚
 ---
 
 ### Made with ❤️ by Elepla Team
