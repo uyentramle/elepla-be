@@ -48,11 +48,11 @@ Elepla là một nền tảng hỗ trợ lập kế hoạch giảng dạy linh h
 
 ### 🔮 Tính năng tương lai:
 
-🚧 Hỗ trợ trí tuệ nhân tạo (AI) – Đề xuất nội dung giảng dạy, gợi ý tài liệu và tự động điều chỉnh giáo án theo xu hướng giáo dục mới nhất.
-🚧 Thư viện tài nguyên giảng dạy – Kho tài liệu mở với các bài giảng, video, hình ảnh minh họa, giúp giáo viên làm phong phú bài dạy.
-🚧 Tính năng chat, giúp các giáo viên có thể trao đổi với nhau.
-🚧 Một diễn đàn để giáo viên có đăng bài và chia sẻ bài viết để học hỏi trao đổi kinh nghiệm giảng dạy.
-🚧 Một tính năng chuyên biệt hỗ trợ cho từng môn học cụ thể, ví dụ: vẽ các hình học ba chiều trong môn Toán, các thí nghiệm trong môn Vật Lý và Hóa Học, hoặc hỗ trợ giáo viên Tiếng Anh trong việc giảng dạy...
+- 🚧 Hỗ trợ trí tuệ nhân tạo (AI) – Đề xuất nội dung giảng dạy, gợi ý tài liệu và tự động điều chỉnh giáo án theo xu hướng giáo dục mới nhất.
+- 🚧 Thư viện tài nguyên giảng dạy – Kho tài liệu mở với các bài giảng, video, hình ảnh minh họa, giúp giáo viên làm phong phú bài dạy.
+- 🚧 Tính năng chat, giúp các giáo viên có thể trao đổi với nhau.
+- 🚧 Một diễn đàn để giáo viên có đăng bài và chia sẻ bài viết để học hỏi trao đổi kinh nghiệm giảng dạy.
+- 🚧 Một tính năng chuyên biệt hỗ trợ cho từng môn học cụ thể, ví dụ: vẽ các hình học ba chiều trong môn Toán, các thí nghiệm trong môn Vật Lý và Hóa Học, hoặc hỗ trợ giáo viên Tiếng Anh trong việc giảng dạy...
 
 Elepla không chỉ giúp giáo viên tiết kiệm thời gian soạn giáo án mà còn mở ra một hệ sinh thái giáo dục số, hiện đại và tiện lợi hơn. 🌟📚
 ---
